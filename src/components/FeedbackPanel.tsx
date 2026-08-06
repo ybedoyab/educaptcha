@@ -1,0 +1,54 @@
+import { CheckCircle2, Lightbulb, XCircle } from "lucide-react";
+import { useI18n } from "../i18n/I18nContext";
+
+interface FeedbackPanelProps {
+  correct: boolean;
+  explanation: string;
+  takeaway: string;
+  onContinue: () => void;
+}
+
+export function FeedbackPanel({
+  correct,
+  explanation,
+  takeaway,
+  onContinue,
+}: FeedbackPanelProps) {
+  const { copy } = useI18n();
+
+  return (
+    <div
+      className="animate-slide-up rounded-xl border border-navy/10 bg-off-white p-4"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="flex items-center gap-2">
+        {correct ? (
+          <CheckCircle2 className="h-5 w-5 animate-check-pop text-teal" aria-hidden />
+        ) : (
+          <XCircle className="h-5 w-5 text-amber" aria-hidden />
+        )}
+        <p className="font-semibold text-navy">
+          {correct ? copy.demo.correct : copy.demo.incorrect}
+        </p>
+      </div>
+      <p className="mt-2 text-sm leading-relaxed text-navy/75">{explanation}</p>
+      <div className="mt-3 flex items-start gap-2 rounded-lg bg-sky/10 px-3 py-2.5">
+        <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber" aria-hidden />
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+            {copy.demo.takeaway}
+          </p>
+          <p className="text-sm font-medium text-navy">{takeaway}</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onContinue}
+        className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy/90 sm:w-auto"
+      >
+        {copy.demo.continue}
+      </button>
+    </div>
+  );
+}
