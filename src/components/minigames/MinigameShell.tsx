@@ -13,6 +13,7 @@ interface MinigameShellProps {
   onSkip: () => void;
   footer?: ReactNode;
   compact?: boolean;
+  wide?: boolean;
 }
 
 export function MinigameShell({
@@ -25,16 +26,17 @@ export function MinigameShell({
   onSkip,
   footer,
   compact,
+  wide,
 }: MinigameShellProps) {
   const { copy } = useI18n();
 
   return (
     <div
       className={`flex w-full flex-col overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-lg ${
-        compact ? "max-w-md" : "max-w-2xl"
+        wide ? "max-w-[860px]" : compact ? "max-w-md" : "max-w-2xl"
       }`}
     >
-      <div className="flex items-start justify-between gap-3 border-b border-navy/8 px-4 py-3">
+      <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-navy/8 bg-white px-4 py-3">
         <div className="min-w-0">
           <Logo size="sm" />
           <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-teal">
@@ -55,17 +57,25 @@ export function MinigameShell({
         </button>
       </div>
 
-      <div className="space-y-3 p-4 sm:p-5">
-        <p className="text-sm font-medium text-navy">{instruction}</p>
-        {children}
-        <details className="rounded-xl bg-off-white px-3 py-2">
-          <summary className="flex cursor-pointer list-none items-center gap-2 text-xs font-semibold text-navy/60">
-            <HelpCircle className="h-3.5 w-3.5 text-teal" aria-hidden />
-            {copy.minigame.why}
-          </summary>
-          <p className="mt-2 text-xs leading-relaxed text-navy/70">{whyText}</p>
-        </details>
-        {footer}
+      <div
+        className={`space-y-3 p-4 sm:p-5 ${
+          wide ? "lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0" : ""
+        }`}
+      >
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-navy">{instruction}</p>
+          {children}
+        </div>
+        <div className="space-y-3">
+          <details className="rounded-xl bg-off-white px-3 py-2" open={wide}>
+            <summary className="flex cursor-pointer list-none items-center gap-2 text-xs font-semibold text-navy/60">
+              <HelpCircle className="h-3.5 w-3.5 text-teal" aria-hidden />
+              {copy.minigame.why}
+            </summary>
+            <p className="mt-2 text-xs leading-relaxed text-navy/70">{whyText}</p>
+          </details>
+          {footer}
+        </div>
       </div>
     </div>
   );

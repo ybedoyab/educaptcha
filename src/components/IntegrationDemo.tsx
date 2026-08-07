@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { CheckCircle2, Compass, Info, MessageSquare } from "lucide-react";
 import { challenges } from "../data/challenges";
 import { useI18n } from "../i18n/I18nContext";
-import type { SectionId } from "../types";
 import { CodeSnippet } from "./CodeSnippet";
 import { MinigameRenderer } from "./minigames/MinigameRenderer";
 
@@ -24,11 +24,7 @@ const SCRIPT_CODE = `<script src="https://cdn.educaptcha.org/widget.js"></script
   data-theme="light"
 ></div>`;
 
-export function IntegrationDemo({
-  onNavigate,
-}: {
-  onNavigate: (id: SectionId) => void;
-}) {
+export function IntegrationDemo() {
   const { copy } = useI18n();
   const [comment, setComment] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -79,14 +75,13 @@ export function IntegrationDemo({
           <p className="mt-2 text-sm text-navy/75">
             {copy.integration.experienceCtaText}
           </p>
-          <button
-            type="button"
-            onClick={() => onNavigate("experience")}
+          <Link
+            to="/demo"
             className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-4 py-2.5 text-sm font-semibold text-white"
           >
             <Compass className="h-4 w-4" aria-hidden />
             {copy.integration.experienceCta}
-          </button>
+          </Link>
         </div>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-2">

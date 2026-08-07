@@ -90,6 +90,27 @@ export interface ContextMatchCard {
   label: LocalizedText;
   detail: LocalizedText;
   correct: boolean;
+  /** Optional archive result fields for investigation UI */
+  thumbSrc?: string;
+  date?: LocalizedText;
+  location?: LocalizedText;
+  medium?: LocalizedText;
+  matchLevel?: LocalizedText;
+}
+
+export interface ContextMatchTool {
+  id: "source" | "date-location" | "archive";
+  label: LocalizedText;
+  summary: LocalizedText;
+}
+
+export interface ContextMatchZoomTarget {
+  id: string;
+  label: LocalizedText;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
 export interface ContextMatchInteraction extends BaseInteraction {
@@ -100,6 +121,10 @@ export interface ContextMatchInteraction extends BaseInteraction {
   cards: ContextMatchCard[];
   revealClaimed: LocalizedText;
   revealOriginal: LocalizedText;
+  conclusion?: LocalizedText;
+  tools?: ContextMatchTool[];
+  zoomTargets?: ContextMatchZoomTarget[];
+  postBody?: LocalizedText;
 }
 
 export interface InspectionHotspot {

@@ -1,14 +1,13 @@
+import { Link } from "react-router-dom";
 import { Award, Compass, RefreshCw } from "lucide-react";
 import { challenges } from "../data/challenges";
 import { useDemoProgress } from "../hooks/useDemoProgress";
 import { useI18n } from "../i18n/I18nContext";
-import type { SectionId } from "../types";
 import type { ChallengeResult } from "../types/minigame";
 import { MinigameRenderer } from "./minigames/MinigameRenderer";
 import { ProgressIndicator } from "./ProgressIndicator";
 
 interface DemoSectionProps {
-  onNavigate: (id: SectionId) => void;
   progressApi: ReturnType<typeof useDemoProgress>;
 }
 
@@ -30,7 +29,7 @@ const badgeLabels: Record<string, { en: string; es: string }> = {
   },
 };
 
-export function DemoSection({ onNavigate, progressApi }: DemoSectionProps) {
+export function DemoSection({ progressApi }: DemoSectionProps) {
   const { language, copy } = useI18n();
   const {
     progress,
@@ -80,14 +79,13 @@ export function DemoSection({ onNavigate, progressApi }: DemoSectionProps) {
             {copy.demo.contextCardTitle}
           </h3>
           <p className="mt-2 text-sm text-navy/75">{copy.demo.contextCardText}</p>
-          <button
-            type="button"
-            onClick={() => onNavigate("experience")}
+          <Link
+            to="/demo"
             className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-4 py-2.5 text-sm font-semibold text-white"
           >
             <Compass className="h-4 w-4" aria-hidden />
             {copy.demo.contextCardCta}
-          </button>
+          </Link>
         </div>
 
         <div className="mt-8">
@@ -159,20 +157,18 @@ export function DemoSection({ onNavigate, progressApi }: DemoSectionProps) {
                 <RefreshCw className="h-4 w-4" aria-hidden />
                 {copy.demo.retry}
               </button>
-              <button
-                type="button"
-                onClick={() => onNavigate("experience")}
+              <Link
+                to="/demo"
                 className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-navy/15 bg-white px-5 py-2.5 text-sm font-semibold text-navy"
               >
                 {copy.demo.contextCardCta}
-              </button>
-              <button
-                type="button"
-                onClick={() => onNavigate("impact")}
+              </Link>
+              <Link
+                to="/dashboard"
                 className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-navy/15 bg-white px-5 py-2.5 text-sm font-semibold text-navy"
               >
                 {copy.demo.viewImpact}
-              </button>
+              </Link>
             </div>
           </div>
         ) : (

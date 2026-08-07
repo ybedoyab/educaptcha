@@ -17,6 +17,7 @@ export interface MinigameRendererProps {
   onSkip: () => void;
   stepLabel?: string;
   compact?: boolean;
+  wide?: boolean;
 }
 
 export function MinigameRenderer({
@@ -25,6 +26,7 @@ export function MinigameRenderer({
   onSkip,
   stepLabel,
   compact,
+  wide,
 }: MinigameRendererProps) {
   const { language, copy } = useI18n();
   const startedAt = useRef(Date.now());
@@ -118,6 +120,7 @@ export function MinigameRenderer({
       whyText={challenge.explanationWhy[language]}
       onSkip={onSkip}
       compact={compact}
+      wide={wide}
       footer={
         done ? (
           <MinigameFeedback
