@@ -21,6 +21,13 @@ export type LearningSession = {
   transferCorrect: boolean;
   skipped: boolean;
   completedAt: string;
+  initialDurationMs?: number;
+  transferDurationMs?: number;
+  initialAttempts?: number;
+  transferAttempts?: number;
+  hintsUsed?: number;
+  minigameTypes?: string[];
+  signalsFound?: number;
 };
 
 export type ExperienceHistory = {
@@ -61,6 +68,8 @@ export interface ExperienceScenario {
   skillLabel: LocalizedText;
   title: LocalizedText;
   posts: FeedPostData[];
+  initialMinigameId: string;
+  transferMinigameId: string;
   challenge: {
     question: LocalizedText;
     options: ScenarioOption[];

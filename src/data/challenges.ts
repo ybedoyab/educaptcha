@@ -4,252 +4,547 @@ export const challenges: Challenge[] = [
   {
     id: "clickbait-1",
     category: "clickbait",
-    visual: "none",
-    question: {
-      en: "Which headline is designed to provoke an emotional reaction before informing you?",
-      es: "¿Cuál titular está diseñado para provocar una reacción emocional antes de informarte?",
+    badge: "signal-spotter",
+    title: {
+      en: "Spot clickbait signals",
+      es: "Detecta señales de clickbait",
     },
-    options: [
-      {
-        id: "a",
-        label: {
-          en: "SHOCKING discovery doctors do not want you to know!",
-          es: "¡Descubrimiento IMPACTANTE que los médicos no quieren que sepas!",
-        },
-      },
-      {
-        id: "b",
-        label: {
-          en: "Preliminary university study examines a possible new treatment.",
-          es: "Un estudio universitario preliminar examina un posible nuevo tratamiento.",
-        },
-      },
-    ],
-    correctOptionId: "a",
+    skillMetric: {
+      en: "Signals found",
+      es: "Señales encontradas",
+    },
     explanation: {
-      en: "Strong emotional language, excessive capitalization and hidden sources are signals that should make you verify before sharing.",
-      es: "El lenguaje emocional fuerte, las mayúsculas excesivas y las fuentes ocultas son señales que deberían llevarte a verificar antes de compartir.",
+      en: "Emotional words, vague authority and rush-to-share lines are classic clickbait tactics.",
+      es: "Palabras emocionales, autoridad vaga y prisas por compartir son tácticas clásicas de clickbait.",
+    },
+    explanationWhy: {
+      en: "These patterns are designed to trigger a reaction before you check a named source, date or original document.",
+      es: "Estos patrones buscan provocar una reacción antes de que revises una fuente con nombre, fecha o documento original.",
     },
     takeaway: {
-      en: "Pause when a headline shouts at you — check the source before you react.",
-      es: "Pausa cuando un titular te grita: verifica la fuente antes de reaccionar.",
+      en: "Tap the rush language before you share.",
+      es: "Toca el lenguaje de urgencia antes de compartir.",
+    },
+    interaction: {
+      type: "spot-signals",
+      instruction: {
+        en: "Find the 3 warning signs.",
+        es: "Encuentra las 3 señales de alerta.",
+      },
+      maxAttempts: 2,
+      mediaTitle: {
+        en: "Health Pulse Daily",
+        es: "Health Pulse Daily",
+      },
+      mediaOutlet: {
+        en: "Unverified desk",
+        es: "Escritorio sin verificar",
+      },
+      mediaMeta: {
+        en: "Guest · Just now · 12.8k reactions",
+        es: "Invitado · Ahora · 12,8 mil reacciones",
+      },
+      imageSrc: "/demo-assets/viral-health-alert.svg",
+      reactions: 12840,
+      targetCount: 3,
+      headlineParts: [
+        {
+          id: "shocking",
+          text: { en: "SHOCKING", es: "IMPACTANTE" },
+          isSignal: true,
+        },
+        {
+          id: "cure",
+          text: { en: " cure ", es: " cura " },
+          isSignal: false,
+        },
+        {
+          id: "hidden",
+          text: {
+            en: "they do not want you to know",
+            es: "que no quieren que sepas",
+          },
+          isSignal: true,
+        },
+        {
+          id: "dash",
+          text: { en: " — ", es: " — " },
+          isSignal: false,
+        },
+        {
+          id: "share",
+          text: {
+            en: "share before it disappears",
+            es: "compártela antes de que desaparezca",
+          },
+          isSignal: true,
+        },
+        {
+          id: "end",
+          text: { en: "!", es: "!" },
+          isSignal: false,
+        },
+      ],
+      signals: [
+        {
+          id: "shocking",
+          text: { en: "SHOCKING", es: "IMPACTANTE" },
+          label: { en: "Emotional language", es: "Lenguaje emocional" },
+        },
+        {
+          id: "hidden",
+          text: {
+            en: "they do not want you to know",
+            es: "que no quieren que sepas",
+          },
+          label: { en: "Hidden authority", es: "Autoridad oculta" },
+        },
+        {
+          id: "share",
+          text: {
+            en: "share before it disappears",
+            es: "compártela antes de que desaparezca",
+          },
+          label: { en: "Artificial urgency", es: "Urgencia artificial" },
+        },
+      ],
     },
   },
   {
     id: "sources-1",
     category: "sources",
-    visual: "none",
-    question: {
-      en: "Which post gives you more information to verify its claim?",
-      es: "¿Cuál publicación te da más información para verificar su afirmación?",
+    badge: "source-checker",
+    title: {
+      en: "Build a verification path",
+      es: "Construye una ruta de verificación",
     },
-    options: [
-      {
-        id: "a",
-        label: {
-          en: "Scientists confirmed this yesterday. Share immediately.",
-          es: "Los científicos lo confirmaron ayer. Comparte de inmediato.",
-        },
-      },
-      {
-        id: "b",
-        label: {
-          en: "A preliminary report published by Oxford researchers on July 18 describes the study and its limitations.",
-          es: "Un informe preliminar publicado por investigadores de Oxford el 18 de julio describe el estudio y sus limitaciones.",
-        },
-      },
-    ],
-    correctOptionId: "b",
+    skillMetric: {
+      en: "Evidence connected",
+      es: "Evidencias conectadas",
+    },
     explanation: {
-      en: "Reliable information should make it possible to identify the source, date, author and original evidence.",
-      es: "La información confiable debería permitir identificar la fuente, la fecha, el autor y la evidencia original.",
+      en: "Reliable claims need who, when and original evidence — not popularity.",
+      es: "Las afirmaciones confiables necesitan quién, cuándo y evidencia original — no popularidad.",
+    },
+    explanationWhy: {
+      en: "Likes and forwarded screenshots can travel without a named author, date or primary document.",
+      es: "Los me gusta y las capturas reenviadas pueden circular sin autor, fecha o documento primario.",
     },
     takeaway: {
-      en: "Look for who, when, and where — vague claims deserve skepticism.",
-      es: "Busca quién, cuándo y dónde: las afirmaciones vagas merecen escepticismo.",
+      en: "Connect who, when and the original study.",
+      es: "Conecta quién, cuándo y el estudio original.",
+    },
+    interaction: {
+      type: "drag-classify",
+      instruction: {
+        en: "Drop each clue into Who, When or Evidence.",
+        es: "Suelta cada pista en Quién, Cuándo o Evidencia.",
+      },
+      maxAttempts: 2,
+      prompt: {
+        en: "“Scientists confirmed a breakthrough yesterday. Share immediately.”",
+        es: "“Los científicos confirmaron un avance ayer. Comparte de inmediato.”",
+      },
+      wrongHint: {
+        en: "Popularity is not evidence.",
+        es: "La popularidad no es evidencia.",
+      },
+      zones: [
+        { id: "who", label: { en: "Who?", es: "¿Quién?" } },
+        { id: "when", label: { en: "When?", es: "¿Cuándo?" } },
+        {
+          id: "evidence",
+          label: { en: "Original evidence?", es: "¿Evidencia original?" },
+        },
+      ],
+      items: [
+        {
+          id: "author",
+          label: { en: "Author name", es: "Nombre del autor" },
+          correctZoneId: "who",
+        },
+        {
+          id: "date",
+          label: { en: "Publication date", es: "Fecha de publicación" },
+          correctZoneId: "when",
+        },
+        {
+          id: "link",
+          label: {
+            en: "Link to original study",
+            es: "Enlace al estudio original",
+          },
+          correctZoneId: "evidence",
+        },
+        {
+          id: "likes",
+          label: { en: "Number of likes", es: "Número de me gusta" },
+          correctZoneId: null,
+        },
+        {
+          id: "screenshot",
+          label: {
+            en: "Forwarded screenshot",
+            es: "Captura reenviada",
+          },
+          correctZoneId: null,
+        },
+        {
+          id: "institution",
+          label: {
+            en: "Publishing institution",
+            es: "Institución que publicó",
+          },
+          correctZoneId: "who",
+        },
+      ],
     },
   },
   {
     id: "visual-1",
     category: "visual-context",
-    visual: "social-posts",
-    question: {
-      en: "What should you check before assuming this image belongs to the reported event?",
-      es: "¿Qué deberías comprobar antes de asumir que esta imagen pertenece al evento reportado?",
+    badge: "context-investigator",
+    title: {
+      en: "Match image to context",
+      es: "Relaciona la imagen con su contexto",
     },
-    options: [
-      {
-        id: "a",
-        label: { en: "Number of likes", es: "Número de me gusta" },
-      },
-      {
-        id: "b",
-        label: {
-          en: "Original date and source",
-          es: "Fecha y fuente originales",
-        },
-      },
-      {
-        id: "c",
-        label: { en: "Image resolution", es: "Resolución de la imagen" },
-      },
-      {
-        id: "d",
-        label: { en: "Caption length", es: "Longitud del pie de foto" },
-      },
-    ],
-    correctOptionId: "b",
+    skillMetric: {
+      en: "Context verified",
+      es: "Contexto verificado",
+    },
     explanation: {
-      en: "Real images are often reused with false dates, locations or descriptions.",
-      es: "Las imágenes reales a menudo se reutilizan con fechas, lugares o descripciones falsas.",
+      en: "A real image can still be misleading when its date, location or context is changed.",
+      es: "Una imagen real puede ser engañosa cuando se cambia su fecha, ubicación o contexto.",
+    },
+    explanationWhy: {
+      en: "Archive metadata often survives when social captions invent a new “tonight” story.",
+      es: "Los metadatos de archivo suelen sobrevivir cuando los pies de foto inventan un “esta noche”.",
     },
     takeaway: {
-      en: "Reverse-check the image: original date and source before you trust the caption.",
-      es: "Verifica la imagen: fecha y fuente originales antes de confiar en el pie de foto.",
+      en: "Check date and place before trusting a viral photo.",
+      es: "Revisa fecha y lugar antes de confiar en una foto viral.",
+    },
+    interaction: {
+      type: "context-match",
+      instruction: {
+        en: "Match the photo to the correct archive card.",
+        es: "Empareja la foto con la ficha de archivo correcta.",
+      },
+      maxAttempts: 2,
+      claim: {
+        en: "LIVE from tonight’s emergency response.",
+        es: "EN VIVO desde la emergencia de esta noche.",
+      },
+      imageSrc: "/demo-assets/photos/flood-lagos-2019.jpg",
+      imageAlt: {
+        en: "Flooded street in Lagos, Nigeria, June 2019",
+        es: "Calle inundada en Lagos, Nigeria, junio 2019",
+      },
+      cards: [
+        {
+          id: "2019",
+          label: {
+            en: "2019 — Lagos, Nigeria",
+            es: "2019 — Lagos, Nigeria",
+          },
+          detail: {
+            en: "June 24, 2019 · Wikimedia Commons",
+            es: "24 de junio de 2019 · Wikimedia Commons",
+          },
+          correct: true,
+        },
+        {
+          id: "2024",
+          label: {
+            en: "2024 — Local emergency",
+            es: "2024 — Emergencia local",
+          },
+          detail: {
+            en: "Matches the viral caption",
+            es: "Coincide con el pie viral",
+          },
+          correct: false,
+        },
+        {
+          id: "today",
+          label: {
+            en: "Today — Source unavailable",
+            es: "Hoy — Fuente no disponible",
+          },
+          detail: {
+            en: "Claim only · no publisher",
+            es: "Solo afirmación · sin editor",
+          },
+          correct: false,
+        },
+      ],
+      revealClaimed: {
+        en: "Claimed: Tonight’s local emergency",
+        es: "Afirmado: Emergencia local de esta noche",
+      },
+      revealOriginal: {
+        en: "Original: Lagos, Nigeria — June 24, 2019",
+        es: "Original: Lagos, Nigeria — 24 de junio de 2019",
+      },
     },
   },
   {
     id: "ai-1",
     category: "ai-content",
-    visual: "ai-grid",
-    question: {
-      en: "Which response is the most responsible when an image looks unusual?",
-      es: "¿Cuál es la respuesta más responsable cuando una imagen se ve inusual?",
+    badge: "ai-skeptic",
+    title: {
+      en: "Inspect, then decide carefully",
+      es: "Inspecciona, luego decide con cuidado",
     },
-    options: [
-      {
-        id: "a",
-        label: {
-          en: "It is definitely generated by AI.",
-          es: "Definitivamente fue generada por IA.",
-        },
-      },
-      {
-        id: "b",
-        label: {
-          en: "It is definitely authentic.",
-          es: "Definitivamente es auténtica.",
-        },
-      },
-      {
-        id: "c",
-        label: {
-          en: "Visual anomalies are a warning, but the source and context must also be checked.",
-          es: "Las anomalías visuales son una advertencia, pero también hay que verificar la fuente y el contexto.",
-        },
-      },
-      {
-        id: "d",
-        label: {
-          en: "Share it and let others decide.",
-          es: "Compártela y deja que otros decidan.",
-        },
-      },
-    ],
-    correctOptionId: "c",
+    skillMetric: {
+      en: "Responsible conclusion",
+      es: "Conclusión responsable",
+    },
     explanation: {
-      en: "No single visual artifact proves that an image was generated by AI. Verification requires source, context and additional evidence.",
-      es: "Ningún artefacto visual por sí solo prueba que una imagen fue generada por IA. La verificación requiere fuente, contexto y evidencia adicional.",
+      en: "Odd details are a reason to verify — not proof by themselves.",
+      es: "Los detalles raros son motivo para verificar — no una prueba por sí solos.",
+    },
+    explanationWhy: {
+      en: "No single visual artifact proves AI generation. Source and context still matter.",
+      es: "Ningún artefacto visual prueba por sí solo que sea IA. Fuente y contexto siguen importando.",
     },
     takeaway: {
-      en: "Treat unusual visuals as a prompt to investigate — not as proof by themselves.",
-      es: "Trata lo visual inusual como una señal para investigar, no como prueba por sí sola.",
+      en: "Mark anomalies, then check provenance.",
+      es: "Marca anomalías y luego revisa la procedencia.",
+    },
+    interaction: {
+      type: "image-inspection",
+      instruction: {
+        en: "Mark warning signs, then pick a conclusion.",
+        es: "Marca señales de alerta y elige una conclusión.",
+      },
+      maxAttempts: 2,
+      imageSrc: "/demo-assets/synthetic-portrait-scene.svg",
+      imageAlt: {
+        en: "Stylized portrait with inspectable visual anomalies",
+        es: "Retrato estilizado con anomalías visuales inspeccionables",
+      },
+      maxMarks: 3,
+      hotspots: [
+        {
+          id: "text",
+          x: 56,
+          y: 12,
+          w: 36,
+          h: 22,
+          isWarning: true,
+          label: { en: "Warped sign text", es: "Texto deformado" },
+        },
+        {
+          id: "fingers",
+          x: 58,
+          y: 48,
+          w: 28,
+          h: 24,
+          isWarning: true,
+          label: { en: "Odd finger shapes", es: "Formas de dedos raras" },
+        },
+        {
+          id: "reflect",
+          x: 54,
+          y: 72,
+          w: 36,
+          h: 16,
+          isWarning: true,
+          label: {
+            en: "Inconsistent reflection",
+            es: "Reflejo inconsistente",
+          },
+        },
+        {
+          id: "shadow",
+          x: 18,
+          y: 84,
+          w: 30,
+          h: 12,
+          isWarning: true,
+          label: { en: "Mismatched shadow", es: "Sombra que no coincide" },
+        },
+        {
+          id: "normal",
+          x: 78,
+          y: 48,
+          w: 14,
+          h: 16,
+          isWarning: false,
+          label: { en: "Ordinary block", es: "Zona ordinaria" },
+        },
+      ],
+      conclusions: [
+        {
+          id: "ai",
+          label: {
+            en: "Definitely AI-generated",
+            es: "Definitivamente generado por IA",
+          },
+          correct: false,
+        },
+        {
+          id: "real",
+          label: {
+            en: "Definitely authentic",
+            es: "Definitivamente auténtico",
+          },
+          correct: false,
+        },
+        {
+          id: "verify",
+          label: {
+            en: "Needs source and context checks",
+            es: "Requiere verificar fuente y contexto",
+          },
+          correct: true,
+        },
+      ],
     },
   },
   {
     id: "emotion-1",
     category: "emotional-manipulation",
-    visual: "emotion-cards",
-    question: {
-      en: "Which element is trying to pressure the reader into acting without verification?",
-      es: "¿Qué elemento intenta presionar al lector para actuar sin verificar?",
+    badge: "pressure-detector",
+    title: {
+      en: "Separate facts from pressure",
+      es: "Separa información de presión",
     },
-    options: [
-      {
-        id: "a",
-        label: {
-          en: "A calm summary with a link to the original study",
-          es: "Un resumen calmado con enlace al estudio original",
-        },
-      },
-      {
-        id: "b",
-        label: {
-          en: "“ACT NOW or you will lose everything — share before it is deleted!”",
-          es: "“¡ACTÚA YA o lo perderás todo — comparte antes de que lo borren!”",
-        },
-      },
-      {
-        id: "c",
-        label: {
-          en: "A dated press release from a known institution",
-          es: "Un comunicado de prensa con fecha de una institución conocida",
-        },
-      },
-      {
-        id: "d",
-        label: {
-          en: "A neutral headline describing preliminary findings",
-          es: "Un titular neutral que describe hallazgos preliminares",
-        },
-      },
-    ],
-    correctOptionId: "b",
+    skillMetric: {
+      en: "Pressure sorted",
+      es: "Presión clasificada",
+    },
     explanation: {
-      en: "Artificial urgency, fear, absolute language and demands to share immediately are designed to bypass critical thinking.",
-      es: "La urgencia artificial, el miedo, el lenguaje absoluto y las peticiones de compartir de inmediato buscan saltarse el pensamiento crítico.",
+      en: "Verifiable lines can sit next to urgency, fear and share commands.",
+      es: "Líneas verificables pueden ir junto a urgencia, miedo y órdenes de compartir.",
+    },
+    explanationWhy: {
+      en: "Sorting fragments reveals what can be checked and what only pushes you to act.",
+      es: "Clasificar fragmentos revela qué se puede comprobar y qué solo empuja a actuar.",
     },
     takeaway: {
-      en: "If a message rushes you with fear or absolutes, slow down and verify first.",
-      es: "Si un mensaje te apresura con miedo o absolutos, reduce la velocidad y verifica primero.",
+      en: "Keep the facts; pause on the pressure.",
+      es: "Quédate con los hechos; pausa ante la presión.",
+    },
+    interaction: {
+      type: "drag-classify",
+      instruction: {
+        en: "Sort each line into Information or Pressure.",
+        es: "Clasifica cada línea en Información o Presión.",
+      },
+      maxAttempts: 2,
+      prompt: {
+        en: "A viral civic post mixes report language with urgency.",
+        es: "Una publicación cívica viral mezcla lenguaje de informe con urgencia.",
+      },
+      wrongHint: {
+        en: "Look for fear or haste.",
+        es: "Busca miedo o prisa.",
+      },
+      zones: [
+        { id: "info", label: { en: "Information", es: "Información" } },
+        {
+          id: "pressure",
+          label: { en: "Pressure tactic", es: "Táctica de presión" },
+        },
+      ],
+      items: [
+        {
+          id: "report",
+          label: {
+            en: "According to the published report",
+            es: "Según el informe publicado",
+          },
+          correctZoneId: "info",
+        },
+        {
+          id: "act",
+          label: { en: "ACT NOW", es: "ACTÚA YA" },
+          correctZoneId: "pressure",
+        },
+        {
+          id: "lose",
+          label: {
+            en: "Everyone will lose everything",
+            es: "Todos lo perderán todo",
+          },
+          correctZoneId: "pressure",
+        },
+        {
+          id: "date",
+          label: {
+            en: "The document was published on August 3",
+            es: "El documento se publicó el 3 de agosto",
+          },
+          correctZoneId: "info",
+        },
+        {
+          id: "delete",
+          label: {
+            en: "Share before they delete it",
+            es: "Comparte antes de que lo borren",
+          },
+          correctZoneId: "pressure",
+        },
+        {
+          id: "prelim",
+          label: {
+            en: "The study describes preliminary findings",
+            es: "El estudio describe hallazgos preliminares",
+          },
+          correctZoneId: "info",
+        },
+      ],
+      rebuild: {
+        infoIds: ["report", "date", "prelim"],
+        pressureIds: ["act", "lose", "delete"],
+      },
     },
   },
   {
     id: "stats-1",
     category: "misleading-stats",
-    visual: "truncated-chart",
-    question: {
-      en: "What makes this chart potentially misleading?",
-      es: "¿Qué hace que este gráfico sea potencialmente engañoso?",
+    badge: "chart-reader",
+    title: {
+      en: "Repair the misleading chart",
+      es: "Repara la gráfica engañosa",
     },
-    options: [
-      {
-        id: "a",
-        label: {
-          en: "It uses blue and teal colors",
-          es: "Usa colores azul y teal",
-        },
-      },
-      {
-        id: "b",
-        label: {
-          en: "The vertical axis starts near the measured values, exaggerating the difference",
-          es: "El eje vertical empieza cerca de los valores medidos, exagerando la diferencia",
-        },
-      },
-      {
-        id: "c",
-        label: {
-          en: "It shows two categories instead of ten",
-          es: "Muestra dos categorías en lugar de diez",
-        },
-      },
-      {
-        id: "d",
-        label: {
-          en: "The bars are rounded at the top",
-          es: "Las barras están redondeadas en la parte superior",
-        },
-      },
-    ],
-    correctOptionId: "b",
+    skillMetric: {
+      en: "Chart repaired",
+      es: "Gráfica reparada",
+    },
     explanation: {
-      en: "A truncated vertical axis can make small differences look dramatic. Always check where the axis starts.",
-      es: "Un eje vertical truncado puede hacer que diferencias pequeñas parezcan dramáticas. Siempre revisa dónde empieza el eje.",
+      en: "Small numerical differences no longer look dramatic.",
+      es: "Las diferencias numéricas pequeñas ya no se ven dramáticas.",
+    },
+    explanationWhy: {
+      en: "A truncated axis magnifies change. Starting at zero restores proportion.",
+      es: "Un eje truncado magnifica el cambio. Empezar en cero restaura la proporción.",
     },
     takeaway: {
-      en: "Read the scale — truncated axes can exaggerate change.",
-      es: "Lee la escala: los ejes truncados pueden exagerar el cambio.",
+      en: "Drag the axis to zero before you trust the gap.",
+      es: "Lleva el eje a cero antes de confiar en la brecha.",
+    },
+    interaction: {
+      type: "chart-repair",
+      instruction: {
+        en: "Repair the chart so the comparison is proportional.",
+        es: "Repara la gráfica para que la comparación sea proporcional.",
+      },
+      maxAttempts: 2,
+      series: [
+        { id: "a", label: { en: "Week A", es: "Semana A" }, value: 86 },
+        { id: "b", label: { en: "Week B", es: "Semana B" }, value: 91 },
+      ],
+      axisStart: 84,
+      axisEnd: 94,
+      targetStart: 0,
+      tolerance: 4,
+      successMessage: {
+        en: "Small numerical differences no longer look dramatic.",
+        es: "Las diferencias numéricas pequeñas ya no se ven dramáticas.",
+      },
     },
   },
 ];

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Neutral news report">
+  <rect width="640" height="360" fill="#F8FAFC"/>
+  <rect x="0" y="0" width="640" height="64" fill="#0F172A"/>
+  <text x="32" y="42" fill="#38BDF8" font-family="Segoe UI,sans-serif" font-size="22" font-weight="700">CivicDaily</text>
+  <rect x="40" y="96" width="360" height="22" rx="6" fill="#0F172A" opacity="0.85"/>
+  <rect x="40" y="132" width="300" height="14" rx="6" fill="#0F172A" opacity="0.25"/>
+  <rect x="40" y="158" width="320" height="14" rx="6" fill="#0F172A" opacity="0.18"/>
+  <rect x="40" y="184" width="280" height="14" rx="6" fill="#0F172A" opacity="0.12"/>
+  <rect x="440" y="96" width="160" height="120" rx="12" fill="#0EA5A4"/>
+  <circle cx="520" cy="146" r="28" fill="#F8FAFC" opacity="0.35"/>
+  <rect x="40" y="240" width="560" height="80" rx="12" fill="#E2E8F0"/>
+  <text x="60" y="288" fill="#0F172A" font-family="Segoe UI,sans-serif" font-size="16">Preliminary findings · 3 Aug 2026</text>
+</svg>

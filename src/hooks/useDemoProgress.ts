@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { challenges, categorySkills } from "../data/challenges";
 import type { DemoProgress, Language } from "../types";
+import type { ChallengeResult, MinigameBadgeId } from "../types/minigame";
 import { useLocalStorage } from "./useLocalStorage";
 
 const initialProgress: DemoProgress = {
@@ -9,34 +10,55 @@ const initialProgress: DemoProgress = {
   skippedIds: [],
   score: 0,
   finished: false,
+  results: {},
+  badges: [],
 };
+
+function migrateProgress(raw: DemoProgress): DemoProgress {
+  return {
+    ...initialProgress,
+    ...raw,
+    results: raw.results ?? {},
+    badges: raw.badges ?? [],
+  };
+}
 
 export function useDemoProgress() {
   const [progress, setProgress] = useLocalStorage<DemoProgress>(
-    "educaptcha-progress",
+    "educaptcha-progress-v2",
     initialProgress,
   );
   const [currentIndex, setCurrentIndex] = useLocalStorage<number>(
-    "educaptcha-index",
+    "educaptcha-index-v2",
     0,
   );
+
+  const safeProgress = migrateProgress(progress);
 
   const reset = useCallback(() => {
     setProgress(initialProgress);
     setCurrentIndex(0);
   }, [setProgress, setCurrentIndex]);
 
-  const markAnswer = useCallback(
-    (challengeId: string, correct: boolean) => {
+  const markResult = useCallback(
+    (challengeId: string, result: ChallengeResult, badge: MinigameBadgeId) => {
       setProgress((prev) => {
-        if (prev.completedIds.includes(challengeId)) return prev;
+        const base = migrateProgress(prev);
+        if (base.completedIds.includes(challengeId)) return base;
         return {
-          ...prev,
-          completedIds: [...prev.completedIds, challengeId],
-          correctIds: correct
-            ? [...prev.correctIds, challengeId]
-            : prev.correctIds,
-          score: correct ? prev.score + 1 : prev.score,
+          ...base,
+          completedIds: [...base.completedIds, challengeId],
+          correctIds: result.correct
+            ? [...base.correctIds, challengeId]
+            : base.correctIds,
+          skippedIds: result.skipped
+            ? [...base.skippedIds, challengeId]
+            : base.skippedIds,
+          score: result.correct ? base.score + 1 : base.score,
+          results: { ...base.results, [challengeId]: result },
+          badges: base.badges.includes(badge)
+            ? base.badges
+            : [...base.badges, badge],
         };
       });
     },
@@ -46,16 +68,25 @@ export function useDemoProgress() {
   const markSkip = useCallback(
     (challengeId: string) => {
       setProgress((prev) => {
-        if (
-          prev.completedIds.includes(challengeId) ||
-          prev.skippedIds.includes(challengeId)
-        ) {
-          return prev;
-        }
+        const base = migrateProgress(prev);
+        if (base.completedIds.includes(challengeId)) return base;
         return {
-          ...prev,
-          completedIds: [...prev.completedIds, challengeId],
-          skippedIds: [...prev.skippedIds, challengeId],
+          ...base,
+          completedIds: [...base.completedIds, challengeId],
+          skippedIds: [...base.skippedIds, challengeId],
+          results: {
+            ...base.results,
+            [challengeId]: {
+              completed: true,
+              correct: false,
+              score: 0,
+              attempts: 0,
+              selectedIds: [],
+              durationMs: 0,
+              hintsUsed: 0,
+              skipped: true,
+            },
+          },
         };
       });
     },
@@ -66,7 +97,7 @@ export function useDemoProgress() {
     setCurrentIndex((i) => {
       const next = i + 1;
       if (next >= challenges.length) {
-        setProgress((prev) => ({ ...prev, finished: true }));
+        setProgress((prev) => ({ ...migrateProgress(prev), finished: true }));
         return i;
       }
       return next;
@@ -74,30 +105,32 @@ export function useDemoProgress() {
   }, [setCurrentIndex, setProgress]);
 
   const finish = useCallback(() => {
-    setProgress((prev) => ({ ...prev, finished: true }));
+    setProgress((prev) => ({ ...migrateProgress(prev), finished: true }));
   }, [setProgress]);
 
   const skills = useMemo(() => {
     const cats = new Set(
-      progress.completedIds
+      safeProgress.completedIds
         .map((id) => challenges.find((c) => c.id === id)?.category)
         .filter(Boolean),
     );
     return Array.from(cats);
-  }, [progress.completedIds]);
+  }, [safeProgress.completedIds]);
 
   const skillLabels = useCallback(
     (lang: Language) =>
-      skills.map((cat) => categorySkills[cat as keyof typeof categorySkills][lang]),
+      skills.map(
+        (cat) => categorySkills[cat as keyof typeof categorySkills][lang],
+      ),
     [skills],
   );
 
   return {
-    progress,
+    progress: safeProgress,
     currentIndex,
     setCurrentIndex,
     reset,
-    markAnswer,
+    markResult,
     markSkip,
     goNext,
     finish,

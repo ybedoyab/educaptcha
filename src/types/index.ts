@@ -20,20 +20,39 @@ export interface LocalizedText {
   es: string;
 }
 
+/** @deprecated Prefer interaction.options on single-choice */
 export interface ChallengeOption {
   id: string;
   label: LocalizedText;
 }
 
+export type {
+  ChallengeInteraction,
+  ChallengeResult,
+  MinigameBadgeId,
+  InteractionType,
+} from "./minigame";
+
+import type {
+  ChallengeInteraction,
+  ChallengeResult,
+  MinigameBadgeId,
+} from "./minigame";
+
 export interface Challenge {
   id: string;
   category: ChallengeCategory;
-  question: LocalizedText;
-  options: ChallengeOption[];
-  correctOptionId: string;
+  title: LocalizedText;
+  interaction: ChallengeInteraction;
   explanation: LocalizedText;
+  explanationWhy: LocalizedText;
   takeaway: LocalizedText;
-  visual: ChallengeVisual;
+  badge: MinigameBadgeId;
+  skillMetric: LocalizedText;
+  question?: LocalizedText;
+  options?: ChallengeOption[];
+  correctOptionId?: string;
+  visual?: ChallengeVisual;
 }
 
 export interface DemoProgress {
@@ -42,6 +61,8 @@ export interface DemoProgress {
   skippedIds: string[];
   score: number;
   finished: boolean;
+  results: Record<string, ChallengeResult>;
+  badges: MinigameBadgeId[];
 }
 
 export type AnalyticsPeriod = "7d" | "30d" | "all";

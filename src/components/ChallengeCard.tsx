@@ -150,9 +150,9 @@ export function ChallengeCard({ challenge, children }: ChallengeCardProps) {
           {copy.demo.typeLabel}: {categoryLabel}
         </span>
       </div>
-      <ChallengeVisuals visual={challenge.visual} language={language} />
+      <ChallengeVisuals visual={challenge.visual ?? "none"} language={language} />
       <h3 className="text-base font-semibold leading-snug text-navy sm:text-lg">
-        {challenge.question[language]}
+        {(challenge.question ?? challenge.title)[language]}
       </h3>
       <div className="mt-4">{children}</div>
     </article>

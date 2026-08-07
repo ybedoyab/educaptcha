@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertCircle } from "lucide-react";
 import {
   experienceScenarios,
   getScenario,
 } from "../../data/experienceScenarios";
+import { experienceMinigames } from "../../data/experienceMinigames";
 import { useI18n } from "../../i18n/I18nContext";
 import type { SectionId } from "../../types";
 import type {
@@ -11,13 +11,13 @@ import type {
   FeedPostData,
   LearningSession,
 } from "../../types/learning";
+import type { ChallengeResult } from "../../types/minigame";
 import { useLearningSession } from "../../hooks/useLearningSession";
 import { BrowserFrame } from "./BrowserFrame";
 import { ContextualChallenge } from "./ContextualChallenge";
 import { ExperienceIntro } from "./ExperienceIntro";
 import { LearningResult } from "./LearningResult";
 import { SocialFeed } from "./SocialFeed";
-import { VerificationPanel } from "./VerificationPanel";
 
 interface RealWorldExperienceProps {
   onNavigate: (id: SectionId) => void;
@@ -38,18 +38,23 @@ export function RealWorldExperience({
     scenarioId === "image-context" ? "image-context" : "emotional-pressure",
   );
 
+  const initialGame = experienceMinigames[scenario.initialMinigameId];
+  const transferGame = experienceMinigames[scenario.transferMinigameId];
+
   const [phase, setPhase] = useState<ExperiencePhase>(() =>
     history.introSeen ? "browsing" : "intro",
   );
-  const [highlightedPostId, setHighlightedPostId] = useState<string | null>(null);
+  const [highlightedPostId, setHighlightedPostId] = useState<string | null>(
+    null,
+  );
   const [initialCorrect, setInitialCorrect] = useState(false);
   const [skipped, setSkipped] = useState(false);
+  const [initialMeta, setInitialMeta] = useState<Partial<ChallengeResult>>({});
   const [completedSession, setCompletedSession] =
     useState<LearningSession | null>(null);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
-  const [shareCorrection, setShareCorrection] = useState<string | null>(null);
 
   const feedRef = useRef<HTMLDivElement>(null);
 
@@ -60,11 +65,11 @@ export function RealWorldExperience({
       setHighlightedPostId(null);
       setInitialCorrect(false);
       setSkipped(false);
+      setInitialMeta({});
       setCompletedSession(null);
       setLikedIds(new Set());
       setSavedIds(new Set());
       setToast(null);
-      setShareCorrection(null);
     },
     [history.introSeen],
   );
@@ -74,75 +79,66 @@ export function RealWorldExperience({
     if (!transfer) return;
     setHighlightedPostId(transfer.id);
     window.setTimeout(() => {
-      const el = document.getElementById(`post-${transfer.id}`);
-      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document
+        .getElementById(`post-${transfer.id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 80);
   }, [scenario.posts]);
 
   useEffect(() => {
-    if (phase === "apply-hint" || phase === "transfer") {
-      scrollToTransfer();
-    }
+    if (phase === "apply-hint") scrollToTransfer();
   }, [phase, scrollToTransfer]);
 
   const finishSession = useCallback(
-    (transferOk: boolean) => {
+    (transferResult: ChallengeResult) => {
       const session: LearningSession = {
         skill: scenario.skill,
         initialCorrect,
-        transferCorrect: transferOk,
+        transferCorrect: transferResult.correct,
         skipped,
         completedAt: new Date().toISOString(),
+        initialDurationMs: initialMeta.durationMs,
+        transferDurationMs: transferResult.durationMs,
+        initialAttempts: initialMeta.attempts,
+        transferAttempts: transferResult.attempts,
+        hintsUsed:
+          (initialMeta.hintsUsed ?? 0) + (transferResult.hintsUsed ?? 0),
+        minigameTypes: [
+          initialGame.interaction.type,
+          transferGame.interaction.type,
+        ],
+        signalsFound: initialMeta.signalsFound,
       };
       setCompletedSession(session);
       recordSession(session);
       setPhase("result");
     },
-    [scenario.skill, initialCorrect, skipped, recordSession],
+    [
+      scenario.skill,
+      initialCorrect,
+      skipped,
+      recordSession,
+      initialMeta,
+      initialGame.interaction.type,
+      transferGame.interaction.type,
+    ],
   );
 
   const handleShare = (post: FeedPostData) => {
-    if (phase !== "browsing") return;
-    if (post.isTarget) {
+    if (phase === "browsing" && post.isTarget) {
       setHighlightedPostId(post.id);
       setPhase("challenge");
       return;
     }
+    if (
+      (phase === "apply-hint" || phase === "transfer") &&
+      post.isTransferTarget
+    ) {
+      setPhase("transfer");
+      return;
+    }
     setToast(copy.experience.commentSoon);
     window.setTimeout(() => setToast(null), 2000);
-  };
-
-  const handleStart = () => {
-    markIntroSeen();
-    setPhase("browsing");
-  };
-
-  const handleAnswer = (correct: boolean) => {
-    setInitialCorrect(correct);
-    setSkipped(false);
-    setPhase("feedback");
-  };
-
-  const handleSkipChallenge = () => {
-    setSkipped(true);
-    setInitialCorrect(false);
-    setPhase("apply-hint");
-    window.setTimeout(() => setPhase("transfer"), 900);
-  };
-
-  const handleContinueFromFeedback = () => {
-    setPhase("apply-hint");
-    window.setTimeout(() => setPhase("transfer"), 900);
-  };
-
-  const handleVerify = () => {
-    setShareCorrection(null);
-    setPhase("verify-panel");
-  };
-
-  const handleShareImmediate = () => {
-    setShareCorrection(scenario.transfer.shareCorrection[language]);
-    setPhase("transfer-retry");
   };
 
   return (
@@ -190,15 +186,8 @@ export function RealWorldExperience({
               scenario={scenario}
               language={language}
               highlightedPostId={highlightedPostId}
-              transferMode={
-                phase === "transfer" ||
-                phase === "transfer-retry" ||
-                phase === "verify-panel" ||
-                phase === "apply-hint"
-              }
-              showTransferActions={
-                phase === "transfer" || phase === "transfer-retry"
-              }
+              transferMode={phase === "apply-hint" || phase === "transfer"}
+              showTransferActions={false}
               likedIds={likedIds}
               savedIds={savedIds}
               feedRef={feedRef}
@@ -223,8 +212,8 @@ export function RealWorldExperience({
                 setToast(copy.experience.commentSoon);
                 window.setTimeout(() => setToast(null), 2000);
               }}
-              onVerify={handleVerify}
-              onShareImmediate={handleShareImmediate}
+              onVerify={() => setPhase("transfer")}
+              onShareImmediate={() => setPhase("transfer")}
             />
           </BrowserFrame>
 
@@ -233,35 +222,6 @@ export function RealWorldExperience({
               <p className="animate-fade-in rounded-full bg-teal px-4 py-2 text-sm font-semibold text-white shadow-lg">
                 {copy.experience.applyHint}
               </p>
-            </div>
-          )}
-
-          {(phase === "verify-panel" || phase === "transfer-retry") && (
-            <div className="absolute inset-x-3 bottom-3 z-20 sm:inset-x-6 sm:bottom-6">
-              {phase === "verify-panel" ? (
-                <VerificationPanel
-                  facts={scenario.transfer.verifyFacts}
-                  language={language}
-                  onContinue={() => finishSession(true)}
-                />
-              ) : (
-                <div className="animate-slide-up rounded-2xl border border-amber/40 bg-white p-4 shadow-lg">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber" aria-hidden />
-                    <p className="text-sm text-navy/80">{shareCorrection}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShareCorrection(null);
-                      setPhase("transfer");
-                    }}
-                    className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-teal px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    {copy.experience.tryVerifyAgain}
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
@@ -281,21 +241,52 @@ export function RealWorldExperience({
 
           {phase === "intro" && (
             <div className="absolute inset-0 z-30 flex items-center justify-center bg-navy/45 p-4">
-              <ExperienceIntro onStart={handleStart} />
+              <ExperienceIntro
+                onStart={() => {
+                  markIntroSeen();
+                  setPhase("browsing");
+                }}
+              />
             </div>
           )}
 
-          {(phase === "challenge" || phase === "feedback") && (
+          {phase === "challenge" && (
             <ContextualChallenge
-              scenario={scenario}
+              challenge={initialGame}
               step={1}
               totalSteps={2}
-              detailed={phase === "feedback" && !initialCorrect}
-              phase={phase}
-              answeredCorrect={phase === "feedback" ? initialCorrect : null}
-              onAnswer={handleAnswer}
-              onSkip={handleSkipChallenge}
-              onContinue={handleContinueFromFeedback}
+              onComplete={(result) => {
+                setInitialCorrect(result.correct);
+                setSkipped(Boolean(result.skipped));
+                setInitialMeta(result);
+                setPhase("apply-hint");
+              }}
+              onSkip={() => {
+                setSkipped(true);
+                setInitialCorrect(false);
+                setPhase("apply-hint");
+              }}
+            />
+          )}
+
+          {phase === "transfer" && (
+            <ContextualChallenge
+              challenge={transferGame}
+              step={2}
+              totalSteps={2}
+              onComplete={finishSession}
+              onSkip={() =>
+                finishSession({
+                  completed: true,
+                  correct: false,
+                  score: 0,
+                  attempts: 0,
+                  selectedIds: [],
+                  durationMs: 0,
+                  hintsUsed: 0,
+                  skipped: true,
+                })
+              }
             />
           )}
 
@@ -308,6 +299,16 @@ export function RealWorldExperience({
             </div>
           )}
         </div>
+
+        <aside className="mt-8 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/55">
+          <p className="font-semibold uppercase tracking-wide text-white/40">
+            {copy.experience.imageCreditsTitle}
+          </p>
+          <ul className="mt-2 space-y-1">
+            <li>{copy.experience.creditLagos}</li>
+            <li>{copy.experience.creditGuard}</li>
+          </ul>
+        </aside>
       </div>
     </section>
   );

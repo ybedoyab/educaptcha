@@ -35,21 +35,12 @@ function PostVisual({
 }) {
   if (visual === "neutral") return null;
 
+  if (visual === "old-photo" || visual === "reused-photo") {
+    return null;
+  }
+
   if (visual === "urgent-alert") {
-    return (
-      <div
-        className="mt-3 overflow-hidden rounded-xl border border-amber/40"
-        role="img"
-        aria-label={alt}
-      >
-        <div className="bg-gradient-to-br from-amber via-amber/70 to-navy px-4 py-8 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/90">
-            Alert
-          </p>
-          <p className="mt-2 font-display text-2xl font-bold text-white">SHARE NOW</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (visual === "subtle-warn") {
@@ -67,37 +58,7 @@ function PostVisual({
   }
 
   if (visual === "old-photo" || visual === "reused-photo") {
-    return (
-      <div
-        className="mt-3 overflow-hidden rounded-xl border border-navy/10"
-        role="img"
-        aria-label={alt}
-      >
-        <svg viewBox="0 0 400 220" className="h-auto w-full" aria-hidden>
-          <defs>
-            <linearGradient id={`photo-${visual}`} x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor={visual === "old-photo" ? "#0EA5A4" : "#38BDF8"} />
-              <stop offset="55%" stopColor="#0F172A" />
-              <stop offset="100%" stopColor="#F59E0B" />
-            </linearGradient>
-          </defs>
-          <rect width="400" height="220" fill={`url(#photo-${visual})`} />
-          <rect x="40" y="50" width="160" height="100" rx="8" fill="rgba(248,250,252,0.2)" />
-          <circle cx="300" cy="80" r="36" fill="rgba(248,250,252,0.25)" />
-          <path
-            d="M40 180 Q140 120 220 160 T360 140"
-            stroke="rgba(248,250,252,0.45)"
-            strokeWidth="8"
-            fill="none"
-          />
-          {visual === "old-photo" && (
-            <text x="16" y="28" fill="rgba(248,250,252,0.75)" fontSize="14" fontWeight="700">
-              ARCHIVE LOOK
-            </text>
-          )}
-        </svg>
-      </div>
-    );
+    return null;
   }
 
   return null;
@@ -151,6 +112,24 @@ export function SocialPost({
 
       <p className="mt-3 text-sm leading-relaxed text-navy">{body}</p>
       <PostVisual visual={post.visual} alt={body} />
+      {(post.visual === "old-photo" || post.visual === "reused-photo") && (
+        <img
+          src={
+            post.visual === "old-photo"
+              ? "/demo-assets/photos/flood-lagos-2019.jpg"
+              : "/demo-assets/photos/flood-response-2015.jpg"
+          }
+          alt={body}
+          className="mt-3 aspect-video w-full rounded-xl object-cover"
+        />
+      )}
+      {post.visual === "urgent-alert" && (
+        <img
+          src="/demo-assets/viral-health-alert.svg"
+          alt={body}
+          className="mt-3 aspect-video w-full rounded-xl object-cover"
+        />
+      )}
 
           <div className="mt-3 flex flex-wrap gap-3 text-xs text-navy/50">
             <span>

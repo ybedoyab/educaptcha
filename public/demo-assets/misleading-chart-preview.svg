@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Misleading truncated chart preview">
+  <rect width="640" height="360" fill="#F8FAFC"/>
+  <text x="40" y="48" fill="#0F172A" font-family="Segoe UI,sans-serif" font-size="20" font-weight="700">Engagement growth</text>
+  <line x1="80" y1="80" x2="80" y2="300" stroke="#0F172A" stroke-opacity="0.25" stroke-width="3"/>
+  <line x1="80" y1="300" x2="560" y2="300" stroke="#0F172A" stroke-opacity="0.25" stroke-width="3"/>
+  <text x="40" y="100" fill="#0F172A" font-size="14" opacity="0.5">92</text>
+  <text x="40" y="200" fill="#0F172A" font-size="14" opacity="0.5">88</text>
+  <text x="40" y="300" fill="#0F172A" font-size="14" opacity="0.5">84</text>
+  <rect x="180" y="180" width="80" height="120" rx="8" fill="#38BDF8"/>
+  <rect x="360" y="90" width="80" height="210" rx="8" fill="#0EA5A4"/>
+  <text x="190" y="330" fill="#0F172A" font-size="14">Week A</text>
+  <text x="370" y="330" fill="#0F172A" font-size="14">Week B</text>
+  <rect x="460" y="40" width="150" height="36" rx="8" fill="#F59E0B"/>
+  <text x="478" y="64" fill="#0F172A" font-size="14" font-weight="700">Axis starts at 84</text>
+</svg>

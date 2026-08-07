@@ -216,6 +216,56 @@ export function AnalyticsDashboard({
                     : copy.results.improvedNo}
                 </dd>
               </div>
+              {latestSession.minigameTypes && (
+                <div className="rounded-xl bg-white/80 p-3 sm:col-span-2">
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                    {copy.results.minigameType}
+                  </dt>
+                  <dd className="mt-1 text-sm font-semibold text-navy">
+                    {latestSession.minigameTypes.join(" → ")}
+                  </dd>
+                </div>
+              )}
+              <div className="rounded-xl bg-white/80 p-3">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                  {copy.results.resolveTime}
+                </dt>
+                <dd className="mt-1 text-sm font-semibold text-navy">
+                  {Math.round(
+                    ((latestSession.initialDurationMs ?? 0) +
+                      (latestSession.transferDurationMs ?? 0)) /
+                      1000,
+                  )}
+                  s
+                </dd>
+              </div>
+              <div className="rounded-xl bg-white/80 p-3">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                  {copy.results.attempts}
+                </dt>
+                <dd className="mt-1 text-sm font-semibold text-navy">
+                  {(latestSession.initialAttempts ?? 0) +
+                    (latestSession.transferAttempts ?? 0)}
+                </dd>
+              </div>
+              <div className="rounded-xl bg-white/80 p-3">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                  {copy.results.hintsUsed}
+                </dt>
+                <dd className="mt-1 text-sm font-semibold text-navy">
+                  {latestSession.hintsUsed ?? 0}
+                </dd>
+              </div>
+              {latestSession.signalsFound != null && (
+                <div className="rounded-xl bg-white/80 p-3">
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                    {copy.results.signalsFound}
+                  </dt>
+                  <dd className="mt-1 text-sm font-semibold text-navy">
+                    {latestSession.signalsFound}
+                  </dd>
+                </div>
+              )}
             </dl>
           ) : (
             <p className="mt-4 text-sm text-navy/65">{copy.results.noSessionYet}</p>

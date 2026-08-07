@@ -1,19 +1,34 @@
-import { useEffect, useState } from "react";
-import { Award, Compass, RefreshCw, SkipForward } from "lucide-react";
+import { Award, Compass, RefreshCw } from "lucide-react";
 import { challenges } from "../data/challenges";
 import { useDemoProgress } from "../hooks/useDemoProgress";
 import { useI18n } from "../i18n/I18nContext";
 import type { SectionId } from "../types";
-import { ChallengeCard } from "./ChallengeCard";
-import { ChallengeOption } from "./ChallengeOption";
-import { FeedbackPanel } from "./FeedbackPanel";
-import { Logo } from "./Logo";
+import type { ChallengeResult } from "../types/minigame";
+import { MinigameRenderer } from "./minigames/MinigameRenderer";
 import { ProgressIndicator } from "./ProgressIndicator";
 
 interface DemoSectionProps {
   onNavigate: (id: SectionId) => void;
   progressApi: ReturnType<typeof useDemoProgress>;
 }
+
+const badgeLabels: Record<string, { en: string; es: string }> = {
+  "signal-spotter": { en: "Signal spotter", es: "Detector de señales" },
+  "source-checker": { en: "Source checker", es: "Verificador de fuentes" },
+  "context-investigator": {
+    en: "Context investigator",
+    es: "Investigador de contexto",
+  },
+  "chart-reader": { en: "Chart reader", es: "Lector de gráficas" },
+  "pressure-detector": {
+    en: "Pressure detector",
+    es: "Detector de presión",
+  },
+  "ai-skeptic": {
+    en: "Responsible AI skeptic",
+    es: "Escéptico responsable de IA",
+  },
+};
 
 export function DemoSection({ onNavigate, progressApi }: DemoSectionProps) {
   const { language, copy } = useI18n();
@@ -22,46 +37,25 @@ export function DemoSection({ onNavigate, progressApi }: DemoSectionProps) {
     currentIndex,
     current,
     total,
-    markAnswer,
+    markResult,
     markSkip,
     goNext,
     reset,
-    skillLabels,
     finish,
-    skills,
   } = progressApi;
 
-  const [selected, setSelected] = useState<string | null>(null);
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    setSelected(null);
-    setRevealed(false);
-  }, [currentIndex, progress.finished]);
-
-  const handleCheck = () => {
-    if (!selected || !current) return;
-    const correct = selected === current.correctOptionId;
-    markAnswer(current.id, correct);
-    setRevealed(true);
+  const handleComplete = (result: ChallengeResult) => {
+    if (!current) return;
+    markResult(current.id, result, current.badge);
+    if (currentIndex >= total - 1) finish();
+    else goNext();
   };
 
   const handleSkip = () => {
     if (!current) return;
     markSkip(current.id);
-    if (currentIndex >= total - 1) {
-      finish();
-    } else {
-      goNext();
-    }
-  };
-
-  const handleContinue = () => {
-    if (currentIndex >= total - 1) {
-      finish();
-    } else {
-      goNext();
-    }
+    if (currentIndex >= total - 1) finish();
+    else goNext();
   };
 
   const completedCount = progress.completedIds.length;
@@ -115,50 +109,47 @@ export function DemoSection({ onNavigate, progressApi }: DemoSectionProps) {
                 {copy.demo.summaryTitle}
               </h3>
             </div>
-            <dl className="mt-6 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-xl bg-off-white p-4">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
-                  {copy.demo.totalScore}
-                </dt>
-                <dd className="mt-1 text-2xl font-bold text-navy">
-                  {progress.score}/{total}
-                </dd>
-              </div>
-              <div className="rounded-xl bg-off-white p-4">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
-                  {copy.demo.categoriesCompleted}
-                </dt>
-                <dd className="mt-1 text-2xl font-bold text-navy">
-                  {skills.length}
-                </dd>
-              </div>
-              <div className="rounded-xl bg-off-white p-4">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
-                  {copy.demo.skipped}
-                </dt>
-                <dd className="mt-1 text-2xl font-bold text-navy">
-                  {progress.skippedIds.length}
-                </dd>
-              </div>
-            </dl>
+
+            <ul className="mt-6 space-y-2">
+              {challenges.map((c) => {
+                const result = progress.results[c.id];
+                const metric = result?.signalsTotal
+                  ? `${result.signalsFound ?? 0}/${result.signalsTotal}`
+                  : result?.skipped
+                    ? copy.demo.skipped
+                    : result?.correct
+                      ? copy.minigame.complete
+                      : copy.minigame.partial;
+                return (
+                  <li
+                    key={c.id}
+                    className="flex items-center justify-between rounded-xl bg-off-white px-3 py-2.5 text-sm"
+                  >
+                    <span className="font-medium text-navy">
+                      {c.skillMetric[language]}
+                    </span>
+                    <span className="font-semibold text-teal">{metric}</span>
+                  </li>
+                );
+              })}
+            </ul>
+
             <div className="mt-6">
               <p className="text-sm font-semibold text-navy">
-                {copy.demo.skillsReinforced}
+                {copy.demo.badgesTitle}
               </p>
               <ul className="mt-2 flex flex-wrap gap-2">
-                {skillLabels(language).map((skill) => (
+                {progress.badges.map((b) => (
                   <li
-                    key={skill}
-                    className="rounded-full bg-sky/15 px-3 py-1 text-xs font-medium text-navy"
+                    key={b}
+                    className="rounded-full bg-sky/15 px-3 py-1 text-xs font-semibold text-navy"
                   >
-                    {skill}
+                    {badgeLabels[b]?.[language] ?? b}
                   </li>
                 ))}
-                {skillLabels(language).length === 0 && (
-                  <li className="text-sm text-navy/50">—</li>
-                )}
               </ul>
             </div>
+
             <div className="mt-8 flex flex-wrap gap-3">
               <button
                 type="button"
@@ -167,6 +158,13 @@ export function DemoSection({ onNavigate, progressApi }: DemoSectionProps) {
               >
                 <RefreshCw className="h-4 w-4" aria-hidden />
                 {copy.demo.retry}
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate("experience")}
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-navy/15 bg-white px-5 py-2.5 text-sm font-semibold text-navy"
+              >
+                {copy.demo.contextCardCta}
               </button>
               <button
                 type="button"
@@ -180,69 +178,11 @@ export function DemoSection({ onNavigate, progressApi }: DemoSectionProps) {
         ) : (
           current && (
             <div className="mt-6">
-              <div className="mb-3">
-                <Logo size="sm" />
-              </div>
-              <ChallengeCard challenge={current}>
-                <div
-                  role="radiogroup"
-                  aria-label={current.question[language]}
-                  className="space-y-2"
-                >
-                  {current.options.map((opt, i) => (
-                    <ChallengeOption
-                      key={opt.id}
-                      id={opt.id}
-                      label={opt.label[language]}
-                      selected={selected === opt.id}
-                      revealed={revealed}
-                      isCorrect={opt.id === current.correctOptionId}
-                      disabled={revealed}
-                      onSelect={setSelected}
-                      index={i}
-                    />
-                  ))}
-                </div>
-
-                {!revealed && (
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={handleCheck}
-                      disabled={!selected}
-                      className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
-                    >
-                      {copy.demo.check}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleSkip}
-                      className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-navy/15 bg-white px-4 py-2.5 text-sm font-medium text-navy/70 transition hover:bg-navy/5"
-                    >
-                      <SkipForward className="h-4 w-4" aria-hidden />
-                      {copy.demo.skip}
-                    </button>
-                  </div>
-                )}
-
-                {!revealed && !selected && (
-                  <p className="mt-3 text-xs text-navy/50">{copy.demo.selectPrompt}</p>
-                )}
-
-                {revealed && (
-                  <div className="mt-5">
-                    <FeedbackPanel
-                      correct={selected === current.correctOptionId}
-                      explanation={current.explanation[language]}
-                      takeaway={current.takeaway[language]}
-                      onContinue={handleContinue}
-                    />
-                  </div>
-                )}
-              </ChallengeCard>
-              <p className="mt-3 text-center text-xs text-navy/45">
-                {challenges.length} · EduCAPTCHA
-              </p>
+              <MinigameRenderer
+                challenge={current}
+                onComplete={handleComplete}
+                onSkip={handleSkip}
+              />
             </div>
           )
         )}
