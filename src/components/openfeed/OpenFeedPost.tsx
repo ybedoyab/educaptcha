@@ -92,12 +92,17 @@ export function OpenFeedPost({ post, expanded }: Props) {
               type="button"
               id={`repost-${post.id}`}
               onClick={onRepostImage}
+              aria-label={
+                language === "es"
+                  ? `Revisar imagen de ${post.author[language]}`
+                  : `Inspect image from ${post.author[language]}`
+              }
               className="mt-3 block w-full overflow-hidden rounded-2xl border border-navy/10 text-left focus-visible:outline-teal"
             >
               <DemoPhoto
                 assetId={post.mediaAssetId}
                 src={post.imageSrc}
-                alt=""
+                alt={post.body[language]}
                 showArchiveBadge={false}
               />
             </button>

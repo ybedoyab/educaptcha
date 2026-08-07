@@ -20,6 +20,7 @@ export function MinigameProgress({ current, total, label }: MinigameProgressProp
         aria-valuenow={current}
         aria-valuemin={0}
         aria-valuemax={total}
+        aria-label={`${label}: ${current}/${total}`}
       >
         <div
           className="h-full rounded-full bg-gradient-to-r from-teal to-sky transition-all"

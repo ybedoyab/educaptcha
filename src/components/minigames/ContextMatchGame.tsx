@@ -6,11 +6,7 @@ import type {
 } from "../../types/minigame";
 import { useI18n } from "../../i18n/I18nContext";
 import { DemoPhoto } from "./DemoPhoto";
-import {
-  SourceTrace,
-  floodSourceTraceSteps,
-  type SourceTraceStep,
-} from "./SourceTrace";
+import { SourceTrace } from "./SourceTrace";
 
 interface Props {
   interaction: ContextMatchInteraction;
@@ -19,12 +15,11 @@ interface Props {
   onHint: (hint: string | null) => void;
   mode?: "play" | "review";
   reviewResult?: ChallengeResult | null;
-  sourceSteps?: SourceTraceStep[];
 }
 
 type Phase = "spot" | "check" | "decide" | "feedback";
 
-const DECISIONS = [
+const DEFAULT_DECISIONS = [
   {
     id: "current",
     label: { en: "Current local event", es: "Evento local actual" },
@@ -52,7 +47,6 @@ export function ContextMatchGame({
   onHint,
   mode = "play",
   reviewResult,
-  sourceSteps = floodSourceTraceSteps,
 }: Props) {
   const { copy } = useI18n();
   const [phase, setPhase] = useState<Phase>(
@@ -64,8 +58,22 @@ export function ContextMatchGame({
   const [attempts, setAttempts] = useState(0);
   const [locked, setLocked] = useState(mode === "review");
 
-  const correctId = DECISIONS.find((d) => d.correct)?.id ?? "wrong-context";
+  if (!interaction.sourceTrace?.length) {
+    if (import.meta.env.DEV) {
+      console.error(
+        `[EduCAPTCHA] context-match requires sourceTrace (media=${interaction.mediaAssetId ?? "unknown"})`,
+      );
+    }
+  }
+
+  const decisions =
+    interaction.conclusions && interaction.conclusions.length > 0
+      ? interaction.conclusions
+      : DEFAULT_DECISIONS;
+  const correctId =
+    decisions.find((d) => d.correct)?.id ?? "wrong-context";
   const assetId = interaction.mediaAssetId;
+  const trace = interaction.sourceTrace ?? [];
 
   const submit = (id: string) => {
     const ok = id === correctId;
@@ -97,8 +105,7 @@ export function ContextMatchGame({
     { id: "check", label: language === "es" ? "Revisar" : "Check" },
     { id: "decide", label: language === "es" ? "Decidir" : "Decide" },
   ];
-  const stepIndex =
-    phase === "spot" ? 0 : phase === "check" ? 1 : 2;
+  const stepIndex = phase === "spot" ? 0 : phase === "check" ? 1 : 2;
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
@@ -155,7 +162,15 @@ export function ContextMatchGame({
           <p className="text-base font-semibold text-navy">
             {language === "es" ? "¿De dónde sale?" : "Where is it from?"}
           </p>
-          <SourceTrace steps={sourceSteps} />
+          {trace.length > 0 ? (
+            <SourceTrace steps={trace} />
+          ) : (
+            <p className="rounded-xl border border-amber/40 bg-amber/10 px-3 py-3 text-sm text-navy" role="alert">
+              {language === "es"
+                ? "Falta el rastro de fuente para este reto."
+                : "Source trace is missing for this challenge."}
+            </p>
+          )}
           <button
             type="button"
             data-primary-cta="true"
@@ -175,7 +190,7 @@ export function ContextMatchGame({
             {language === "es" ? "¿Qué encontraste?" : "What did you find?"}
           </p>
           <ul className="space-y-2">
-            {DECISIONS.map((d) => (
+            {decisions.map((d) => (
               <li key={d.id}>
                 <button
                   type="button"
@@ -213,15 +228,19 @@ export function ContextMatchGame({
             alt={interaction.imageAlt[language]}
             className="max-h-40"
           />
-          <p className="text-sm font-semibold text-navy">
-            {choice === correctId
-              ? language === "es"
-                ? "Correcto. La imagen es real, pero se cambiaron su fecha y lugar originales."
-                : "Correct. The image is real, but its original date and location were changed."
-              : language === "es"
-                ? "La imagen es real, pero el contexto no coincide."
-                : "The image is real, but the context does not match."}
-          </p>
+          {/* When reviewResult is set, MinigameFeedback owns the Continue CTA + explanation */}
+          {!reviewResult && (
+            <p className="text-sm font-semibold text-navy">
+              {choice === correctId
+                ? interaction.conclusion?.[language] ??
+                  (language === "es"
+                    ? "Correcto. La imagen es real, pero se cambiaron su fecha y lugar originales."
+                    : "Correct. The image is real, but its original date and location were changed.")
+                : language === "es"
+                  ? "La imagen es real, pero el contexto no coincide."
+                  : "The image is real, but the context does not match."}
+            </p>
+          )}
         </div>
       )}
     </div>

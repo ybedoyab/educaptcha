@@ -549,8 +549,8 @@ export const openFeedPosts: OpenFeedPost[] = [
         author: "Gus",
         handle: "@gus.y",
         body: {
-          en: "The same image appears in a 2019 archive.",
-          es: "La misma imagen aparece en un archivo de 2019.",
+          en: "The same image appears in an earlier protest archive.",
+          es: "La misma imagen aparece en un archivo de protesta anterior.",
         },
         createdAt: "2026-08-06T11:40:00Z",
         likes: 21,

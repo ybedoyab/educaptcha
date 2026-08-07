@@ -1,4 +1,5 @@
 import type { LocalizedText } from "./index";
+import type { SourceTraceStep } from "./sourceTrace";
 
 export type InteractionType =
   | "single-choice"
@@ -141,6 +142,8 @@ export interface ContextMatchInteraction extends BaseInteraction {
   zoomTargets?: ContextMatchZoomTarget[];
   postBody?: LocalizedText;
   claimQuestion?: LocalizedText;
+  /** Required for production/demo context-match challenges */
+  sourceTrace?: SourceTraceStep[];
 }
 
 export interface InspectionHotspot {

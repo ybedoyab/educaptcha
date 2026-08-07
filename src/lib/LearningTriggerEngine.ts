@@ -1,6 +1,16 @@
+/**
+ * Demo/local risk engine.
+ * Replaceable by an external risk-analysis service.
+ *
+ * External services can map onto RiskDecision from ../types/sourceTrace
+ * without changing OpenFeed UI components.
+ */
 import type { OpenFeedPost } from "../data/openFeedPosts";
 import type { LocalizedText } from "../types";
+import type { RiskDecision } from "../types/sourceTrace";
 import type { PendingIntent } from "./demoFlow";
+
+export type { RiskDecision };
 
 export type TriggerAction =
   | "share"

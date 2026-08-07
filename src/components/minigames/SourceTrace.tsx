@@ -1,22 +1,6 @@
 import { ArrowDown, Archive, AlertTriangle, CheckCircle2, HelpCircle, XCircle } from "lucide-react";
-import type { LocalizedText } from "../../types";
+import type { SourceTraceStep } from "../../types/sourceTrace";
 import { useI18n } from "../../i18n/I18nContext";
-
-export type SourceTraceStatus =
-  | "verified"
-  | "unknown"
-  | "archived"
-  | "missing"
-  | "conflicting";
-
-export type SourceTraceStep = {
-  id: string;
-  kind: "claim" | "social" | "repost" | "publisher" | "original" | "archive";
-  label: LocalizedText;
-  value: LocalizedText;
-  status?: SourceTraceStatus;
-  detail?: LocalizedText;
-};
 
 const statusIcon = {
   verified: CheckCircle2,
@@ -39,6 +23,7 @@ interface Props {
   className?: string;
 }
 
+/** Presentation-only source chain. Scenario content lives in data files. */
 export function SourceTrace({ steps, className = "" }: Props) {
   const { language } = useI18n();
 
@@ -86,53 +71,3 @@ export function SourceTrace({ steps, className = "" }: Props) {
     </ol>
   );
 }
-
-/** Default source chain for the Lagos flood out-of-context scenario */
-export const floodSourceTraceSteps: SourceTraceStep[] = [
-  {
-    id: "claim",
-    kind: "claim",
-    label: { en: "Claim", es: "Afirmación" },
-    value: {
-      en: "LIVE from tonight’s emergency.",
-      es: "EN VIVO desde la emergencia de esta noche.",
-    },
-    status: "conflicting",
-  },
-  {
-    id: "social",
-    kind: "social",
-    label: { en: "Social post", es: "Publicación social" },
-    value: { en: "Breaking Frames", es: "Breaking Frames" },
-    detail: {
-      en: "Viral desk · high engagement",
-      es: "Escritorio viral · alto engagement",
-    },
-    status: "unknown",
-  },
-  {
-    id: "source",
-    kind: "publisher",
-    label: { en: "Source", es: "Fuente" },
-    value: {
-      en: "No original source provided",
-      es: "Sin fuente original",
-    },
-    status: "missing",
-  },
-  {
-    id: "archive",
-    kind: "archive",
-    label: { en: "Visual archive match", es: "Coincidencia de archivo" },
-    value: { en: "Wikimedia Commons", es: "Wikimedia Commons" },
-    status: "archived",
-  },
-  {
-    id: "original",
-    kind: "original",
-    label: { en: "Original", es: "Original" },
-    value: { en: "Lagos, Nigeria", es: "Lagos, Nigeria" },
-    detail: { en: "June 24, 2019", es: "24 de junio de 2019" },
-    status: "verified",
-  },
-];

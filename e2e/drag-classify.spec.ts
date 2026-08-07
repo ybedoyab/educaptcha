@@ -50,24 +50,11 @@ test.describe("drag-classify practice interactions", () => {
     await expect(card).toBeVisible({ timeout: 20000 });
     const handle = card.getByRole("button", { name: /drag/i });
     const zone = page.locator('[data-testid^="drop-zone-"]').first();
-    const handleBox = await handle.boundingBox();
-    const zoneBox = await zone.boundingBox();
-    expect(handleBox && zoneBox).toBeTruthy();
-    await page.mouse.move(
-      handleBox!.x + handleBox!.width / 2,
-      handleBox!.y + handleBox!.height / 2,
-    );
-    await page.mouse.down();
-    await page.mouse.move(
-      zoneBox!.x + zoneBox!.width / 2,
-      zoneBox!.y + zoneBox!.height / 2,
-      { steps: 20 },
-    );
-    await page.mouse.up();
-    // Placed, or selected for tap fallback — never a dead control
+    await handle.dragTo(zone, { force: true });
+    await page.waitForTimeout(200);
     const placed = await page.locator('[data-testid^="placed-"]').count();
     const selected = await page.locator('[data-selected="true"]').count();
-    expect(placed > 0 || selected > 0 || (await card.isVisible())).toBe(true);
+    expect(placed > 0 || selected > 0).toBe(true);
   });
 
   test("B: click card then click correct zone places the card", async ({

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -36,6 +36,7 @@ function DraggableCard({
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id, disabled: placed });
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.4 : 1,
@@ -55,7 +56,6 @@ function DraggableCard({
             : "border-navy/15 bg-white text-navy shadow-sm hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-md"
       }`}
     >
-      {/* Drag handle only — click/tap on the label is the canonical path */}
       <button
         type="button"
         aria-label="Drag"
@@ -63,6 +63,19 @@ function DraggableCard({
         className="flex cursor-grab items-center px-2 text-navy/35 transition hover:bg-navy/5 hover:text-navy/55 active:cursor-grabbing"
         {...listeners}
         {...attributes}
+        onPointerDown={(e) => {
+          pointerStart.current = { x: e.clientX, y: e.clientY };
+          listeners?.onPointerDown?.(e);
+        }}
+        onPointerUp={(e) => {
+          const start = pointerStart.current;
+          pointerStart.current = null;
+          if (!start) return;
+          // Failed drag activation (moved but dnd-kit did not take over) → select
+          const moved =
+            Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6;
+          if (moved && !isDragging) onSelect();
+        }}
       >
         <GripVertical className="h-4 w-4 shrink-0" aria-hidden />
       </button>

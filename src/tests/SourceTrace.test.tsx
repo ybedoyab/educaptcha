@@ -1,16 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { I18nProvider } from "../i18n/I18nContext";
-import {
-  SourceTrace,
-  floodSourceTraceSteps,
-} from "../components/minigames/SourceTrace";
+import { SourceTrace } from "../components/minigames/SourceTrace";
+import { lagosFloodSourceTrace } from "../data/sourceTraces";
 
 describe("SourceTrace", () => {
-  it("renders claim → source → original chain", () => {
+  it("renders claim → source → original chain from data", () => {
     render(
       <I18nProvider>
-        <SourceTrace steps={floodSourceTraceSteps} />
+        <SourceTrace steps={lagosFloodSourceTrace} />
       </I18nProvider>,
     );
     expect(screen.getByText(/LIVE from tonight/i)).toBeInTheDocument();
@@ -19,11 +17,9 @@ describe("SourceTrace", () => {
     expect(screen.getByText(/June 24, 2019/i)).toBeInTheDocument();
   });
 
-  it("main flow has three user phases conceptually", () => {
-    // Spot → Check → Decide — five-second clarity invariant for structure
-    const phases = ["spot", "check", "decide"] as const;
-    expect(phases).toHaveLength(3);
-    expect(floodSourceTraceSteps.some((s) => s.status === "missing")).toBe(true);
-    expect(floodSourceTraceSteps.some((s) => s.status === "verified")).toBe(true);
+  it("is presentation-only (no scenario exports)", async () => {
+    const mod = await import("../components/minigames/SourceTrace");
+    expect(mod.SourceTrace).toBeTypeOf("function");
+    expect("floodSourceTraceSteps" in mod).toBe(false);
   });
 });

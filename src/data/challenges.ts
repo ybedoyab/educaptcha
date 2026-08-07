@@ -1,4 +1,5 @@
 import type { Challenge } from "../types";
+import { lagosFloodSourceTrace } from "./sourceTraces";
 
 export const challenges: Challenge[] = [
   {
@@ -240,6 +241,27 @@ export const challenges: Challenge[] = [
         en: "Flooded street in Lagos, Nigeria, June 2019",
         es: "Calle inundada en Lagos, Nigeria, junio 2019",
       },
+      sourceTrace: lagosFloodSourceTrace,
+      conclusions: [
+        {
+          id: "current",
+          label: { en: "Current local event", es: "Evento local actual" },
+          correct: false,
+        },
+        {
+          id: "wrong-context",
+          label: {
+            en: "Real image, wrong context",
+            es: "Imagen real, contexto incorrecto",
+          },
+          correct: true,
+        },
+        {
+          id: "ai",
+          label: { en: "AI-generated image", es: "Imagen generada por IA" },
+          correct: false,
+        },
+      ],
       cards: [
         {
           id: "2019",

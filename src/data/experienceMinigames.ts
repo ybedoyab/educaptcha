@@ -1,4 +1,37 @@
 import type { Challenge } from "../types";
+import {
+  lagosFloodSourceTrace,
+  protestGateSourceTrace,
+  westColumbiaSourceTrace,
+  wildfireDcSourceTrace,
+} from "./sourceTraces";
+
+const OUT_OF_CONTEXT_CONCLUSIONS = [
+  {
+    id: "current",
+    label: {
+      en: "Current local event",
+      es: "Evento local actual",
+    },
+    correct: false,
+  },
+  {
+    id: "wrong-context",
+    label: {
+      en: "Real image, wrong context",
+      es: "Imagen real, contexto incorrecto",
+    },
+    correct: true,
+  },
+  {
+    id: "ai",
+    label: {
+      en: "AI-generated image",
+      es: "Imagen generada por IA",
+    },
+    correct: false,
+  },
+];
 
 export const experienceMinigames: Record<string, Challenge> = {
   "ep-spot": {
@@ -204,6 +237,7 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "Flooded street in Lagos, Nigeria, June 2019",
         es: "Calle inundada en Lagos, Nigeria, junio 2019",
       },
+      sourceTrace: lagosFloodSourceTrace,
       zoomTargets: [
         {
           id: "vehicles",
@@ -284,32 +318,7 @@ export const experienceMinigames: Record<string, Challenge> = {
           correct: false,
         },
       ],
-      conclusions: [
-        {
-          id: "current",
-          label: {
-            en: "Current local photo",
-            es: "Foto local actual",
-          },
-          correct: false,
-        },
-        {
-          id: "wrong-context",
-          label: {
-            en: "Authentic photo used in the wrong context",
-            es: "Foto auténtica usada en el contexto incorrecto",
-          },
-          correct: true,
-        },
-        {
-          id: "ai",
-          label: {
-            en: "Likely AI-generated image",
-            es: "Imagen probablemente generada por IA",
-          },
-          correct: false,
-        },
-      ],
+      conclusions: OUT_OF_CONTEXT_CONCLUSIONS,
       revealClaimed: {
         en: "Claimed: Tonight’s local emergency",
         es: "Afirmado: Emergencia local de esta noche",
@@ -319,8 +328,8 @@ export const experienceMinigames: Record<string, Challenge> = {
         es: "Original: Lagos, Nigeria — 24 de junio de 2019",
       },
       conclusion: {
-        en: "Authentic image, incorrect context.",
-        es: "Imagen auténtica, contexto incorrecto.",
+        en: "Correct. The image is real, but its original date and location were changed.",
+        es: "Correcto. La imagen es real, pero se cambiaron su fecha y lugar originales.",
       },
     },
   },
@@ -351,8 +360,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "Find the original date and location.",
-        es: "Encuentra la fecha y el lugar originales.",
+        en: "Check the source before you share.",
+        es: "Revisa la fuente antes de compartir.",
       },
       maxAttempts: 2,
       claim: {
@@ -364,6 +373,8 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "National Guard flood response in West Columbia, South Carolina, 2015",
         es: "Respuesta de la Guardia Nacional a inundaciones en West Columbia, Carolina del Sur, 2015",
       },
+      sourceTrace: westColumbiaSourceTrace,
+      conclusions: OUT_OF_CONTEXT_CONCLUSIONS,
       cards: [
         {
           id: "2015",
@@ -456,6 +467,8 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "Wildfire smoke over Washington, D.C.",
         es: "Humo de incendios sobre Washington, D.C.",
       },
+      sourceTrace: wildfireDcSourceTrace,
+      conclusions: OUT_OF_CONTEXT_CONCLUSIONS,
       zoomTargets: [
         {
           id: "skyline",
@@ -766,6 +779,8 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "Protest under a gate",
         es: "Protesta bajo una puerta",
       },
+      sourceTrace: protestGateSourceTrace,
+      conclusions: OUT_OF_CONTEXT_CONCLUSIONS,
       zoomTargets: [
         {
           id: "signage",
