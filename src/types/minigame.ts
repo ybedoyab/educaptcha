@@ -52,7 +52,9 @@ export interface SpotSignalsInteraction extends BaseInteraction {
   }[];
   signals: SpotSignal[];
   targetCount: number;
-  imageSrc: string;
+  /** @deprecated Prefer mediaAssetId */
+  imageSrc?: string;
+  mediaAssetId?: string;
   reactions: number;
 }
 
@@ -90,12 +92,16 @@ export interface ContextMatchCard {
   label: LocalizedText;
   detail: LocalizedText;
   correct: boolean;
-  /** Optional archive result fields for investigation UI */
+  /** @deprecated Prefer mediaAssetId */
   thumbSrc?: string;
+  mediaAssetId?: string;
   date?: LocalizedText;
   location?: LocalizedText;
   medium?: LocalizedText;
-  matchLevel?: LocalizedText;
+  /** Visual findings shown after selection — not a correctness hint */
+  findings?: LocalizedText;
+  /** Intentionally no image — show NoSourceMediaCard */
+  noImage?: boolean;
 }
 
 export interface ContextMatchTool {
@@ -113,18 +119,28 @@ export interface ContextMatchZoomTarget {
   h: number;
 }
 
+export interface ContextMatchConclusion {
+  id: string;
+  label: LocalizedText;
+  correct: boolean;
+}
+
 export interface ContextMatchInteraction extends BaseInteraction {
   type: "context-match";
   claim: LocalizedText;
-  imageSrc: string;
+  /** @deprecated Prefer mediaAssetId */
+  imageSrc?: string;
+  mediaAssetId?: string;
   imageAlt: LocalizedText;
   cards: ContextMatchCard[];
   revealClaimed: LocalizedText;
   revealOriginal: LocalizedText;
   conclusion?: LocalizedText;
+  conclusions?: ContextMatchConclusion[];
   tools?: ContextMatchTool[];
   zoomTargets?: ContextMatchZoomTarget[];
   postBody?: LocalizedText;
+  claimQuestion?: LocalizedText;
 }
 
 export interface InspectionHotspot {
@@ -139,7 +155,9 @@ export interface InspectionHotspot {
 
 export interface ImageInspectionInteraction extends BaseInteraction {
   type: "image-inspection";
-  imageSrc: string;
+  /** @deprecated Prefer mediaAssetId */
+  imageSrc?: string;
+  mediaAssetId?: string;
   imageAlt: LocalizedText;
   hotspots: InspectionHotspot[];
   maxMarks: number;

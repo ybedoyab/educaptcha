@@ -3,6 +3,7 @@ import type { Language } from "../../types";
 import type { ChallengeResult, SpotSignalsInteraction } from "../../types/minigame";
 import { useI18n } from "../../i18n/I18nContext";
 import { MinigameProgress } from "./MinigameProgress";
+import { DemoPhoto } from "./DemoPhoto";
 
 interface Props {
   interaction: SpotSignalsInteraction;
@@ -78,10 +79,10 @@ export function SpotSignalsGame({
         label={copy.minigame.signalsProgress}
       />
       <article className="overflow-hidden rounded-xl border border-navy/10 bg-off-white">
-        <img
+        <DemoPhoto
+          assetId={interaction.mediaAssetId}
           src={interaction.imageSrc}
           alt={interaction.mediaTitle[language]}
-          className="aspect-[16/9] w-full object-cover"
         />
         <div className="space-y-2 p-3 sm:p-4">
           <p className="text-xs font-semibold text-teal">

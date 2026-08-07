@@ -6,12 +6,14 @@ import type {
 } from "../../types/minigame";
 import { useI18n } from "../../i18n/I18nContext";
 import { MinigameProgress } from "./MinigameProgress";
+import { DemoPhoto } from "./DemoPhoto";
 
 interface Props {
   interaction: ImageInspectionInteraction;
   language: Language;
   onSolved: (result: Omit<ChallengeResult, "durationMs" | "completed">) => void;
   onHint: (hint: string | null) => void;
+  mode?: "play" | "review";
 }
 
 export function ImageInspectionGame({
@@ -19,12 +21,15 @@ export function ImageInspectionGame({
   language,
   onSolved,
   onHint,
+  mode = "play",
 }: Props) {
   const { copy } = useI18n();
   const [marks, setMarks] = useState<string[]>([]);
   const [conclusion, setConclusion] = useState<string | null>(null);
   const [attempts, setAttempts] = useState(0);
-  const [phase, setPhase] = useState<"mark" | "conclude">("mark");
+  const [phase, setPhase] = useState<"mark" | "conclude">(
+    mode === "review" ? "conclude" : "mark",
+  );
 
   const toggleMark = (id: string) => {
     if (phase !== "mark") return;
@@ -68,10 +73,10 @@ export function ImageInspectionGame({
       )}
 
       <div className="relative overflow-hidden rounded-xl border border-navy/10">
-        <img
+        <DemoPhoto
+          assetId={interaction.mediaAssetId}
           src={interaction.imageSrc}
           alt={interaction.imageAlt[language]}
-          className="aspect-[16/9] w-full object-cover"
         />
         {interaction.hotspots.map((h) => {
           const active = marks.includes(h.id);
@@ -82,6 +87,7 @@ export function ImageInspectionGame({
               aria-label={h.label[language]}
               aria-pressed={active}
               onClick={() => toggleMark(h.id)}
+              disabled={mode === "review"}
               className={`absolute min-h-11 min-w-11 rounded-lg border-2 transition ${
                 active
                   ? "border-amber bg-amber/30"

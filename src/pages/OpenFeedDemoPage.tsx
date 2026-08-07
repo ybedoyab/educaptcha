@@ -1,23 +1,81 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { DemoSessionProvider, useDemoSession } from "../context/DemoSessionContext";
+import {
+  DemoSessionProvider,
+  useDemoSession,
+} from "../context/DemoSessionContext";
 import { OpenFeedHeader } from "../components/openfeed/OpenFeedHeader";
 import { OpenFeedSidebar } from "../components/openfeed/OpenFeedSidebar";
 import { OpenFeedFeed } from "../components/openfeed/OpenFeedFeed";
 import { OpenFeedTrends } from "../components/openfeed/OpenFeedTrends";
 import { OpenFeedPostDetail } from "../components/openfeed/OpenFeedPostDetail";
 import { OpenFeedChallengeDialog } from "../components/openfeed/OpenFeedChallengeDialog";
-import { openFeedPosts } from "../data/openFeedPosts";
 import { useI18n } from "../i18n/I18nContext";
+
+function DemoIntro() {
+  const { introSeen, setIntroSeen } = useDemoSession();
+  const { language } = useI18n();
+  const [step, setStep] = useState(0);
+
+  if (introSeen) return null;
+
+  const screens = [
+    {
+      en: "You are browsing a simulated social feed.",
+      es: "Estás navegando un feed social simulado.",
+    },
+    {
+      en: "Try sharing the highlighted post. EduCAPTCHA will appear before the action.",
+      es: "Intenta compartir la publicación resaltada. EduCAPTCHA aparecerá antes de la acción.",
+    },
+  ];
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-navy/50 p-4 sm:items-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="intro-title"
+    >
+      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
+        <p className="text-xs font-semibold uppercase tracking-wide text-teal">
+          OpenFeed
+        </p>
+        <h2 id="intro-title" className="mt-2 text-lg font-semibold text-navy">
+          {screens[step][language]}
+        </h2>
+        <div className="mt-5 flex justify-end gap-2">
+          {step === 0 ? (
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="inline-flex min-h-11 items-center rounded-xl bg-teal px-4 text-sm font-semibold text-white"
+            >
+              {language === "es" ? "Siguiente" : "Next"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIntroSeen(true)}
+              className="inline-flex min-h-11 items-center rounded-xl bg-navy px-4 text-sm font-semibold text-white"
+            >
+              {language === "es" ? "Empezar" : "Start browsing"}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ScenarioBootstrap() {
   const { scenarioId } = useParams();
-  const { tryAction, setToast } = useDemoSession();
+  const { launchScenario, setToast, scenarioGuide } = useDemoSession();
   const { language } = useI18n();
 
   useEffect(() => {
     if (!scenarioId) return;
-    const post = openFeedPosts.find((p) => p.scenarioId === scenarioId);
+    const post = launchScenario(scenarioId);
     if (!post) {
       setToast(
         language === "es"
@@ -26,24 +84,31 @@ function ScenarioBootstrap() {
       );
       return;
     }
-    const el = document.getElementById(`post-${post.id}`);
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
-    // Soft-highlight: trigger via verify-link once user is ready is better;
-    // auto-open after a short delay for deep links.
     const t = window.setTimeout(() => {
-      tryAction("verify-link", post, `share-${post.id}`);
-    }, 600);
+      document
+        .getElementById(`post-${post.id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
     return () => window.clearTimeout(t);
-  }, [scenarioId, tryAction, setToast, language]);
+  }, [scenarioId, launchScenario, setToast, language]);
 
-  return null;
+  if (!scenarioGuide) return null;
+  return (
+    <div
+      className="shrink-0 border-b border-teal/20 bg-teal/10 px-4 py-2 text-center text-sm font-medium text-navy"
+      role="status"
+    >
+      {scenarioGuide[language]}
+    </div>
+  );
 }
 
 function Toast() {
   const { toast, setToast } = useDemoSession();
+  const { language } = useI18n();
   useEffect(() => {
     if (!toast) return;
-    const t = window.setTimeout(() => setToast(null), 2800);
+    const t = window.setTimeout(() => setToast(null), 3200);
     return () => window.clearTimeout(t);
   }, [toast, setToast]);
   if (!toast) return null;
@@ -53,15 +118,32 @@ function Toast() {
       aria-live="polite"
       className="fixed bottom-4 left-1/2 z-[90] -translate-x-1/2 rounded-xl bg-navy px-4 py-2 text-sm font-medium text-white shadow-lg"
     >
-      {toast}
+      {toast[language]}
     </div>
   );
+}
+
+function TransferHighlighter() {
+  const { flow } = useDemoSession();
+  useEffect(() => {
+    if (flow.status !== "transfer-pending") return;
+    const id = flow.targetPostId;
+    if (!id) return;
+    const t = window.setTimeout(() => {
+      document
+        .getElementById(`post-${id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 200);
+    return () => window.clearTimeout(t);
+  }, [flow]);
+  return null;
 }
 
 function OpenFeedShell() {
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-off-white">
       <OpenFeedHeader />
+      <ScenarioBootstrap />
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <OpenFeedSidebar />
         <OpenFeedFeed />
@@ -69,7 +151,8 @@ function OpenFeedShell() {
       </div>
       <OpenFeedPostDetail />
       <OpenFeedChallengeDialog />
-      <ScenarioBootstrap />
+      <DemoIntro />
+      <TransferHighlighter />
       <Toast />
     </div>
   );

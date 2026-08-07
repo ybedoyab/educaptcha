@@ -44,7 +44,7 @@ export const challenges: Challenge[] = [
         en: "Guest · Just now · 12.8k reactions",
         es: "Invitado · Ahora · 12,8 mil reacciones",
       },
-      imageSrc: "/demo-assets/viral-health-alert.svg",
+      mediaAssetId: "viral-health-alert",
       reactions: 12840,
       targetCount: 3,
       headlineParts: [
@@ -235,7 +235,7 @@ export const challenges: Challenge[] = [
         en: "LIVE from tonight’s emergency response.",
         es: "EN VIVO desde la emergencia de esta noche.",
       },
-      imageSrc: "/demo-assets/photos/flood-lagos-2019.jpg",
+      mediaAssetId: "flood-lagos-2019",
       imageAlt: {
         en: "Flooded street in Lagos, Nigeria, June 2019",
         es: "Calle inundada en Lagos, Nigeria, junio 2019",
@@ -319,7 +319,7 @@ export const challenges: Challenge[] = [
         es: "Marca señales de alerta y elige una conclusión.",
       },
       maxAttempts: 2,
-      imageSrc: "/demo-assets/synthetic-portrait-scene.svg",
+      mediaAssetId: "synthetic-portrait-scene",
       imageAlt: {
         en: "Stylized portrait with inspectable visual anomalies",
         es: "Retrato estilizado con anomalías visuales inspeccionables",

@@ -18,6 +18,8 @@ export interface MinigameRendererProps {
   stepLabel?: string;
   compact?: boolean;
   wide?: boolean;
+  embedded?: boolean;
+  onClose?: () => void;
 }
 
 export function MinigameRenderer({
@@ -27,6 +29,8 @@ export function MinigameRenderer({
   stepLabel,
   compact,
   wide,
+  embedded,
+  onClose,
 }: MinigameRendererProps) {
   const { language, copy } = useI18n();
   const startedAt = useRef(Date.now());
@@ -52,6 +56,8 @@ export function MinigameRenderer({
   const categoryLabel =
     copy.categories[challenge.category as keyof typeof copy.categories];
 
+  const mode = done ? "review" : "play";
+
   const game = (() => {
     switch (interaction.type) {
       case "spot-signals":
@@ -59,6 +65,7 @@ export function MinigameRenderer({
           <SpotSignalsGame
             interaction={interaction}
             language={language}
+            revealed={Boolean(done)}
             onSolved={(r) => finish(r)}
             onHint={setHint}
           />
@@ -70,6 +77,7 @@ export function MinigameRenderer({
             language={language}
             onSolved={(r) => finish(r)}
             onHint={setHint}
+            mode={mode}
           />
         );
       case "context-match":
@@ -79,6 +87,8 @@ export function MinigameRenderer({
             language={language}
             onSolved={(r) => finish(r)}
             onHint={setHint}
+            mode={mode}
+            reviewResult={done}
           />
         );
       case "chart-repair":
@@ -86,6 +96,7 @@ export function MinigameRenderer({
           <ChartRepairGame
             interaction={interaction}
             language={language}
+            lockedAt={done ? 0 : undefined}
             onSolved={(r) => finish(r)}
           />
         );
@@ -96,6 +107,7 @@ export function MinigameRenderer({
             language={language}
             onSolved={(r) => finish(r)}
             onHint={setHint}
+            mode={mode}
           />
         );
       case "single-choice":
@@ -104,6 +116,8 @@ export function MinigameRenderer({
             interaction={interaction}
             language={language}
             onSolved={(r) => finish(r)}
+            mode={mode}
+            reviewResult={done}
           />
         );
       default:
@@ -119,8 +133,18 @@ export function MinigameRenderer({
       stepLabel={stepLabel}
       whyText={challenge.explanationWhy[language]}
       onSkip={onSkip}
+      onClose={onClose}
       compact={compact}
       wide={wide}
+      embedded={embedded}
+      showWhy={Boolean(done)}
+      layout={
+        done
+          ? "feedback"
+          : interaction.type === "context-match"
+            ? "investigate"
+            : "single"
+      }
       footer={
         done ? (
           <MinigameFeedback
@@ -138,30 +162,16 @@ export function MinigameRenderer({
             onContinue={() => onComplete(done)}
           />
         ) : hint ? (
-          <p className="rounded-lg bg-amber/10 px-3 py-2 text-xs font-medium text-navy" role="status">
+          <p
+            className="rounded-lg bg-amber/10 px-3 py-2 text-xs font-medium text-navy"
+            role="status"
+          >
             {hint}
           </p>
         ) : null
       }
     >
-      {!done && game}
-      {done && interaction.type === "spot-signals" && (
-        <SpotSignalsGame
-          interaction={interaction}
-          language={language}
-          revealed
-          onSolved={() => undefined}
-          onHint={() => undefined}
-        />
-      )}
-      {done && interaction.type === "chart-repair" && (
-        <ChartRepairGame
-          interaction={interaction}
-          language={language}
-          lockedAt={0}
-          onSolved={() => undefined}
-        />
-      )}
+      {game}
     </MinigameShell>
   );
 }

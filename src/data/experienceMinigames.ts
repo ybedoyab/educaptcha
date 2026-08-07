@@ -38,7 +38,7 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "18m · 12.8k reactions",
         es: "18 min · 12,8 mil reacciones",
       },
-      imageSrc: "/demo-assets/viral-health-alert.svg",
+      mediaAssetId: "viral-health-alert",
       reactions: 12840,
       targetCount: 3,
       headlineParts: [
@@ -236,10 +236,14 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "Inspect evidence, then match the photo to the correct archive result.",
-        es: "Inspecciona la evidencia y empareja la foto con el resultado de archivo correcto.",
+        en: "Check the claim, inspect evidence, then decide.",
+        es: "Revisa la afirmación, inspecciona la evidencia y decide.",
       },
       maxAttempts: 2,
+      claimQuestion: {
+        en: "Is this photo really from tonight?",
+        es: "¿Esta foto es realmente de esta noche?",
+      },
       claim: {
         en: "LIVE from tonight’s emergency response.",
         es: "EN VIVO desde la emergencia de esta noche.",
@@ -248,7 +252,7 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "Share so everyone sees it.",
         es: "Comparte para que todos la vean.",
       },
-      imageSrc: "/demo-assets/photos/flood-lagos-2019.jpg",
+      mediaAssetId: "flood-lagos-2019",
       imageAlt: {
         en: "Flooded street in Lagos, Nigeria, June 2019",
         es: "Calle inundada en Lagos, Nigeria, junio 2019",
@@ -275,8 +279,8 @@ export const experienceMinigames: Record<string, Challenge> = {
         {
           id: "2019",
           label: {
-            en: "Lagos archive frame",
-            es: "Fotograma de archivo de Lagos",
+            en: "Street flood archive",
+            es: "Archivo de inundación urbana",
           },
           detail: {
             en: "June 24, 2019 · Wikimedia Commons",
@@ -284,33 +288,39 @@ export const experienceMinigames: Record<string, Challenge> = {
           },
           date: { en: "June 24, 2019", es: "24 de junio de 2019" },
           location: { en: "Lagos, Nigeria", es: "Lagos, Nigeria" },
-          medium: { en: "Wikimedia Commons", es: "Wikimedia Commons" },
-          matchLevel: { en: "High visual match", es: "Alta coincidencia visual" },
-          thumbSrc: "/demo-assets/photos/flood-lagos-2019.jpg",
+          medium: { en: "Wikimedia Commons / Omagxii", es: "Wikimedia Commons / Omagxii" },
+          findings: {
+            en: "Same vehicles, water line and building facades",
+            es: "Mismos vehículos, línea de agua y fachadas",
+          },
+          mediaAssetId: "flood-lagos-2019",
           correct: true,
         },
         {
           id: "local",
           label: {
-            en: "Local emergency claim",
-            es: "Afirmación de emergencia local",
+            en: "Local emergency desk claim",
+            es: "Afirmación de mesa de emergencia local",
           },
           detail: {
-            en: "Caption-only · no publisher",
-            es: "Solo pie de foto · sin editor",
+            en: "Caption-only social upload",
+            es: "Subida social solo con pie de foto",
           },
           date: { en: "Claimed: tonight", es: "Afirmado: esta noche" },
           location: { en: "Unnamed city", es: "Ciudad sin nombre" },
-          medium: { en: "Social post", es: "Publicación social" },
-          matchLevel: { en: "Caption match only", es: "Solo coincide el pie" },
-          thumbSrc: "/demo-assets/photos/flood-lagos-2019.jpg",
+          medium: { en: "Anonymous social account", es: "Cuenta social anónima" },
+          findings: {
+            en: "No publisher metadata beyond the caption",
+            es: "Sin metadatos de editor más allá del pie",
+          },
+          mediaAssetId: "flood-response-2015",
           correct: false,
         },
         {
           id: "today",
           label: {
-            en: "Unsourced “today” frame",
-            es: "Fotograma “hoy” sin fuente",
+            en: "Unsourced “today” listing",
+            es: "Registro “hoy” sin fuente",
           },
           detail: {
             en: "No archive trail",
@@ -319,7 +329,37 @@ export const experienceMinigames: Record<string, Challenge> = {
           date: { en: "Unknown", es: "Desconocida" },
           location: { en: "Unknown", es: "Desconocida" },
           medium: { en: "No publisher", es: "Sin editor" },
-          matchLevel: { en: "Low confidence", es: "Baja confianza" },
+          findings: {
+            en: "No original image supplied by the claim",
+            es: "La afirmación no aporta imagen original",
+          },
+          noImage: true,
+          correct: false,
+        },
+      ],
+      conclusions: [
+        {
+          id: "current",
+          label: {
+            en: "Current local photo",
+            es: "Foto local actual",
+          },
+          correct: false,
+        },
+        {
+          id: "wrong-context",
+          label: {
+            en: "Authentic photo used in the wrong context",
+            es: "Foto auténtica usada en el contexto incorrecto",
+          },
+          correct: true,
+        },
+        {
+          id: "ai",
+          label: {
+            en: "Likely AI-generated image",
+            es: "Imagen probablemente generada por IA",
+          },
           correct: false,
         },
       ],
@@ -372,7 +412,7 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "Proof from today’s disaster in our city — share now.",
         es: "Prueba del desastre de hoy en nuestra ciudad — comparte ya.",
       },
-      imageSrc: "/demo-assets/photos/flood-response-2015.jpg",
+      mediaAssetId: "flood-response-2015",
       imageAlt: {
         en: "National Guard flood response in West Columbia, South Carolina, 2015",
         es: "Respuesta de la Guardia Nacional a inundaciones en West Columbia, Carolina del Sur, 2015",
@@ -464,7 +504,7 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "A toxic cloud is covering Bogotá right now. Officials are hiding it.",
         es: "Una nube tóxica cubre Bogotá ahora mismo. Las autoridades lo ocultan.",
       },
-      imageSrc: "/demo-assets/photos/wildfire-washington-dc.jpg",
+      mediaAssetId: "wildfire-washington-dc",
       imageAlt: {
         en: "Wildfire smoke over Washington, D.C.",
         es: "Humo de incendios sobre Washington, D.C.",
@@ -495,8 +535,8 @@ export const experienceMinigames: Record<string, Challenge> = {
           date: { en: "June 2023", es: "Junio 2023" },
           location: { en: "Washington, D.C., USA", es: "Washington, D.C., EE. UU." },
           medium: { en: "Wikimedia Commons", es: "Wikimedia Commons" },
-          matchLevel: { en: "High visual match", es: "Alta coincidencia visual" },
-          thumbSrc: "/demo-assets/photos/wildfire-washington-dc.jpg",
+          findings: { en: "High visual match", es: "Alta coincidencia visual" },
+          mediaAssetId: "wildfire-washington-dc",
           correct: true,
         },
         {
@@ -506,7 +546,7 @@ export const experienceMinigames: Record<string, Challenge> = {
           date: { en: "Claimed: now", es: "Afirmado: ahora" },
           location: { en: "Bogotá", es: "Bogotá" },
           medium: { en: "Anonymous post", es: "Publicación anónima" },
-          matchLevel: { en: "Caption only", es: "Solo pie de foto" },
+          findings: { en: "Caption only", es: "Solo pie de foto" },
           correct: false,
         },
         {
@@ -516,7 +556,7 @@ export const experienceMinigames: Record<string, Challenge> = {
           date: { en: "Unknown", es: "Desconocida" },
           location: { en: "Unknown", es: "Desconocida" },
           medium: { en: "Unsourced", es: "Sin fuente" },
-          matchLevel: { en: "Low confidence", es: "Baja confianza" },
+          findings: { en: "Low confidence", es: "Baja confianza" },
           correct: false,
         },
       ],
@@ -622,7 +662,7 @@ export const experienceMinigames: Record<string, Challenge> = {
         es: "Marca lo que la foto puede mostrar y elige una conclusión.",
       },
       maxAttempts: 2,
-      imageSrc: "/demo-assets/photos/vaccine-vial-2024.jpg",
+      mediaAssetId: "vaccine-vial-2024",
       imageAlt: {
         en: "COVID-19 vaccine vial photograph",
         es: "Fotografía de un vial de vacuna COVID-19",
@@ -774,7 +814,7 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "Huge crowds in our capital today. This photo is from this morning’s march.",
         es: "Multitudes enormes en nuestra capital hoy. Esta foto es de la marcha de esta mañana.",
       },
-      imageSrc: "/demo-assets/photos/protest-2024.jpg",
+      mediaAssetId: "protest-2024",
       imageAlt: {
         en: "Protest under a gate",
         es: "Protesta bajo una puerta",
@@ -805,8 +845,8 @@ export const experienceMinigames: Record<string, Challenge> = {
           date: { en: "Earlier coverage", es: "Cobertura anterior" },
           location: { en: "Original venue", es: "Lugar original" },
           medium: { en: "Photo archive", es: "Archivo fotográfico" },
-          matchLevel: { en: "High visual match", es: "Alta coincidencia visual" },
-          thumbSrc: "/demo-assets/photos/protest-2024.jpg",
+          findings: { en: "High visual match", es: "Alta coincidencia visual" },
+          mediaAssetId: "protest-2024",
           correct: true,
         },
         {
@@ -816,7 +856,7 @@ export const experienceMinigames: Record<string, Challenge> = {
           date: { en: "Claimed: today", es: "Afirmado: hoy" },
           location: { en: "“Our capital”", es: "“Nuestra capital”" },
           medium: { en: "Social post", es: "Publicación social" },
-          matchLevel: { en: "Caption match", es: "Coincide el pie" },
+          findings: { en: "Caption match", es: "Coincide el pie" },
           correct: false,
         },
         {
@@ -826,8 +866,8 @@ export const experienceMinigames: Record<string, Challenge> = {
           date: { en: "2020", es: "2020" },
           location: { en: "Different city cues", es: "Otras pistas de ciudad" },
           medium: { en: "Archive", es: "Archivo" },
-          matchLevel: { en: "Partial similarity", es: "Similitud parcial" },
-          thumbSrc: "/demo-assets/photos/covid-protest-2020.jpg",
+          findings: { en: "Partial similarity", es: "Similitud parcial" },
+          mediaAssetId: "covid-protest-2020",
           correct: false,
         },
       ],

@@ -40,7 +40,9 @@ export interface OpenFeedPost {
   category: FeedCategory;
   tone: PostTone;
   mediaKind: MediaKind;
+  /** @deprecated Prefer mediaAssetId */
   imageSrc?: string;
+  mediaAssetId?: string;
   tags: string[];
   reactions: number;
   comments: number;
@@ -58,6 +60,8 @@ export interface OpenFeedPost {
   scenarioId?: string;
   minigameId?: string;
   transferMinigameId?: string;
+  /** Post id used for transfer highlight after initial challenge */
+  transferPostId?: string;
 }
 
 export const openFeedPosts: OpenFeedPost[] = [
@@ -116,7 +120,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "community",
     tone: "official",
     mediaKind: "official",
-    imageSrc: "/demo-assets/neutral-news-report.svg",
+    mediaAssetId: "neutral-news-report",
     tags: ["library", "literacy"],
     reactions: 118,
     comments: 6,
@@ -148,7 +152,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "science",
     tone: "official",
     mediaKind: "document",
-    imageSrc: "/demo-assets/source-document.svg",
+    mediaAssetId: "source-document",
     tags: ["science", "data"],
     reactions: 203,
     comments: 8,
@@ -211,7 +215,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "technology",
     tone: "neutral",
     mediaKind: "document",
-    imageSrc: "/demo-assets/source-document.svg",
+    mediaAssetId: "source-document",
     tags: ["tech", "privacy"],
     reactions: 89,
     comments: 5,
@@ -305,7 +309,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "health",
     tone: "official",
     mediaKind: "official",
-    imageSrc: "/demo-assets/neutral-news-report.svg",
+    mediaAssetId: "neutral-news-report",
     tags: ["health", "clinic"],
     reactions: 221,
     comments: 9,
@@ -337,7 +341,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "health",
     tone: "manipulative",
     mediaKind: "photo",
-    imageSrc: "/demo-assets/viral-health-alert.svg",
+    mediaAssetId: "viral-health-alert",
     tags: ["viral", "urgency"],
     reactions: 12840,
     comments: 32,
@@ -346,6 +350,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     scenarioId: "emotional-pressure",
     minigameId: "ep-spot",
     transferMinigameId: "ep-transfer",
+    transferPostId: "p-inside",
     seedComments: [
       {
         id: "c10",
@@ -395,7 +400,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "environment",
     tone: "manipulative",
     mediaKind: "photo",
-    imageSrc: "/demo-assets/photos/flood-lagos-2019.jpg",
+    mediaAssetId: "flood-lagos-2019",
     tags: ["flood", "out-of-context"],
     reactions: 9044,
     comments: 41,
@@ -404,6 +409,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     scenarioId: "image-context",
     minigameId: "ic-match",
     transferMinigameId: "ic-transfer",
+    transferPostId: "p-flood-today",
     seedComments: [
       {
         id: "c13",
@@ -442,7 +448,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "environment",
     tone: "manipulative",
     mediaKind: "photo",
-    imageSrc: "/demo-assets/photos/wildfire-washington-dc.jpg",
+    mediaAssetId: "wildfire-washington-dc",
     tags: ["wildfire", "out-of-context"],
     reactions: 7102,
     comments: 29,
@@ -451,6 +457,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     scenarioId: "wildfire-context",
     minigameId: "wf-match",
     transferMinigameId: "wf-transfer",
+    transferPostId: "p-flood-today",
     seedComments: [
       {
         id: "c15",
@@ -489,7 +496,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "health",
     tone: "manipulative",
     mediaKind: "photo",
-    imageSrc: "/demo-assets/photos/vaccine-vial-2024.jpg",
+    mediaAssetId: "vaccine-vial-2024",
     tags: ["health", "unsupported-claim"],
     reactions: 5320,
     comments: 44,
@@ -498,6 +505,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     scenarioId: "vaccine-claim",
     minigameId: "vx-inspect",
     transferMinigameId: "vx-transfer",
+    transferPostId: "p-health-tips",
     seedComments: [
       {
         id: "c17",
@@ -525,7 +533,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "local-news",
     tone: "ambiguous",
     mediaKind: "photo",
-    imageSrc: "/demo-assets/photos/protest-2024.jpg",
+    mediaAssetId: "protest-2024",
     tags: ["protest", "reuse"],
     reactions: 4011,
     comments: 22,
@@ -534,6 +542,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     scenarioId: "protest-context",
     minigameId: "pr-match",
     transferMinigameId: "pr-transfer",
+    transferPostId: "p-flood-today",
     seedComments: [
       {
         id: "c18",
@@ -561,7 +570,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "technology",
     tone: "manipulative",
     mediaKind: "chart",
-    imageSrc: "/demo-assets/misleading-chart-preview.svg",
+    mediaAssetId: "misleading-chart-preview",
     tags: ["chart", "misleading"],
     reactions: 2880,
     comments: 17,
@@ -570,6 +579,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     scenarioId: "misleading-chart",
     minigameId: "ch-repair",
     transferMinigameId: "ch-transfer",
+    transferPostId: "p-tech",
     seedComments: [
       {
         id: "c19",
@@ -631,7 +641,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "environment",
     tone: "ambiguous",
     mediaKind: "photo",
-    imageSrc: "/demo-assets/photos/flood-response-2015.jpg",
+    mediaAssetId: "flood-response-2015",
     tags: ["flood", "transfer"],
     reactions: 4510,
     comments: 20,
@@ -697,7 +707,7 @@ export const openFeedPosts: OpenFeedPost[] = [
     category: "local-news",
     tone: "official",
     mediaKind: "video",
-    imageSrc: "/demo-assets/neutral-news-report.svg",
+    mediaAssetId: "neutral-news-report",
     tags: ["council", "video"],
     reactions: 330,
     comments: 12,

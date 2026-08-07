@@ -11,12 +11,22 @@ interface Props {
   interaction: SingleChoiceInteraction;
   language: Language;
   onSolved: (result: Omit<ChallengeResult, "durationMs" | "completed">) => void;
+  mode?: "play" | "review";
+  reviewResult?: ChallengeResult | null;
 }
 
-export function SingleChoiceGame({ interaction, language, onSolved }: Props) {
+export function SingleChoiceGame({
+  interaction,
+  language,
+  onSolved,
+  mode = "play",
+  reviewResult,
+}: Props) {
   const { copy } = useI18n();
-  const [selected, setSelected] = useState<string | null>(null);
-  const [revealed, setRevealed] = useState(false);
+  const [selected, setSelected] = useState<string | null>(
+    reviewResult?.selectedIds[0] ?? null,
+  );
+  const [revealed, setRevealed] = useState(mode === "review");
 
   return (
     <div className="space-y-3">

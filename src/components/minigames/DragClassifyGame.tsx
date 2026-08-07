@@ -21,13 +21,6 @@ import type {
 } from "../../types/minigame";
 import { useI18n } from "../../i18n/I18nContext";
 
-interface Props {
-  interaction: DragClassifyInteraction;
-  language: Language;
-  onSolved: (result: Omit<ChallengeResult, "durationMs" | "completed">) => void;
-  onHint: (hint: string | null) => void;
-}
-
 function DraggableCard({
   id,
   label,
@@ -103,18 +96,34 @@ function DropZone({
   );
 }
 
+interface Props {
+  interaction: DragClassifyInteraction;
+  language: Language;
+  onSolved: (result: Omit<ChallengeResult, "durationMs" | "completed">) => void;
+  onHint: (hint: string | null) => void;
+  mode?: "play" | "review";
+}
+
 export function DragClassifyGame({
   interaction,
   language,
   onSolved,
   onHint,
+  mode = "play",
 }: Props) {
   const { copy } = useI18n();
-  const [placements, setPlacements] = useState<Record<string, string>>({});
+  const [placements, setPlacements] = useState<Record<string, string>>(() => {
+    if (mode !== "review") return {};
+    const auto: Record<string, string> = {};
+    interaction.items.forEach((item) => {
+      if (item.correctZoneId) auto[item.id] = item.correctZoneId;
+    });
+    return auto;
+  });
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [attempts, setAttempts] = useState(0);
-  const [rebuild, setRebuild] = useState(false);
+  const [rebuild, setRebuild] = useState(mode === "review");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),

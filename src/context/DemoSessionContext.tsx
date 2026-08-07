@@ -2,20 +2,33 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useReducer,
   useRef,
   useState,
   type ReactNode,
 } from "react";
-import { openFeedPosts, type FeedComment, type OpenFeedPost } from "../data/openFeedPosts";
+import {
+  openFeedPosts,
+  type FeedComment,
+  type OpenFeedPost,
+} from "../data/openFeedPosts";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import {
+  demoFlowReducer,
+  initialDemoFlowState,
+  type DemoFlowState,
+  type OutcomeRecord,
+  type PendingIntent,
+} from "../lib/demoFlow";
+import {
   createTriggerEngine,
-  type TriggerAction,
-  type TriggerDecision,
+  isAffirmingComment,
+  type ActionDecision,
 } from "../lib/LearningTriggerEngine";
-import type { ChallengeResult } from "../types/minigame";
 import type { LocalizedText } from "../types";
+import type { ChallengeResult } from "../types/minigame";
 
 export type FeedNav =
   | "home"
@@ -32,29 +45,68 @@ export type AlertItem = {
   postId?: string;
 };
 
-export type ChallengeFocus = {
+export type DraftComment = {
   postId: string;
-  returnElementId: string;
-  reason: LocalizedText;
-  minigameId: string;
-  transferMinigameId?: string;
-  phase: "initial" | "transfer";
-  skill?: string;
-};
-
-export type OutcomeRecord = {
-  postId: string;
-  skill?: string;
-  initial?: ChallengeResult;
-  transfer?: ChallengeResult;
-  skipped?: boolean;
-  evidenceInspected?: boolean;
-  firstDecision?: string;
-  transferDecision?: string;
-  completedAt: string;
+  body: string;
+  parentId?: string;
 };
 
 type CommentsMap = Record<string, FeedComment[]>;
+
+type ToastValue = LocalizedText | null;
+
+const SCENARIO_GUIDE: LocalizedText = {
+  en: "Try sharing the highlighted post.",
+  es: "Intenta compartir la publicación resaltada.",
+};
+
+const TRANSFER_TOAST: LocalizedText = {
+  en: "Now apply this skill to a new post.",
+  es: "Ahora aplica esta habilidad en otra publicación.",
+};
+
+const VERIFY_ACK: LocalizedText = {
+  en: "Good instinct — open a source and compare details.",
+  es: "Buen instinto — abre una fuente y compara los detalles.",
+};
+
+const SHARED_TOAST: LocalizedText = {
+  en: "Shared (simulated)",
+  es: "Compartido (simulado)",
+};
+
+const REPOST_TOAST: LocalizedText = {
+  en: "Image reposted (simulated)",
+  es: "Imagen republicada (simulada)",
+};
+
+const SKIPPED_RESULT: ChallengeResult = {
+  completed: false,
+  correct: false,
+  score: 0,
+  attempts: 0,
+  selectedIds: [],
+  durationMs: 0,
+  hintsUsed: 0,
+  skipped: true,
+};
+
+function toToast(value: LocalizedText | string | null): ToastValue {
+  if (value === null) return null;
+  if (typeof value === "string") return { en: value, es: value };
+  return value;
+}
+
+function transferReason(skill?: string): LocalizedText {
+  return {
+    en: skill
+      ? `Apply what you learned about ${skill.replace(/-/g, " ")} to this post.`
+      : "Apply what you learned to this new post.",
+    es: skill
+      ? `Aplica lo que aprendiste sobre ${skill.replace(/-/g, " ")} en esta publicación.`
+      : "Aplica lo que aprendiste en esta nueva publicación.",
+  };
+}
 
 type DemoSessionValue = {
   posts: OpenFeedPost[];
@@ -67,32 +119,49 @@ type DemoSessionValue = {
   liked: Set<string>;
   saved: Set<string>;
   toggleLike: (id: string) => void;
-  toggleSave: (id: string, openSource?: boolean) => void;
+  toggleSave: (id: string) => void;
   comments: CommentsMap;
-  addComment: (postId: string, body: string, parentId?: string) => void;
   likeComment: (postId: string, commentId: string) => void;
   deleteComment: (postId: string, commentId: string) => void;
   commentSort: "featured" | "recent";
   setCommentSort: (s: "featured" | "recent") => void;
-  alerts: AlertItem[];
-  challenge: ChallengeFocus | null;
-  challengeReason: LocalizedText | null;
-  tryAction: (
-    action: TriggerAction,
-    post: OpenFeedPost,
-    returnElementId: string,
-    commentText?: string,
-  ) => boolean;
-  completeChallenge: (result: ChallengeResult) => void;
-  skipChallenge: () => void;
-  outcomes: OutcomeRecord[];
-  toast: string | null;
-  setToast: (t: string | null) => void;
+  flow: DemoFlowState;
+  draftComment: DraftComment | null;
+  highlightedPostId: string | null;
+  scenarioGuide: LocalizedText | null;
+  guidedScenarioId: string | null;
+  shareCounts: Record<string, number>;
+  introSeen: boolean;
+  setIntroSeen: (seen: boolean) => void;
+  toast: ToastValue;
+  setToast: (t: LocalizedText | string | null) => void;
   selectedPostId: string | null;
   setSelectedPostId: (id: string | null) => void;
   focusReturnId: string | null;
   clearFocusReturn: () => void;
   loading: boolean;
+  outcomes: OutcomeRecord[];
+  alerts: AlertItem[];
+  launchScenario: (scenarioId: string) => OpenFeedPost | null;
+  requestShare: (post: OpenFeedPost, returnElementId: string) => ActionDecision;
+  requestComment: (
+    postId: string,
+    body: string,
+    parentId: string | undefined,
+    returnElementId: string,
+  ) => ActionDecision | null;
+  requestRepostImage: (
+    post: OpenFeedPost,
+    returnElementId: string,
+  ) => ActionDecision;
+  commitComment: (postId: string, body: string, parentId?: string) => void;
+  resolvePendingIntent: (
+    choice: "confirm" | "cancel" | "edit" | "open-source",
+  ) => void;
+  completeChallenge: (result: ChallengeResult) => void;
+  skipChallenge: () => void;
+  beginChallenge: () => void;
+  isGuidedAction: (post: OpenFeedPost) => boolean;
 };
 
 const DemoSessionContext = createContext<DemoSessionValue | null>(null);
@@ -150,30 +219,62 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     "featured",
   );
   const [alerts, setAlerts] = useState<AlertItem[]>(seedAlerts);
-  const [challenge, setChallenge] = useState<ChallengeFocus | null>(null);
   const [outcomes, setOutcomes] = useLocalStorage<OutcomeRecord[]>(
     "educaptcha-outcomes",
     [],
   );
-  const [toast, setToast] = useState<string | null>(null);
+  const [introSeen, setIntroSeen] = useLocalStorage<boolean>(
+    "educaptcha-intro-seen",
+    false,
+  );
+  const [toast, setToastState] = useState<ToastValue>(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [focusReturnId, setFocusReturnId] = useState<string | null>(null);
+  const [draftComment, setDraftComment] = useState<DraftComment | null>(null);
+  const [highlightedPostId, setHighlightedPostId] = useState<string | null>(
+    null,
+  );
+  const [scenarioGuide, setScenarioGuide] = useState<LocalizedText | null>(
+    null,
+  );
+  const [guidedScenarioId, setGuidedScenarioId] = useState<string | null>(
+    null,
+  );
+  const [shareCounts, setShareCounts] = useState<Record<string, number>>({});
   const [loading] = useState(false);
+
+  const [flow, dispatch] = useReducer(demoFlowReducer, initialDemoFlowState);
   const engineRef = useRef(createTriggerEngine());
-  const pendingInitial = useRef<ChallengeResult | null>(null);
+  const recordedOutcomeKey = useRef<string | null>(null);
 
   const likedSet = useMemo(() => new Set(liked), [liked]);
   const savedSet = useMemo(() => new Set(saved), [saved]);
+
+  const setToast = useCallback((t: LocalizedText | string | null) => {
+    setToastState(toToast(t));
+  }, []);
+
+  const clearFocusReturn = useCallback(() => setFocusReturnId(null), []);
+
+  const isGuidedAction = useCallback(
+    (post: OpenFeedPost) =>
+      Boolean(guidedScenarioId && post.scenarioId === guidedScenarioId),
+    [guidedScenarioId],
+  );
 
   const filteredPosts = useMemo(() => {
     let list = [...openFeedPosts];
     if (nav === "saved") {
       list = list.filter((p) => savedSet.has(p.id));
     } else if (nav === "explore") {
-      list = list.filter((p) => p.tone !== "manipulative" || p.category === "science");
+      list = list.filter(
+        (p) => p.tone !== "manipulative" || p.category === "science",
+      );
       list = [...list].sort((a, b) => b.reactions - a.reactions);
     } else if (nav === "profile") {
-      list = list.filter((p) => p.tone === "official" || p.mediaKind === "thread");
+      list = list.filter(
+        (p) => p.tone === "official" || p.mediaKind === "thread",
+      );
     }
 
     const q = query.trim().toLowerCase();
@@ -196,33 +297,6 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     return list;
   }, [nav, query, savedSet]);
 
-  const tryAction = useCallback(
-    (
-      action: TriggerAction,
-      post: OpenFeedPost,
-      returnElementId: string,
-      commentText?: string,
-    ) => {
-      const decision: TriggerDecision | null = engineRef.current.decide(
-        action,
-        post,
-        commentText,
-      );
-      if (!decision?.shouldTrigger) return false;
-      setChallenge({
-        postId: post.id,
-        returnElementId,
-        reason: decision.reason,
-        minigameId: decision.minigameId,
-        transferMinigameId: decision.transferMinigameId,
-        phase: "initial",
-        skill: decision.skill,
-      });
-      return true;
-    },
-    [],
-  );
-
   const returnFocus = useCallback((id: string) => {
     setFocusReturnId(id);
     requestAnimationFrame(() => {
@@ -232,79 +306,386 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const completeChallenge = useCallback(
-    (result: ChallengeResult) => {
-      if (!challenge) return;
-      if (challenge.phase === "initial" && challenge.transferMinigameId) {
-        pendingInitial.current = result;
-        setChallenge({
-          ...challenge,
-          phase: "transfer",
-          minigameId: challenge.transferMinigameId,
-        });
+  const commitComment = useCallback(
+    (postId: string, body: string, parentId?: string) => {
+      const trimmed = body.trim();
+      if (!trimmed) return;
+      const comment: FeedComment = {
+        id: `own-${Date.now()}`,
+        author: "You",
+        handle: "@you.demo",
+        body: { en: trimmed, es: trimmed },
+        createdAt: new Date().toISOString(),
+        likes: 0,
+        parentId,
+        isOwn: true,
+      };
+      setComments((prev) => ({
+        ...prev,
+        [postId]: [...(prev[postId] ?? []), comment],
+      }));
+      setDraftComment((prev) =>
+        prev && prev.postId === postId ? null : prev,
+      );
+    },
+    [setComments],
+  );
+
+  const incrementShare = useCallback((postId: string) => {
+    setShareCounts((prev) => ({
+      ...prev,
+      [postId]: (prev[postId] ?? 0) + 1,
+    }));
+  }, []);
+
+  const startIntercept = useCallback(
+    (decision: Extract<ActionDecision, { type: "intercept" }>) => {
+      dispatch({
+        type: "START_CHALLENGE",
+        intent: decision.intent,
+        challengeId: decision.challengeId,
+        transferChallengeId: decision.transferChallengeId,
+        skill: decision.skill,
+        reason: decision.reason,
+        transferPostId: decision.transferPostId,
+      });
+      dispatch({ type: "BEGIN_ACTIVE" });
+      setGuidedScenarioId(null);
+      setScenarioGuide(null);
+    },
+    [],
+  );
+
+  const maybeStartTransfer = useCallback(
+    (post: OpenFeedPost, intent: PendingIntent): boolean => {
+      if (flow.status !== "transfer-pending") return false;
+      if (post.id !== flow.targetPostId && post.id !== highlightedPostId) {
+        return false;
+      }
+      dispatch({
+        type: "START_TRANSFER",
+        intent,
+        reason: transferReason(flow.skill),
+      });
+      setHighlightedPostId(post.id);
+      setScenarioGuide(null);
+      return true;
+    },
+    [flow, highlightedPostId],
+  );
+
+  const decideForPost = useCallback(
+    (
+      action: "share" | "comment" | "repost-image",
+      post: OpenFeedPost,
+      intent: PendingIntent,
+      commentText?: string,
+    ): ActionDecision => {
+      if (isGuidedAction(post)) {
+        return engineRef.current.forceScenario(post, intent);
+      }
+      return engineRef.current.decideFreeBrowse(
+        action,
+        post,
+        intent,
+        commentText,
+      );
+    },
+    [isGuidedAction],
+  );
+
+  const launchScenario = useCallback((scenarioId: string): OpenFeedPost | null => {
+    const post = openFeedPosts.find((p) => p.scenarioId === scenarioId);
+    if (!post) {
+      setToast({
+        en: "Scenario not found — showing the full feed.",
+        es: "Escenario no encontrado — mostrando el feed completo.",
+      });
+      return null;
+    }
+    setGuidedScenarioId(scenarioId);
+    setHighlightedPostId(post.id);
+    setScenarioGuide(SCENARIO_GUIDE);
+    return post;
+  }, [setToast]);
+
+  const requestShare = useCallback(
+    (post: OpenFeedPost, returnElementId: string): ActionDecision => {
+      const intent: PendingIntent = {
+        type: "share",
+        postId: post.id,
+        returnElementId,
+      };
+
+      if (maybeStartTransfer(post, intent)) {
+        return {
+          type: "intercept",
+          challengeId:
+            flow.status === "transfer-pending" ? flow.challengeId : "",
+          skill: flow.status === "transfer-pending" ? flow.skill : undefined,
+          reason: transferReason(
+            flow.status === "transfer-pending" ? flow.skill : undefined,
+          ),
+          intent,
+        };
+      }
+
+      const decision = decideForPost("share", post, intent);
+      if (decision.type === "intercept") {
+        startIntercept(decision);
+        return decision;
+      }
+
+      incrementShare(post.id);
+      setToast(SHARED_TOAST);
+      return decision;
+    },
+    [
+      decideForPost,
+      flow,
+      incrementShare,
+      maybeStartTransfer,
+      setToast,
+      startIntercept,
+    ],
+  );
+
+  const requestComment = useCallback(
+    (
+      postId: string,
+      body: string,
+      parentId: string | undefined,
+      returnElementId: string,
+    ): ActionDecision | null => {
+      const trimmed = body.trim();
+      if (!trimmed) return null;
+
+      const post = openFeedPosts.find((p) => p.id === postId);
+      if (!post) return null;
+
+      const intent: PendingIntent = {
+        type: "comment",
+        postId,
+        body: trimmed,
+        parentId,
+        returnElementId,
+      };
+
+      if (maybeStartTransfer(post, intent)) {
+        setDraftComment({ postId, body: trimmed, parentId });
+        return {
+          type: "intercept",
+          challengeId:
+            flow.status === "transfer-pending" ? flow.challengeId : "",
+          skill: flow.status === "transfer-pending" ? flow.skill : undefined,
+          reason: transferReason(
+            flow.status === "transfer-pending" ? flow.skill : undefined,
+          ),
+          intent,
+        };
+      }
+
+      const decision = decideForPost("comment", post, intent, trimmed);
+      if (
+        decision.type === "intercept" &&
+        (isGuidedAction(post) || isAffirmingComment(trimmed))
+      ) {
+        setDraftComment({ postId, body: trimmed, parentId });
+        startIntercept(decision);
+        return decision;
+      }
+
+      commitComment(postId, trimmed, parentId);
+      return decision.type === "intercept" ? { type: "continue" } : decision;
+    },
+    [
+      commitComment,
+      decideForPost,
+      flow,
+      isGuidedAction,
+      maybeStartTransfer,
+      startIntercept,
+    ],
+  );
+
+  const requestRepostImage = useCallback(
+    (post: OpenFeedPost, returnElementId: string): ActionDecision => {
+      const intent: PendingIntent = {
+        type: "repost-image",
+        postId: post.id,
+        returnElementId,
+      };
+
+      if (maybeStartTransfer(post, intent)) {
+        return {
+          type: "intercept",
+          challengeId:
+            flow.status === "transfer-pending" ? flow.challengeId : "",
+          skill: flow.status === "transfer-pending" ? flow.skill : undefined,
+          reason: transferReason(
+            flow.status === "transfer-pending" ? flow.skill : undefined,
+          ),
+          intent,
+        };
+      }
+
+      const decision = decideForPost("repost-image", post, intent);
+      if (decision.type === "intercept") {
+        startIntercept(decision);
+        return decision;
+      }
+
+      setToast(REPOST_TOAST);
+      return decision;
+    },
+    [decideForPost, flow, maybeStartTransfer, setToast, startIntercept],
+  );
+
+  const resolveTransferTarget = useCallback(
+    (intent: PendingIntent): string | undefined => {
+      if (flow.status === "return-to-context" && flow.transferPostId) {
+        return flow.transferPostId;
+      }
+      const post = openFeedPosts.find((p) => p.id === intent.postId);
+      return post?.transferPostId;
+    },
+    [flow],
+  );
+
+  const enterTransferPending = useCallback(
+    (transferPostId: string | undefined) => {
+      if (!transferPostId) return;
+      setHighlightedPostId(transferPostId);
+      setToast(TRANSFER_TOAST);
+      requestAnimationFrame(() => {
+        document
+          .getElementById(`post-${transferPostId}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    },
+    [setToast],
+  );
+
+  const resolvePendingIntent = useCallback(
+    (choice: "confirm" | "cancel" | "edit" | "open-source") => {
+      if (flow.status !== "return-to-context") return;
+      const { intent } = flow;
+      const transferPostId = resolveTransferTarget(intent);
+      const hasTransfer = Boolean(flow.transferChallengeId && flow.skill);
+
+      if (choice === "edit") {
+        if (intent.type === "comment") {
+          setDraftComment({
+            postId: intent.postId,
+            body: intent.body,
+            parentId: intent.parentId,
+          });
+        }
+        dispatch({ type: "RESET_FLOW" });
+        returnFocus(intent.returnElementId);
         return;
       }
 
-      const initial = pendingInitial.current ?? result;
-      const transfer =
-        challenge.phase === "transfer" ? result : undefined;
-      pendingInitial.current = null;
+      if (choice === "confirm") {
+        if (intent.type === "share") {
+          incrementShare(intent.postId);
+          setToast(SHARED_TOAST);
+        } else if (intent.type === "comment") {
+          commitComment(intent.postId, intent.body, intent.parentId);
+        } else if (intent.type === "repost-image") {
+          setToast(REPOST_TOAST);
+        }
+        dispatch({ type: "RESOLVE_INTENT", transferPostId });
+        if (hasTransfer) {
+          enterTransferPending(transferPostId);
+        }
+        returnFocus(intent.returnElementId);
+        return;
+      }
 
-      setOutcomes((prev) => [
-        ...prev,
-        {
-          postId: challenge.postId,
-          skill: challenge.skill,
-          initial,
-          transfer,
-          evidenceInspected: true,
-          firstDecision: initial.correct ? "identified" : "missed",
-          transferDecision: transfer
-            ? transfer.correct
-              ? "identified"
-              : "missed"
-            : undefined,
-          completedAt: new Date().toISOString(),
-        },
-      ]);
-      setAlerts((prev) => [
-        {
-          id: `a-${Date.now()}`,
-          kind: "challenge",
-          text: {
-            en: "You completed a learning check.",
-            es: "Completaste una revisión de aprendizaje.",
-          },
-          at: new Date().toISOString(),
-          postId: challenge.postId,
-        },
-        ...prev,
-      ]);
-      engineRef.current.markSkippedOrDone(challenge.skill ?? null);
-      const returnId = challenge.returnElementId;
-      setChallenge(null);
-      returnFocus(returnId);
+      if (choice === "open-source") {
+        setToast(VERIFY_ACK);
+      }
+
+      // cancel and open-source: do not execute intent; still allow transfer
+      dispatch({ type: "CANCEL_INTENT", transferPostId });
+      if (hasTransfer) {
+        enterTransferPending(transferPostId);
+      } else {
+        setDraftComment(null);
+      }
+      returnFocus(intent.returnElementId);
     },
-    [challenge, returnFocus, setOutcomes],
+    [
+      commitComment,
+      enterTransferPending,
+      flow,
+      incrementShare,
+      resolveTransferTarget,
+      returnFocus,
+      setToast,
+    ],
+  );
+
+  const completeChallenge = useCallback(
+    (result: ChallengeResult) => {
+      if (
+        flow.status === "challenge-intro" ||
+        flow.status === "challenge-active" ||
+        (flow.status === "challenge-feedback" && !flow.isTransfer)
+      ) {
+        const post = openFeedPosts.find((p) => p.id === flow.intent.postId);
+        dispatch({
+          type: "COMPLETE_INITIAL",
+          result,
+          transferPostId: post?.transferPostId,
+        });
+        returnFocus(flow.intent.returnElementId);
+        return;
+      }
+
+      if (
+        flow.status === "transfer-active" ||
+        (flow.status === "challenge-feedback" && flow.isTransfer)
+      ) {
+        dispatch({ type: "COMPLETE_TRANSFER_DONE", result });
+        if ("intent" in flow) {
+          returnFocus(flow.intent.returnElementId);
+        }
+      }
+    },
+    [flow, returnFocus],
   );
 
   const skipChallenge = useCallback(() => {
-    if (!challenge) return;
-    setOutcomes((prev) => [
-      ...prev,
-      {
-        postId: challenge.postId,
-        skill: challenge.skill,
-        skipped: true,
-        completedAt: new Date().toISOString(),
-      },
-    ]);
-    engineRef.current.markSkippedOrDone(challenge.skill ?? null);
-    const returnId = challenge.returnElementId;
-    pendingInitial.current = null;
-    setChallenge(null);
-    returnFocus(returnId);
-  }, [challenge, returnFocus, setOutcomes]);
+    if (
+      flow.status === "challenge-intro" ||
+      flow.status === "challenge-active" ||
+      flow.status === "challenge-feedback"
+    ) {
+      if (flow.isTransfer) {
+        dispatch({ type: "SKIP_CHALLENGE", result: SKIPPED_RESULT });
+        returnFocus(flow.intent.returnElementId);
+        return;
+      }
+      const post = openFeedPosts.find((p) => p.id === flow.intent.postId);
+      dispatch({
+        type: "SKIP_CHALLENGE",
+        result: SKIPPED_RESULT,
+        transferPostId: post?.transferPostId,
+      });
+      returnFocus(flow.intent.returnElementId);
+      return;
+    }
+    if (flow.status === "transfer-active") {
+      dispatch({ type: "SKIP_CHALLENGE", result: SKIPPED_RESULT });
+      returnFocus(flow.intent.returnElementId);
+    }
+  }, [flow, returnFocus]);
+
+  const beginChallenge = useCallback(() => {
+    dispatch({ type: "BEGIN_ACTIVE" });
+  }, []);
 
   const toggleLike = useCallback(
     (id: string) => {
@@ -316,45 +697,12 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
   );
 
   const toggleSave = useCallback(
-    (id: string, openSource = false) => {
-      setSaved((prev) => {
-        const next = prev.includes(id)
-          ? prev.filter((x) => x !== id)
-          : [...prev, id];
-        return next;
-      });
-      if (!openSource) {
-        const post = openFeedPosts.find((p) => p.id === id);
-        if (post && !saved.includes(id)) {
-          tryAction("save", post, `save-${id}`);
-        }
-      }
+    (id: string) => {
+      setSaved((prev) =>
+        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+      );
     },
-    [saved, setSaved, tryAction],
-  );
-
-  const addComment = useCallback(
-    (postId: string, body: string, parentId?: string) => {
-      const comment: FeedComment = {
-        id: `own-${Date.now()}`,
-        author: "You",
-        handle: "@you.demo",
-        body: { en: body, es: body },
-        createdAt: new Date().toISOString(),
-        likes: 0,
-        parentId,
-        isOwn: true,
-      };
-      setComments((prev) => ({
-        ...prev,
-        [postId]: [...(prev[postId] ?? []), comment],
-      }));
-      const post = openFeedPosts.find((p) => p.id === postId);
-      if (post) {
-        tryAction("comment", post, `comment-${postId}`, body);
-      }
-    },
-    [setComments, tryAction],
+    [setSaved],
   );
 
   const likeComment = useCallback(
@@ -381,6 +729,35 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     [setComments],
   );
 
+  // Persist outcomes when flow reaches completed, then reset.
+  useEffect(() => {
+    if (flow.status !== "completed") {
+      recordedOutcomeKey.current = null;
+      return;
+    }
+    const key = `${flow.outcome.postId}-${flow.outcome.completedAt}`;
+    if (recordedOutcomeKey.current === key) return;
+    recordedOutcomeKey.current = key;
+
+    setOutcomes((prev) => [...prev, flow.outcome]);
+    engineRef.current.markDone(flow.outcome.skill ?? null);
+    setAlerts((prev) => [
+      {
+        id: `a-${Date.now()}`,
+        kind: "challenge",
+        text: {
+          en: "You completed a learning check.",
+          es: "Completaste una revisión de aprendizaje.",
+        },
+        at: new Date().toISOString(),
+        postId: flow.outcome.postId,
+      },
+      ...prev,
+    ]);
+    setHighlightedPostId(null);
+    dispatch({ type: "RESET_FLOW" });
+  }, [flow, setOutcomes]);
+
   const value: DemoSessionValue = {
     posts: openFeedPosts,
     nav,
@@ -394,25 +771,37 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     toggleLike,
     toggleSave,
     comments,
-    addComment,
     likeComment,
     deleteComment,
     commentSort,
     setCommentSort,
-    alerts,
-    challenge,
-    challengeReason: challenge?.reason ?? null,
-    tryAction,
-    completeChallenge,
-    skipChallenge,
-    outcomes,
+    flow,
+    draftComment,
+    highlightedPostId,
+    scenarioGuide,
+    guidedScenarioId,
+    shareCounts,
+    introSeen,
+    setIntroSeen,
     toast,
     setToast,
     selectedPostId,
     setSelectedPostId,
     focusReturnId,
-    clearFocusReturn: () => setFocusReturnId(null),
+    clearFocusReturn,
     loading,
+    outcomes,
+    alerts,
+    launchScenario,
+    requestShare,
+    requestComment,
+    requestRepostImage,
+    commitComment,
+    resolvePendingIntent,
+    completeChallenge,
+    skipChallenge,
+    beginChallenge,
+    isGuidedAction,
   };
 
   return (

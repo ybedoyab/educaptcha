@@ -3,6 +3,7 @@ import type { OpenFeedPost } from "../../data/openFeedPosts";
 import { useDemoSession } from "../../context/DemoSessionContext";
 import { useI18n } from "../../i18n/I18nContext";
 import { DemoPhoto } from "../minigames/DemoPhoto";
+import { IntentReturnBar } from "./IntentReturnBar";
 
 interface Props {
   post: OpenFeedPost;
@@ -16,38 +17,50 @@ export function OpenFeedPost({ post, expanded }: Props) {
     saved,
     toggleLike,
     toggleSave,
-    tryAction,
+    requestShare,
+    requestRepostImage,
     setSelectedPostId,
     setToast,
     comments,
+    highlightedPostId,
+    flow,
+    shareCounts,
   } = useDemoSession();
 
   const commentCount = (comments[post.id] ?? []).length;
   const isLiked = liked.has(post.id);
   const isSaved = saved.has(post.id);
+  const isHighlighted = highlightedPostId === post.id;
+  const shares = shareCounts[post.id] ?? post.shares;
+
+  const showReturn =
+    flow.status === "return-to-context" && flow.intent.postId === post.id;
 
   const onShare = () => {
-    const triggered = tryAction("share", post, `share-${post.id}`);
-    if (!triggered) {
-      setToast(
-        language === "es" ? "Compartido (simulado)" : "Shared (simulated)",
-      );
-    }
+    requestShare(post, `share-${post.id}`);
   };
 
   const onRepostImage = () => {
-    if (!post.imageSrc) return;
-    tryAction("repost-image", post, `repost-${post.id}`);
+    if (!post.mediaAssetId && !post.imageSrc) return;
+    requestRepostImage(post, `repost-${post.id}`);
   };
 
   const onVerify = () => {
-    tryAction("verify-link", post, `verify-${post.id}`);
+    setToast({
+      en: "Good instinct — open a source and compare details.",
+      es: "Buen instinto — abre una fuente y compara los detalles.",
+    });
   };
 
   return (
     <article
       id={`post-${post.id}`}
-      className="border-b border-navy/8 bg-white px-4 py-4 transition hover:bg-navy/[0.015]"
+      tabIndex={-1}
+      className={`border-b border-navy/8 bg-white px-4 py-4 transition hover:bg-navy/[0.015] ${
+        isHighlighted
+          ? "ring-2 ring-inset ring-teal bg-teal/[0.04]"
+          : ""
+      }`}
     >
       <div className="flex gap-3">
         <div
@@ -64,36 +77,29 @@ export function OpenFeedPost({ post, expanded }: Props) {
             </h3>
             <span className="text-xs text-navy/45">{post.handle}</span>
             <span className="text-xs text-navy/35">· {post.time[language]}</span>
-            <span className="rounded-md bg-navy/5 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-navy/50">
-              {post.category.replace("-", " ")}
-            </span>
+            {isHighlighted && (
+              <span className="rounded-md bg-teal/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal">
+                {language === "es" ? "Destacado" : "Highlighted"}
+              </span>
+            )}
           </header>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-navy/85">
             {post.body[language]}
           </p>
 
-          {post.imageSrc && (
+          {(post.mediaAssetId || post.imageSrc) && (
             <button
               type="button"
+              id={`repost-${post.id}`}
               onClick={onRepostImage}
               className="mt-3 block w-full overflow-hidden rounded-2xl border border-navy/10 text-left focus-visible:outline-teal"
             >
               <DemoPhoto
+                assetId={post.mediaAssetId}
                 src={post.imageSrc}
                 alt=""
                 showArchiveBadge={false}
-                allowExpand={false}
-                className={
-                  post.mediaKind === "video"
-                    ? "aspect-video object-cover"
-                    : "aspect-[16/10] object-cover"
-                }
               />
-              {post.mediaKind === "video" && (
-                <span className="sr-only">
-                  {language === "es" ? "Video simulado" : "Simulated video"}
-                </span>
-              )}
             </button>
           )}
 
@@ -107,6 +113,8 @@ export function OpenFeedPost({ post, expanded }: Props) {
               </span>
             ))}
           </div>
+
+          {showReturn && <IntentReturnBar />}
 
           <div className="mt-3 flex flex-wrap items-center gap-1 text-navy/55">
             <button
@@ -141,7 +149,7 @@ export function OpenFeedPost({ post, expanded }: Props) {
               className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2.5 text-sm font-medium hover:bg-navy/5"
             >
               <Share2 className="h-4 w-4" aria-hidden />
-              {post.shares}
+              {shares}
               <span className="sr-only">{copy.experience.share}</span>
             </button>
             <button
@@ -159,7 +167,7 @@ export function OpenFeedPost({ post, expanded }: Props) {
               />
               <span className="sr-only">{copy.experience.save}</span>
             </button>
-            {post.triggerSkill && (
+            {(post.triggerSkill || post.mediaAssetId) && (
               <button
                 type="button"
                 id={`verify-${post.id}`}
