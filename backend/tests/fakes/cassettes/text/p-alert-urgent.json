@@ -1,0 +1,17 @@
+{
+  "signals": [
+    {
+      "id": "urgency-imperative",
+      "skill": "emotional-pressure",
+      "confidence": 0.95,
+      "evidence": "Share it NOW before it disappears!"
+    },
+    {
+      "id": "suppression-claim",
+      "skill": "emotional-pressure",
+      "confidence": 0.9,
+      "evidence": "They are trying to delete this information."
+    }
+  ],
+  "noSignalReason": null
+}

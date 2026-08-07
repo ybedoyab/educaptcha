@@ -1,0 +1,11 @@
+{
+  "signals": [
+    {
+      "id": "region-mismatch",
+      "skill": "wildfire-context",
+      "confidence": 0.95,
+      "evidence": "An American flag is flying on a flagpole on the left side of the street, which is inconsistent with the claim that this is Bogot\u00e1."
+    }
+  ],
+  "noSignalReason": null
+}

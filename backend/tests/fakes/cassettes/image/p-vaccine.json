@@ -1,0 +1,11 @@
+{
+  "signals": [
+    {
+      "id": "object-does-not-support-claim",
+      "skill": "vaccine-claim",
+      "confidence": 1.0,
+      "evidence": "the photograph shows a standard, sealed vaccine vial labeled Spikevax JN.1, which cannot visually demonstrate whether its contents are safe or unsafe"
+    }
+  ],
+  "noSignalReason": null
+}

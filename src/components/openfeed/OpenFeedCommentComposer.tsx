@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDemoSession } from "../../context/DemoSessionContext";
 import { useI18n } from "../../i18n/I18nContext";
+import type { ActionDecision } from "../../lib/LearningTriggerEngine";
+import { isPromise } from "../../lib/risk/riskSource";
 
 interface Props {
   postId: string;
@@ -26,24 +28,46 @@ export function OpenFeedCommentComposer({
     }
   }, [draftComment, postId, parentId]);
 
+  // Set only while an external risk check is in flight. Never true when the
+  // service is unconfigured, so the local path renders exactly as before.
+  const [busy, setBusy] = useState(false);
+
+  const finish = (
+    decision: ActionDecision | null,
+    submittedBody: string,
+  ) => {
+    // Only an explicit "continue" means the comment was published. On intercept
+    // — or null — the draft is deliberately preserved.
+    if (!decision || decision.type !== "continue") return;
+    // Don't swallow characters typed while the request was in flight.
+    if (text.trim() === submittedBody) setText("");
+    onPosted?.();
+  };
+
   const submit = () => {
+    if (busy) return;
     const body = text.trim();
     if (!body) return;
+
     const decision = requestComment(
       postId,
       body,
       parentId,
       `comment-${postId}`,
     );
-    if (!decision || decision.type === "continue") {
-      setText("");
-      onPosted?.();
+
+    if (!isPromise(decision)) {
+      finish(decision, body);
+      return;
     }
-    // intercept: draft preserved in context; keep text until resolve
+    setBusy(true);
+    void decision
+      .then((d) => finish(d, body))
+      .finally(() => setBusy(false));
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" aria-busy={busy}>
       {draftComment?.postId === postId && !parentId && (
         <p className="text-xs text-amber" role="status">
           {language === "es"
@@ -71,6 +95,10 @@ export function OpenFeedCommentComposer({
         <button
           type="button"
           onClick={submit}
+          // aria-disabled rather than disabled: disabling a focused button
+          // strands focus on <body>. The `busy` early-return in submit() is
+          // what actually prevents a double post.
+          aria-disabled={busy}
           className="inline-flex min-h-11 items-center justify-center rounded-xl bg-navy px-4 text-sm font-semibold text-white"
         >
           {language === "es" ? "Publicar" : "Post"}

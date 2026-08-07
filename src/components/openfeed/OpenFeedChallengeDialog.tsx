@@ -37,6 +37,20 @@ export function OpenFeedChallengeDialog() {
     }
   }, [active, game, flow.status, beginChallenge]);
 
+  // `experienceMinigames` is a Record<string, Challenge> and
+  // noUncheckedIndexedAccess is off, so an unknown id type-checks but is
+  // undefined at runtime — the dialog then never opens and the flow parks in
+  // challenge-active forever, with skip unreachable because it lives in here.
+  // Release the intent instead of stranding the user.
+  useEffect(() => {
+    if (active && !game) {
+      console.error(
+        `[EduCAPTCHA] unknown challengeId "${challengeId}" — releasing the pending action.`,
+      );
+      skipChallenge();
+    }
+  }, [active, game, challengeId, skipChallenge]);
+
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;

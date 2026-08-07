@@ -1,0 +1,17 @@
+{
+  "signals": [
+    {
+      "id": "truncated-y-axis",
+      "skill": "misleading-chart",
+      "confidence": 1.0,
+      "evidence": "The y-axis starts at 84 instead of 0, which exaggerates the relative difference between the two data points."
+    },
+    {
+      "id": "visual-magnitude-vs-data-ratio",
+      "skill": "misleading-chart",
+      "confidence": 1.0,
+      "evidence": "axis starts at 84; bars 120px vs 210px = 1.75x, values ~88.8 vs ~92.4 = 1.04x"
+    }
+  ],
+  "noSignalReason": null
+}

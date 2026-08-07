@@ -1,0 +1,11 @@
+{
+  "signals": [
+    {
+      "id": "scene-caption-mismatch",
+      "skill": "image-context",
+      "confidence": 0.95,
+      "evidence": "The photograph shows a crowd gathered at night under lit streetlights, which contradicts the caption's claim that the photo is from \"this morning's march\"."
+    }
+  ],
+  "noSignalReason": null
+}

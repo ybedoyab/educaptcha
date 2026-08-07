@@ -1,0 +1,17 @@
+{
+  "signals": [
+    {
+      "id": "claimed-time-place",
+      "skill": "image-context",
+      "confidence": 0.95,
+      "evidence": "LIVE from tonight\u2019s emergency response"
+    },
+    {
+      "id": "urgency-imperative",
+      "skill": "emotional-pressure",
+      "confidence": 0.85,
+      "evidence": "Share so everyone sees it."
+    }
+  ],
+  "noSignalReason": null
+}

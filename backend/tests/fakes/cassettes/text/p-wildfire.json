@@ -1,0 +1,23 @@
+{
+  "signals": [
+    {
+      "id": "suppression-claim",
+      "skill": "emotional-pressure",
+      "confidence": 0.95,
+      "evidence": "Officials are hiding it / Las autoridades lo ocultan"
+    },
+    {
+      "id": "no-verifiable-source",
+      "skill": "sources",
+      "confidence": 0.9,
+      "evidence": "A toxic cloud is covering Bogot\u00e1 right now / Una nube t\u00f3xica cubre Bogot\u00e1 ahora mismo"
+    },
+    {
+      "id": "claimed-time-place",
+      "skill": "image-context",
+      "confidence": 0.85,
+      "evidence": "covering Bogot\u00e1 right now / cubre Bogot\u00e1 ahora mismo"
+    }
+  ],
+  "noSignalReason": null
+}

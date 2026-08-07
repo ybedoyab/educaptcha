@@ -27,6 +27,19 @@ import {
   isAffirmingComment,
   type ActionDecision,
 } from "../lib/LearningTriggerEngine";
+import {
+  analyzeRisk,
+  postOutcome,
+  prefetchRisk,
+  riskApiBase,
+  riskSessionId,
+} from "../lib/risk/riskClient";
+import {
+  isPromise,
+  mergeRemoteDecision,
+  type MaybeAsync,
+} from "../lib/risk/riskSource";
+import { useI18n } from "../i18n/I18nContext";
 import type { LocalizedText } from "../types";
 import type { ChallengeResult } from "../types/minigame";
 
@@ -140,20 +153,30 @@ type DemoSessionValue = {
   focusReturnId: string | null;
   clearFocusReturn: () => void;
   loading: boolean;
+  /**
+   * `"share:p-flood-live"` while an external risk check is in flight for that
+   * control, after a short grace delay. Null when unset or when the decision
+   * was local (and therefore instant). Drives a per-button spinner only —
+   * never a feed-level or overlay state.
+   */
+  pendingActionKey: string | null;
   outcomes: OutcomeRecord[];
   alerts: AlertItem[];
   launchScenario: (scenarioId: string) => OpenFeedPost | null;
-  requestShare: (post: OpenFeedPost, returnElementId: string) => ActionDecision;
+  requestShare: (
+    post: OpenFeedPost,
+    returnElementId: string,
+  ) => MaybeAsync<ActionDecision>;
   requestComment: (
     postId: string,
     body: string,
     parentId: string | undefined,
     returnElementId: string,
-  ) => ActionDecision | null;
+  ) => MaybeAsync<ActionDecision | null>;
   requestRepostImage: (
     post: OpenFeedPost,
     returnElementId: string,
-  ) => ActionDecision;
+  ) => MaybeAsync<ActionDecision>;
   commitComment: (postId: string, body: string, parentId?: string) => void;
   resolvePendingIntent: (
     choice: "confirm" | "cancel" | "edit" | "open-source",
@@ -243,9 +266,27 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
   const [shareCounts, setShareCounts] = useState<Record<string, number>>({});
   const [loading] = useState(false);
 
+  const [pendingActionKey, setPendingActionKey] = useState<string | null>(null);
+
   const [flow, dispatch] = useReducer(demoFlowReducer, initialDemoFlowState);
   const engineRef = useRef(createTriggerEngine());
   const recordedOutcomeKey = useRef<string | null>(null);
+
+  const { language } = useI18n();
+
+  // Guards for the remote path only; all three are inert when the service is
+  // unconfigured, because no promise is ever created.
+  const flowRef = useRef(flow);
+  flowRef.current = flow;
+  const requestSeqRef = useRef(0);
+  const inFlightRef = useRef(false);
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const likedSet = useMemo(() => new Set(liked), [liked]);
   const savedSet = useMemo(() => new Set(saved), [saved]);
@@ -374,24 +415,77 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     [flow, highlightedPostId],
   );
 
+  /**
+   * The single point where a decision is made.
+   *
+   * Returns synchronously (exactly today's behaviour) unless the external
+   * service is configured, in which case it returns a promise that resolves to
+   * the remote decision — or to the local one if the service is slow, down, or
+   * returns something that fails validation.
+   */
   const decideForPost = useCallback(
     (
       action: "share" | "comment" | "repost-image",
       post: OpenFeedPost,
       intent: PendingIntent,
       commentText?: string,
-    ): ActionDecision => {
+    ): MaybeAsync<ActionDecision> => {
+      // Guided scenarios stay local, always. They are the scripted pitch: they
+      // must be deterministic, survive dead conference wifi, and they
+      // deliberately bypass the cooldown, which a remote service has no basis
+      // to reproduce.
       if (isGuidedAction(post)) {
         return engineRef.current.forceScenario(post, intent);
       }
-      return engineRef.current.decideFreeBrowse(
+
+      // Computed unconditionally — this call owns the cooldown mutation, so
+      // skipping it on the remote path would freeze the counter.
+      const local = engineRef.current.decideFreeBrowse(
         action,
         post,
         intent,
         commentText,
       );
+
+      if (!riskApiBase()) return local;
+
+      // One decision in flight at a time; a second click is a no-op rather than
+      // a racing dispatch.
+      if (inFlightRef.current) return local;
+      inFlightRef.current = true;
+
+      const seq = ++requestSeqRef.current;
+      const key = `${action}:${post.id}`;
+      // Grace delay: a warm cache answers in ~5ms, and flashing a spinner for
+      // that long looks like a glitch.
+      const graceTimer = setTimeout(() => {
+        if (requestSeqRef.current === seq && mountedRef.current) {
+          setPendingActionKey(key);
+        }
+      }, 250);
+
+      return analyzeRisk(post, action, language, commentText)
+        .then((remote) => {
+          // Discard a late answer if the user has moved on, or if a challenge
+          // is already open — otherwise a slow response stomps it.
+          const status = flowRef.current.status;
+          const stale =
+            seq !== requestSeqRef.current ||
+            status === "challenge-intro" ||
+            status === "challenge-active" ||
+            status === "challenge-feedback" ||
+            status === "transfer-active";
+          if (stale) return local;
+          return mergeRemoteDecision(remote, local, intent);
+        })
+        .catch(() => local)
+        .finally(() => {
+          clearTimeout(graceTimer);
+          inFlightRef.current = false;
+          if (mountedRef.current) setPendingActionKey(null);
+        });
     },
-    [isGuidedAction],
+    [isGuidedAction, language],
   );
 
   const launchScenario = useCallback((scenarioId: string): OpenFeedPost | null => {
@@ -410,7 +504,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
   }, [setToast]);
 
   const requestShare = useCallback(
-    (post: OpenFeedPost, returnElementId: string): ActionDecision => {
+    (post: OpenFeedPost, returnElementId: string): MaybeAsync<ActionDecision> => {
       const intent: PendingIntent = {
         type: "share",
         postId: post.id,
@@ -430,15 +524,20 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
         };
       }
 
-      const decision = decideForPost("share", post, intent);
-      if (decision.type === "intercept") {
-        startIntercept(decision);
+      // Tail extracted verbatim so it can run either synchronously (local) or
+      // after an await (remote) without duplicating the side effects.
+      const finish = (decision: ActionDecision): ActionDecision => {
+        if (decision.type === "intercept") {
+          startIntercept(decision);
+          return decision;
+        }
+        incrementShare(post.id);
+        setToast(SHARED_TOAST);
         return decision;
-      }
+      };
 
-      incrementShare(post.id);
-      setToast(SHARED_TOAST);
-      return decision;
+      const decision = decideForPost("share", post, intent);
+      return isPromise(decision) ? decision.then(finish) : finish(decision);
     },
     [
       decideForPost,
@@ -456,7 +555,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       body: string,
       parentId: string | undefined,
       returnElementId: string,
-    ): ActionDecision | null => {
+    ): MaybeAsync<ActionDecision | null> => {
       const trimmed = body.trim();
       if (!trimmed) return null;
 
@@ -486,17 +585,28 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       }
 
       const decision = decideForPost("comment", post, intent, trimmed);
-      if (
-        decision.type === "intercept" &&
-        (isGuidedAction(post) || isAffirmingComment(trimmed))
-      ) {
-        setDraftComment({ postId, body: trimmed, parentId });
-        startIntercept(decision);
-        return decision;
-      }
 
-      commitComment(postId, trimmed, parentId);
-      return decision.type === "intercept" ? { type: "continue" } : decision;
+      const finish = (d: ActionDecision, remote: boolean): ActionDecision => {
+        // The local disjunction below is a tautology today: decideFreeBrowse
+        // can only return `intercept` for a comment when isAffirmingComment
+        // already passed. It is kept as a guard in case that loosens, and
+        // `remote` is added so a service decision is not silently downgraded
+        // to a plain comment post.
+        if (
+          d.type === "intercept" &&
+          (remote || isGuidedAction(post) || isAffirmingComment(trimmed))
+        ) {
+          setDraftComment({ postId, body: trimmed, parentId });
+          startIntercept(d);
+          return d;
+        }
+        commitComment(postId, trimmed, parentId);
+        return d.type === "intercept" ? { type: "continue" } : d;
+      };
+
+      return isPromise(decision)
+        ? decision.then((d) => finish(d, true))
+        : finish(decision, false);
     },
     [
       commitComment,
@@ -509,7 +619,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
   );
 
   const requestRepostImage = useCallback(
-    (post: OpenFeedPost, returnElementId: string): ActionDecision => {
+    (post: OpenFeedPost, returnElementId: string): MaybeAsync<ActionDecision> => {
       const intent: PendingIntent = {
         type: "repost-image",
         postId: post.id,
@@ -529,14 +639,17 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
         };
       }
 
-      const decision = decideForPost("repost-image", post, intent);
-      if (decision.type === "intercept") {
-        startIntercept(decision);
+      const finish = (decision: ActionDecision): ActionDecision => {
+        if (decision.type === "intercept") {
+          startIntercept(decision);
+          return decision;
+        }
+        setToast(REPOST_TOAST);
         return decision;
-      }
+      };
 
-      setToast(REPOST_TOAST);
-      return decision;
+      const decision = decideForPost("repost-image", post, intent);
+      return isPromise(decision) ? decision.then(finish) : finish(decision);
     },
     [decideForPost, flow, maybeStartTransfer, setToast, startIntercept],
   );
@@ -741,6 +854,21 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
 
     setOutcomes((prev) => [...prev, flow.outcome]);
     engineRef.current.markDone(flow.outcome.skill ?? null);
+
+    // Anonymous outcome, fire-and-forget. No-op when the service is unset.
+    postOutcome({
+      event: flow.outcome.skipped ? "intervention_skipped" : "challenge_completed",
+      sessionId: riskSessionId(),
+      occurredAt: flow.outcome.completedAt,
+      locale: language,
+      postId: flow.outcome.postId,
+      skill: flow.outcome.skill,
+      challengeId: flow.outcome.challengeId,
+      transferChallengeId: flow.outcome.transferChallengeId,
+      skipped: Boolean(flow.outcome.skipped),
+      correct: flow.outcome.initial?.correct,
+      durationMs: flow.outcome.initial?.durationMs,
+    });
     setAlerts((prev) => [
       {
         id: `a-${Date.now()}`,
@@ -756,7 +884,19 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     ]);
     setHighlightedPostId(null);
     dispatch({ type: "RESET_FLOW" });
-  }, [flow, setOutcomes]);
+  }, [flow, setOutcomes, language]);
+
+  // Speculative warm-up. A cold analysis costs ~5s (network-bound), so without
+  // this the first interception on any post would miss its window and fall back
+  // to local. `dryRun` means the service caches the analysis without advancing
+  // any cooldown counter. No-op when the service is unset.
+  useEffect(() => {
+    if (!riskApiBase()) return;
+    prefetchRisk(
+      openFeedPosts.filter((p) => p.tone !== "neutral" && p.tone !== "official"),
+      language,
+    );
+  }, [language]);
 
   const value: DemoSessionValue = {
     posts: openFeedPosts,
@@ -790,6 +930,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     focusReturnId,
     clearFocusReturn,
     loading,
+    pendingActionKey,
     outcomes,
     alerts,
     launchScenario,

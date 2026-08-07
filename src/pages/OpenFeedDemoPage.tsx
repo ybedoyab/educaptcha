@@ -117,6 +117,23 @@ function TransferHighlighter() {
   return null;
 }
 
+/**
+ * Screen-reader announcement while an external risk check is in flight.
+ *
+ * Separate from `Toast` on purpose: Toast auto-clears after 3200ms and would
+ * collide with the "Shared (simulated)" message. Renders nothing visually and
+ * adds no overlay, so it changes neither layout nor the axe surface.
+ */
+function RiskCheckStatus() {
+  const { pendingActionKey } = useDemoSession();
+  const { copy } = useI18n();
+  return (
+    <p className="sr-only" role="status">
+      {pendingActionKey ? copy.experience.checking : ""}
+    </p>
+  );
+}
+
 function OpenFeedShell() {
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-off-white">
@@ -131,6 +148,7 @@ function OpenFeedShell() {
       <OpenFeedChallengeDialog />
       <DemoIntro />
       <TransferHighlighter />
+      <RiskCheckStatus />
       <Toast />
     </div>
   );

@@ -3,7 +3,9 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore: ["backend/**"]
   pull_request:
+    paths-ignore: ["backend/**"]
 
 jobs:
   build-test:
@@ -15,7 +17,19 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
+      # Built with no VITE_RISK_API_URL: this is the run that proves the default
+      # path is unchanged and makes zero network calls.
       - run: npm run build
+      - name: Assert no service URL leaked into the default bundle
+        run: |
+          if grep -rq "VITE_RISK_API_URL" dist/assets/*.js; then
+            echo "::error::VITE_RISK_API_URL is present in the default build"
+            exit 1
+          fi
       - run: npm run test
       - run: npx playwright install --with-deps chromium
+      # E2E_REMOTE additionally builds dist-remote and runs the remote-mode
+      # project, whose requests are all intercepted with page.route.
       - run: npm run test:e2e
+        env:
+          E2E_REMOTE: "1"

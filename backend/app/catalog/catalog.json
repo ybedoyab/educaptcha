@@ -1,0 +1,222 @@
+{
+  "catalogVersion": 1,
+  "generatedFrom": [
+    "src/data/openFeedPosts.ts",
+    "src/data/experienceMinigames.ts",
+    "src/data/mediaAssets.ts"
+  ],
+  "challengeIds": [
+    "ch-repair",
+    "ch-transfer",
+    "ep-spot",
+    "ep-transfer",
+    "ic-match",
+    "ic-transfer",
+    "pr-match",
+    "pr-transfer",
+    "vx-inspect",
+    "vx-transfer",
+    "wf-match",
+    "wf-transfer"
+  ],
+  "skills": [
+    "emotional-pressure",
+    "image-context",
+    "wildfire-context",
+    "vaccine-claim",
+    "protest-context",
+    "misleading-chart",
+    "ai-content",
+    "sources"
+  ],
+  "actionableSkills": [
+    "emotional-pressure",
+    "image-context",
+    "misleading-chart",
+    "protest-context",
+    "vaccine-claim",
+    "wildfire-context"
+  ],
+  "skillToChallenge": {
+    "emotional-pressure": {
+      "initial": "ep-spot",
+      "transfer": "ep-transfer",
+      "transferPost": "p-inside"
+    },
+    "image-context": {
+      "initial": "ic-match",
+      "transfer": "ic-transfer",
+      "transferPost": "p-flood-today"
+    },
+    "wildfire-context": {
+      "initial": "wf-match",
+      "transfer": "wf-transfer",
+      "transferPost": "p-flood-today"
+    },
+    "vaccine-claim": {
+      "initial": "vx-inspect",
+      "transfer": "vx-transfer",
+      "transferPost": "p-health-tips"
+    },
+    "protest-context": {
+      "initial": "pr-match",
+      "transfer": "pr-transfer",
+      "transferPost": "p-flood-today"
+    },
+    "misleading-chart": {
+      "initial": "ch-repair",
+      "transfer": "ch-transfer",
+      "transferPost": "p-tech"
+    }
+  },
+  "postBindings": {
+    "p-alert-urgent": {
+      "skill": "emotional-pressure",
+      "initial": "ep-spot",
+      "transfer": "ep-transfer",
+      "transferPost": "p-inside"
+    },
+    "p-flood-live": {
+      "skill": "image-context",
+      "initial": "ic-match",
+      "transfer": "ic-transfer",
+      "transferPost": "p-flood-today"
+    },
+    "p-wildfire": {
+      "skill": "wildfire-context",
+      "initial": "wf-match",
+      "transfer": "wf-transfer",
+      "transferPost": "p-flood-today"
+    },
+    "p-vaccine": {
+      "skill": "vaccine-claim",
+      "initial": "vx-inspect",
+      "transfer": "vx-transfer",
+      "transferPost": "p-health-tips"
+    },
+    "p-protest": {
+      "skill": "protest-context",
+      "initial": "pr-match",
+      "transfer": "pr-transfer",
+      "transferPost": "p-flood-today"
+    },
+    "p-chart": {
+      "skill": "misleading-chart",
+      "initial": "ch-repair",
+      "transfer": "ch-transfer",
+      "transferPost": "p-tech"
+    },
+    "p-inside": {
+      "skill": "emotional-pressure",
+      "initial": "ep-transfer",
+      "transfer": null,
+      "transferPost": null
+    },
+    "p-flood-today": {
+      "skill": "image-context",
+      "initial": "ic-transfer",
+      "transfer": null,
+      "transferPost": null
+    }
+  },
+  "media": {
+    "flood-lagos-2019": {
+      "publicPath": "/demo-assets/photos/flood-lagos-2019.jpg",
+      "type": "jpg",
+      "isSvg": false,
+      "hasRaster": true,
+      "analyzable": true
+    },
+    "flood-response-2015": {
+      "publicPath": "/demo-assets/photos/flood-response-2015.jpg",
+      "type": "jpg",
+      "isSvg": false,
+      "hasRaster": true,
+      "analyzable": true
+    },
+    "flooded-guadalajara-2013": {
+      "publicPath": "/demo-assets/photos/flooded-guadalajara-2013.jpg",
+      "type": "jpg",
+      "isSvg": false,
+      "hasRaster": true,
+      "analyzable": true
+    },
+    "wildfire-washington-dc": {
+      "publicPath": "/demo-assets/photos/wildfire-washington-dc.jpg",
+      "type": "jpg",
+      "isSvg": false,
+      "hasRaster": true,
+      "analyzable": true
+    },
+    "protest-2024": {
+      "publicPath": "/demo-assets/photos/protest-2024.jpg",
+      "type": "jpg",
+      "isSvg": false,
+      "hasRaster": true,
+      "analyzable": true
+    },
+    "vaccine-vial-2024": {
+      "publicPath": "/demo-assets/photos/vaccine-vial-2024.jpg",
+      "type": "jpg",
+      "isSvg": false,
+      "hasRaster": true,
+      "analyzable": true
+    },
+    "covid-protest-2020": {
+      "publicPath": "/demo-assets/photos/covid-protest-2020.jpg",
+      "type": "jpg",
+      "isSvg": false,
+      "hasRaster": true,
+      "analyzable": true
+    },
+    "viral-health-alert": {
+      "publicPath": "/demo-assets/viral-health-alert.svg",
+      "type": "svg",
+      "isSvg": true,
+      "hasRaster": false,
+      "analyzable": true
+    },
+    "neutral-news-report": {
+      "publicPath": "/demo-assets/neutral-news-report.svg",
+      "type": "svg",
+      "isSvg": true,
+      "hasRaster": false,
+      "analyzable": false
+    },
+    "source-document": {
+      "publicPath": "/demo-assets/source-document.svg",
+      "type": "svg",
+      "isSvg": true,
+      "hasRaster": false,
+      "analyzable": false
+    },
+    "misleading-chart-preview": {
+      "publicPath": "/demo-assets/misleading-chart-preview.svg",
+      "type": "svg",
+      "isSvg": true,
+      "hasRaster": false,
+      "analyzable": true
+    },
+    "synthetic-portrait-scene": {
+      "publicPath": "/demo-assets/synthetic-portrait-scene.svg",
+      "type": "svg",
+      "isSvg": true,
+      "hasRaster": false,
+      "analyzable": true
+    },
+    "archived-flood-photo": {
+      "publicPath": "/demo-assets/archived-flood-photo.svg",
+      "type": "svg",
+      "isSvg": true,
+      "hasRaster": false,
+      "analyzable": true
+    },
+    "reused-flood-photo": {
+      "publicPath": "/demo-assets/reused-flood-photo.svg",
+      "type": "svg",
+      "isSvg": true,
+      "hasRaster": false,
+      "analyzable": true
+    }
+  }
+}

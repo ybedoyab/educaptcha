@@ -24,7 +24,10 @@ Demonstrate, in under three minutes, how everyday verification moments can teach
 - LocalStorage for language and demo progress
 - Vitest + Playwright
 
-No backend, authentication, external APIs, or environment variables.
+No authentication. The frontend runs entirely offline by default; a single
+optional environment variable (`VITE_RISK_API_URL`) points it at the external
+risk-analysis service in `backend/`. Unset — the default, and what CI builds —
+every decision is made locally and the app makes no network calls at all.
 
 ## Install
 
@@ -76,20 +79,47 @@ Practice mode may also include drag-classify, chart repair, and image inspection
 
 ## Risk detection
 
-The current frontend demo uses **simulated/local trigger logic** (`LearningTriggerEngine`). Automated risk analysis is outside this frontend prototype.
+Two interchangeable sources decide whether an action is interrupted.
 
-The UI can later accept an external decision shaped like:
+**Local (default).** `src/lib/LearningTriggerEngine.ts` — a deterministic
+heuristic over the curated demo posts. No network, no key, no configuration.
+
+**External agents (opt-in).** `backend/` is a FastAPI + LangGraph service that
+analyses the post content with Gemini and returns a decision. Specialist agents
+run in parallel — text (emotional pressure, sourcing), image (context, origin,
+AI artefacts) and chart (axis truncation, scale distortion) — and a rule-based
+orchestrator combines their weighted signals into a `riskScore`, applies the
+policy gates, and only then resolves a challenge.
+
+It is deliberately **not** a truth classifier: it detects patterns worth pausing
+on, never whether a claim is true.
+
+Enable it by pointing the frontend at the service:
+
+```bash
+VITE_RISK_API_URL=http://127.0.0.1:8080 npm run dev
+```
+
+The local engine is still evaluated on every action and is used as the fallback
+whenever the service is slow, unreachable, or returns something that fails
+validation — so enabling it can degrade to today's behaviour but never break it.
+Guided `/demo/scenario/:id` runs and transfer challenges stay local by design.
+
+Response shape (`src/types/sourceTrace.ts`):
 
 ```ts
 type RiskDecision = {
   shouldIntervene: boolean;
+  outcome?: "continue" | "intercept" | "verify-ack";
   skill?: string;
-  riskReason?: string;
   challengeId?: string;
+  transferChallengeId?: string;
+  transferPostId?: string;
+  reason?: LocalizedText;   // bilingual — the dialog renders reason[language]
 };
 ```
 
-No agents, cloud services, or model inference are implemented in this repository.
+See `backend/README.md` for the pipeline, latency characteristics and deployment.
 
 ## Project structure
 
@@ -125,14 +155,19 @@ assets/           Brand PNG lockups (optional; logo is SVG in-app)
 - No real npm package or CDN widget exists yet (snippets are proposals)
 - Analytics are anonymous **demo data**
 - Challenges are a small curated set for presentation
-- No server-side scoring, moderation, or multi-tenant org accounts
+- No moderation or multi-tenant org accounts
 - Does not claim to detect misinformation or AI content automatically
-- Risk triggers are local/demo only — not a production classifier
+- The risk service is a working prototype tuned against 18 curated posts, not a
+  production classifier
+- Comment text is sent to the service when it is configured (never stored: the
+  metrics schema has no free-text field)
 
 ## Next steps (outside this frontend freeze)
 
 - Embeddable SDK
-- External risk-analysis service integration
+- Cloud Run deployment of the risk service (scripted, not yet deployed)
+- Minigames for the two skills the agents can detect but cannot yet teach
+  (`ai-content`, `sources`)
 - Challenge authoring for educators
 - Pedagogical review workflows
 - Additional languages and classroom pilots

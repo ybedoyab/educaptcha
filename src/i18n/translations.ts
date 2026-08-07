@@ -251,6 +251,9 @@ export const translations = {
       comment: "Comment",
       share: "Share",
       save: "Save",
+      // Announced only while an external risk check is in flight.
+      checking: "Checking this post…",
+      checkOffline: "Using the local check.",
       learningCheck: "Quick verification check",
       stepOf: "Step {current} of {total}",
       check: "Check answer",
@@ -561,6 +564,8 @@ export const translations = {
       comment: "Comentar",
       share: "Compartir",
       save: "Guardar",
+      checking: "Revisando esta publicación…",
+      checkOffline: "Usando la verificación local.",
       learningCheck: "Chequeo rápido de verificación",
       stepOf: "Paso {current} de {total}",
       check: "Comprobar",

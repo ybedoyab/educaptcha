@@ -1,0 +1,17 @@
+{
+  "signals": [
+    {
+      "id": "claimed-time-place",
+      "skill": "image-context",
+      "confidence": 0.9,
+      "evidence": "This photo is from this morning\u2019s march."
+    },
+    {
+      "id": "no-verifiable-source",
+      "skill": "sources",
+      "confidence": 0.8,
+      "evidence": "Huge crowds in our capital today. This photo is from this morning\u2019s march."
+    }
+  ],
+  "noSignalReason": null
+}

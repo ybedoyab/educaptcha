@@ -1,0 +1,509 @@
+[
+  {
+    "id": "p-garden",
+    "body": {
+      "en": "Quiet afternoon at the community garden. New compost bins arrived today.",
+      "es": "Tarde tranquila en el jardín comunitario. Llegaron los nuevos contenedores de compost."
+    },
+    "handle": "@marina.reads",
+    "category": "community",
+    "tags": [
+      "community",
+      "garden"
+    ],
+    "mediaKind": "text",
+    "mediaAssetId": null,
+    "reactions": 42,
+    "comments": 4,
+    "shares": 2,
+    "time": {
+      "en": "3h",
+      "es": "3 h"
+    },
+    "topComments": [
+      "Nice! Which neighborhood plot is this?",
+      "Bring seedlings this Saturday if you can."
+    ],
+    "_tone": "neutral",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  },
+  {
+    "id": "p-library",
+    "body": {
+      "en": "Workshop this Saturday: how to evaluate online sources. Free seats available.",
+      "es": "Taller este sábado: cómo evaluar fuentes en línea. Quedan lugares gratis."
+    },
+    "handle": "@city.library",
+    "category": "community",
+    "tags": [
+      "library",
+      "literacy"
+    ],
+    "mediaKind": "official",
+    "mediaAssetId": "neutral-news-report",
+    "reactions": 118,
+    "comments": 6,
+    "shares": 21,
+    "time": {
+      "en": "5h",
+      "es": "5 h"
+    },
+    "topComments": [
+      "High engagement does not confirm accuracy."
+    ],
+    "_tone": "official",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  },
+  {
+    "id": "p-science",
+    "body": {
+      "en": "New open dataset on urban heat islands is available for journalists and students.",
+      "es": "Hay un nuevo conjunto de datos abiertos sobre islas de calor urbanas."
+    },
+    "handle": "@science.desk",
+    "category": "science",
+    "tags": [
+      "science",
+      "data"
+    ],
+    "mediaKind": "document",
+    "mediaAssetId": "source-document",
+    "reactions": 203,
+    "comments": 8,
+    "shares": 55,
+    "time": {
+      "en": "6h",
+      "es": "6 h"
+    },
+    "topComments": [
+      "Does anyone have the original source?"
+    ],
+    "_tone": "official",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  },
+  {
+    "id": "p-market",
+    "body": {
+      "en": "Street market opens at 9. Bring reusable bags if you can.",
+      "es": "El mercado callejero abre a las 9. Trae bolsas reutilizables si puedes."
+    },
+    "handle": "@neigh.hub",
+    "category": "local-news",
+    "tags": [
+      "local",
+      "market"
+    ],
+    "mediaKind": "text",
+    "mediaAssetId": null,
+    "reactions": 67,
+    "comments": 3,
+    "shares": 4,
+    "time": {
+      "en": "2h",
+      "es": "2 h"
+    },
+    "topComments": [
+      "Will there be fresh fruit stalls?"
+    ],
+    "_tone": "neutral",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  },
+  {
+    "id": "p-tech",
+    "body": {
+      "en": "We published a privacy checklist for community websites. Feedback welcome.",
+      "es": "Publicamos una lista de privacidad para sitios comunitarios. Se aceptan comentarios."
+    },
+    "handle": "@civic.tech",
+    "category": "technology",
+    "tags": [
+      "tech",
+      "privacy"
+    ],
+    "mediaKind": "document",
+    "mediaAssetId": "source-document",
+    "reactions": 89,
+    "comments": 5,
+    "shares": 17,
+    "time": {
+      "en": "8h",
+      "es": "8 h"
+    },
+    "topComments": [
+      "This account was created yesterday."
+    ],
+    "_tone": "neutral",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  },
+  {
+    "id": "p-weather",
+    "body": {
+      "en": "Light rain expected after 4 p.m. No alerts issued for the metro area.",
+      "es": "Lluvia ligera prevista después de las 16:00. Sin alertas para el área metro."
+    },
+    "handle": "@metro.weather",
+    "category": "environment",
+    "tags": [
+      "weather"
+    ],
+    "mediaKind": "text",
+    "mediaAssetId": null,
+    "reactions": 156,
+    "comments": 4,
+    "shares": 9,
+    "time": {
+      "en": "1h",
+      "es": "1 h"
+    },
+    "topComments": [
+      "Thanks for the clear bulletin."
+    ],
+    "_tone": "official",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  },
+  {
+    "id": "p-bike",
+    "body": {
+      "en": "Bike lane on 5th Avenue reopens Monday after resurfacing.",
+      "es": "El carril bici de la 5ª avenida reabre el lunes tras el reseñado."
+    },
+    "handle": "@transit.watch",
+    "category": "local-news",
+    "tags": [
+      "transit"
+    ],
+    "mediaKind": "text",
+    "mediaAssetId": null,
+    "reactions": 74,
+    "comments": 3,
+    "shares": 11,
+    "time": {
+      "en": "4h",
+      "es": "4 h"
+    },
+    "topComments": [
+      "Finally — that stretch was rough."
+    ],
+    "_tone": "neutral",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  },
+  {
+    "id": "p-health-tips",
+    "body": {
+      "en": "Flu clinic hours extended this week. Appointments available on the city site.",
+      "es": "Horario ampliado de la clínica de gripe esta semana. Citas en el sitio de la ciudad."
+    },
+    "handle": "@public.health",
+    "category": "health",
+    "tags": [
+      "health",
+      "clinic"
+    ],
+    "mediaKind": "official",
+    "mediaAssetId": "neutral-news-report",
+    "reactions": 221,
+    "comments": 9,
+    "shares": 48,
+    "time": {
+      "en": "7h",
+      "es": "7 h"
+    },
+    "topComments": [
+      "Is walk-in still possible on Friday?"
+    ],
+    "_tone": "official",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  },
+  {
+    "id": "p-alert-urgent",
+    "body": {
+      "en": "URGENT: They are trying to delete this information. Share it NOW before it disappears!",
+      "es": "URGENTE: Están intentando eliminar esta información. ¡Compártela AHORA antes de que desaparezca!"
+    },
+    "handle": "@alertnow.desk",
+    "category": "health",
+    "tags": [
+      "viral",
+      "urgency"
+    ],
+    "mediaKind": "photo",
+    "mediaAssetId": "viral-health-alert",
+    "reactions": 12840,
+    "comments": 32,
+    "shares": 5401,
+    "time": {
+      "en": "18m",
+      "es": "18 min"
+    },
+    "topComments": [
+      "I saw this in several groups, so it must be true.",
+      "Does anyone have the original source?",
+      "This account was created yesterday."
+    ],
+    "_tone": "manipulative",
+    "_expectedSkill": "emotional-pressure",
+    "_expectedChallenge": "ep-spot"
+  },
+  {
+    "id": "p-flood-live",
+    "body": {
+      "en": "LIVE from tonight’s emergency response. Share so everyone sees it.",
+      "es": "EN VIVO desde la emergencia de esta noche. Comparte para que todos la vean."
+    },
+    "handle": "@breaking.frames",
+    "category": "environment",
+    "tags": [
+      "flood",
+      "out-of-context"
+    ],
+    "mediaKind": "photo",
+    "mediaAssetId": "flood-lagos-2019",
+    "reactions": 9044,
+    "comments": 41,
+    "shares": 3202,
+    "time": {
+      "en": "12m",
+      "es": "12 min"
+    },
+    "topComments": [
+      "The same image appears in a 2019 archive.",
+      "High engagement does not confirm accuracy."
+    ],
+    "_tone": "manipulative",
+    "_expectedSkill": "image-context",
+    "_expectedChallenge": "ic-match"
+  },
+  {
+    "id": "p-wildfire",
+    "body": {
+      "en": "A toxic cloud is covering Bogotá right now. Officials are hiding it.",
+      "es": "Una nube tóxica cubre Bogotá ahora mismo. Las autoridades lo ocultan."
+    },
+    "handle": "@skywatch.live",
+    "category": "environment",
+    "tags": [
+      "wildfire",
+      "out-of-context"
+    ],
+    "mediaKind": "photo",
+    "mediaAssetId": "wildfire-washington-dc",
+    "reactions": 7102,
+    "comments": 29,
+    "shares": 2104,
+    "time": {
+      "en": "22m",
+      "es": "22 min"
+    },
+    "topComments": [
+      "Does anyone have the original source?",
+      "I saw this in several groups, so it must be true."
+    ],
+    "_tone": "manipulative",
+    "_expectedSkill": "wildfire-context",
+    "_expectedChallenge": "wf-match"
+  },
+  {
+    "id": "p-vaccine",
+    "body": {
+      "en": "This vial proves the new formula is unsafe. Share before they remove it.",
+      "es": "Este vial prueba que la nueva fórmula no es segura. Comparte antes de que lo quiten."
+    },
+    "handle": "@health.truth",
+    "category": "health",
+    "tags": [
+      "health",
+      "unsupported-claim"
+    ],
+    "mediaKind": "photo",
+    "mediaAssetId": "vaccine-vial-2024",
+    "reactions": 5320,
+    "comments": 44,
+    "shares": 1890,
+    "time": {
+      "en": "35m",
+      "es": "35 min"
+    },
+    "topComments": [
+      "A photo of a vial does not prove a safety claim."
+    ],
+    "_tone": "manipulative",
+    "_expectedSkill": "vaccine-claim",
+    "_expectedChallenge": "vx-inspect"
+  },
+  {
+    "id": "p-protest",
+    "body": {
+      "en": "Huge crowds in our capital today. This photo is from this morning’s march.",
+      "es": "Multitudes enormes en nuestra capital hoy. Esta foto es de la marcha de esta mañana."
+    },
+    "handle": "@street.wire",
+    "category": "local-news",
+    "tags": [
+      "protest",
+      "reuse"
+    ],
+    "mediaKind": "photo",
+    "mediaAssetId": "protest-2024",
+    "reactions": 4011,
+    "comments": 22,
+    "shares": 980,
+    "time": {
+      "en": "50m",
+      "es": "50 min"
+    },
+    "topComments": [
+      "The same image appears in an earlier protest archive."
+    ],
+    "_tone": "ambiguous",
+    "_expectedSkill": "protest-context",
+    "_expectedChallenge": "pr-match"
+  },
+  {
+    "id": "p-chart",
+    "body": {
+      "en": "Engagement exploded overnight. Look at this chart — undeniable proof.",
+      "es": "El engagement explotó de la noche a la mañana. Mira esta gráfica — prueba innegable."
+    },
+    "handle": "@metric.buzz",
+    "category": "technology",
+    "tags": [
+      "chart",
+      "misleading"
+    ],
+    "mediaKind": "chart",
+    "mediaAssetId": "misleading-chart-preview",
+    "reactions": 2880,
+    "comments": 17,
+    "shares": 744,
+    "time": {
+      "en": "1h",
+      "es": "1 h"
+    },
+    "topComments": [
+      "Check where the vertical axis starts."
+    ],
+    "_tone": "manipulative",
+    "_expectedSkill": "misleading-chart",
+    "_expectedChallenge": "ch-repair"
+  },
+  {
+    "id": "p-inside",
+    "body": {
+      "en": "A source inside the institution says this decision will affect everyone tomorrow. Send this to your family before it is too late.",
+      "es": "Una fuente dentro de la institución dice que esta decisión afectará a todos mañana. Envíaselo a tu familia antes de que sea demasiado tarde."
+    },
+    "handle": "@inside.notes",
+    "category": "local-news",
+    "tags": [
+      "pressure",
+      "transfer"
+    ],
+    "mediaKind": "text",
+    "mediaAssetId": null,
+    "reactions": 2860,
+    "comments": 18,
+    "shares": 974,
+    "time": {
+      "en": "41m",
+      "es": "41 min"
+    },
+    "topComments": [
+      "Anonymous sources still need corroboration."
+    ],
+    "_tone": "ambiguous",
+    "_expectedSkill": "emotional-pressure",
+    "_expectedChallenge": "ep-transfer"
+  },
+  {
+    "id": "p-flood-today",
+    "body": {
+      "en": "People are already posting this as proof of today’s flood.",
+      "es": "La gente ya publica esto como prueba de la inundación de hoy."
+    },
+    "handle": "@rapid.eyes",
+    "category": "environment",
+    "tags": [
+      "flood",
+      "transfer"
+    ],
+    "mediaKind": "photo",
+    "mediaAssetId": "flood-response-2015",
+    "reactions": 4510,
+    "comments": 20,
+    "shares": 1190,
+    "time": {
+      "en": "27m",
+      "es": "27 min"
+    },
+    "topComments": [
+      "Looks familiar from an older response photo."
+    ],
+    "_tone": "ambiguous",
+    "_expectedSkill": "image-context",
+    "_expectedChallenge": "ic-transfer"
+  },
+  {
+    "id": "p-thread",
+    "body": {
+      "en": "Thread: five habits for checking images before you forward them. 1/5",
+      "es": "Hilo: cinco hábitos para revisar imágenes antes de reenviarlas. 1/5"
+    },
+    "handle": "@verify.club",
+    "category": "community",
+    "tags": [
+      "thread",
+      "literacy"
+    ],
+    "mediaKind": "thread",
+    "mediaAssetId": null,
+    "reactions": 512,
+    "comments": 24,
+    "shares": 140,
+    "time": {
+      "en": "9h",
+      "es": "9 h"
+    },
+    "topComments": [
+      "Saving this for our school workshop."
+    ],
+    "_tone": "neutral",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  },
+  {
+    "id": "p-video",
+    "body": {
+      "en": "Council meeting replay is available. Simulated video thumbnail below.",
+      "es": "La retransmisión del consejo ya está disponible. Miniatura de video simulada abajo."
+    },
+    "handle": "@city.channel",
+    "category": "local-news",
+    "tags": [
+      "council",
+      "video"
+    ],
+    "mediaKind": "video",
+    "mediaAssetId": "neutral-news-report",
+    "reactions": 330,
+    "comments": 12,
+    "shares": 40,
+    "time": {
+      "en": "10h",
+      "es": "10 h"
+    },
+    "topComments": [
+      "Timestamp 14:20 covers the budget vote."
+    ],
+    "_tone": "official",
+    "_expectedSkill": null,
+    "_expectedChallenge": null
+  }
+]

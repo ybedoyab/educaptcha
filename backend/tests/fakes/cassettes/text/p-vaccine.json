@@ -1,0 +1,29 @@
+{
+  "signals": [
+    {
+      "id": "proof-overclaim",
+      "skill": "vaccine-claim",
+      "confidence": 0.95,
+      "evidence": "This vial proves the new formula is unsafe."
+    },
+    {
+      "id": "urgency-imperative",
+      "skill": "emotional-pressure",
+      "confidence": 0.9,
+      "evidence": "Share before they remove it."
+    },
+    {
+      "id": "suppression-claim",
+      "skill": "emotional-pressure",
+      "confidence": 0.85,
+      "evidence": "before they remove it"
+    },
+    {
+      "id": "no-verifiable-source",
+      "skill": "sources",
+      "confidence": 0.8,
+      "evidence": "This vial proves the new formula is unsafe. (No source or link provided)"
+    }
+  ],
+  "noSignalReason": null
+}

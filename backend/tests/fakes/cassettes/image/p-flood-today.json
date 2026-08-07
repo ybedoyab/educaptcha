@@ -1,0 +1,11 @@
+{
+  "signals": [
+    {
+      "id": "scene-caption-mismatch",
+      "skill": "image-context",
+      "confidence": 0.9,
+      "evidence": "the road is dry, the sky is clear blue, and there is no active flooding visible in the scene"
+    }
+  ],
+  "noSignalReason": null
+}

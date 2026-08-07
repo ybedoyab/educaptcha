@@ -1,4 +1,11 @@
-import { Heart, MessageCircle, Bookmark, Share2, Link2 } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Bookmark,
+  Share2,
+  Link2,
+  Loader2,
+} from "lucide-react";
 import type { OpenFeedPost } from "../../data/openFeedPosts";
 import { useDemoSession } from "../../context/DemoSessionContext";
 import { useI18n } from "../../i18n/I18nContext";
@@ -25,7 +32,12 @@ export function OpenFeedPost({ post, expanded }: Props) {
     highlightedPostId,
     flow,
     shareCounts,
+    pendingActionKey,
   } = useDemoSession();
+
+  // Only ever set when an external risk check has been in flight for >250ms.
+  const shareBusy = pendingActionKey === `share:${post.id}`;
+  const repostBusy = pendingActionKey === `repost-image:${post.id}`;
 
   const commentCount = (comments[post.id] ?? []).length;
   const isLiked = liked.has(post.id);
@@ -92,6 +104,7 @@ export function OpenFeedPost({ post, expanded }: Props) {
               type="button"
               id={`repost-${post.id}`}
               onClick={onRepostImage}
+              aria-busy={repostBusy}
               aria-label={
                 language === "es"
                   ? `Revisar imagen de ${post.author[language]}`
@@ -151,10 +164,18 @@ export function OpenFeedPost({ post, expanded }: Props) {
               type="button"
               id={`share-${post.id}`}
               onClick={onShare}
+              // Stays enabled on purpose: disabling a focused button strands
+              // focus on <body>. The context's in-flight guard swallows repeats.
+              aria-busy={shareBusy}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2.5 text-sm font-medium hover:bg-navy/5"
             >
-              <Share2 className="h-4 w-4" aria-hidden />
+              {shareBusy ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              ) : (
+                <Share2 className="h-4 w-4" aria-hidden />
+              )}
               {shares}
+              {/* Accessible name is unchanged, so axe sees no new surface. */}
               <span className="sr-only">{copy.experience.share}</span>
             </button>
             <button

@@ -1,0 +1,48 @@
+name: Backend CI
+
+on:
+  pull_request:
+    # src/data is included on purpose: a frontend catalog change must trigger
+    # the parity test, which is what stops the backend emitting a challenge id
+    # the UI does not have.
+    paths: ["backend/**", "src/data/**", ".github/workflows/backend-ci.yml"]
+  push:
+    branches: [main]
+    paths: ["backend/**", "src/data/**"]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      # Needed by the catalog parity test, which evaluates the real TS modules.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - run: uv sync --frozen
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      # No network, no API key: `live` tests are deselected by pyproject addopts.
+      - name: Test
+        run: uv run pytest --cov=app --cov-report=term-missing
+
+      - name: Build image
+        run: docker build -t educaptcha-risk:ci .

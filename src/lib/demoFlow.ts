@@ -28,6 +28,9 @@ export type PendingIntent =
 export type OutcomeRecord = {
   postId: string;
   skill?: string;
+  /** Which minigame was actually shown — required to answer "which challenge?" in metrics. */
+  challengeId?: string;
+  transferChallengeId?: string;
   initial?: ChallengeResult;
   transfer?: ChallengeResult;
   skipped?: boolean;
@@ -72,6 +75,8 @@ export type DemoFlowState =
       status: "return-to-context";
       intent: PendingIntent;
       result: ChallengeResult;
+      /** Carried so the completed outcome can record which minigame ran. */
+      challengeId?: string;
       transferChallengeId?: string;
       skill?: string;
       transferPostId?: string;
@@ -192,6 +197,8 @@ export function demoFlowReducer(
           outcome: {
             postId: state.intent.postId,
             skill: state.skill,
+            challengeId: state.challengeId,
+            transferChallengeId: state.transferChallengeId,
             initial: state.initialResult,
             transfer: state.result,
             evidenceInspected: true,
@@ -207,6 +214,7 @@ export function demoFlowReducer(
         status: "return-to-context",
         intent: state.intent,
         result: state.result,
+        challengeId: state.challengeId,
         transferChallengeId: state.transferChallengeId,
         skill: state.skill,
         transferPostId: action.transferPostId,
@@ -224,6 +232,8 @@ export function demoFlowReducer(
             outcome: {
               postId: state.intent.postId,
               skill: state.skill,
+              challengeId: state.challengeId,
+              transferChallengeId: state.transferChallengeId,
               initial:
                 state.status === "challenge-feedback"
                   ? state.initialResult
@@ -250,6 +260,7 @@ export function demoFlowReducer(
           status: "return-to-context",
           intent: state.intent,
           result: action.result,
+          challengeId: state.challengeId,
           transferChallengeId: state.transferChallengeId,
           skill: state.skill,
           transferPostId: action.transferPostId,
@@ -264,6 +275,7 @@ export function demoFlowReducer(
           outcome: {
             postId: state.targetPostId,
             skill: state.skill,
+            challengeId: state.challengeId,
             initial: state.initialResult,
             transfer: action.result,
             evidenceInspected: true,
@@ -281,6 +293,8 @@ export function demoFlowReducer(
           outcome: {
             postId: state.intent.postId,
             skill: state.skill,
+            challengeId: state.challengeId,
+            transferChallengeId: state.transferChallengeId,
             initial: state.initialResult,
             transfer: action.result,
             evidenceInspected: true,
@@ -314,6 +328,8 @@ export function demoFlowReducer(
           outcome: {
             postId: state.intent.postId,
             skill: state.skill,
+            challengeId: state.challengeId,
+            transferChallengeId: state.transferChallengeId,
             initial: state.result,
             evidenceInspected: true,
             firstDecision: state.result.correct ? "identified" : "missed",
@@ -338,6 +354,8 @@ export function demoFlowReducer(
             outcome: {
               postId: state.intent.postId,
               skill: state.skill,
+              challengeId: state.challengeId,
+              transferChallengeId: state.transferChallengeId,
               skipped: true,
               completedAt: new Date().toISOString(),
             },
@@ -347,6 +365,7 @@ export function demoFlowReducer(
           status: "return-to-context",
           intent: state.intent,
           result: action.result,
+          challengeId: state.challengeId,
           transferChallengeId: state.transferChallengeId,
           skill: state.skill,
           transferPostId: action.transferPostId,
@@ -358,6 +377,7 @@ export function demoFlowReducer(
           outcome: {
             postId: state.targetPostId,
             skill: state.skill,
+            challengeId: state.challengeId,
             initial: state.initialResult,
             skipped: true,
             completedAt: new Date().toISOString(),

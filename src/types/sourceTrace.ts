@@ -24,10 +24,27 @@ export interface SourceTraceStep {
   detail?: LocalizedText;
 }
 
-/** Optional shape for an external risk-analysis service (not implemented in this frontend). */
+/**
+ * Decision returned by the external risk-analysis service in `backend/`.
+ *
+ * Enabled by setting `VITE_RISK_API_URL`; unset, all decisions come from
+ * `LearningTriggerEngine` and nothing here is used. The wire response nests
+ * this under `decision` alongside a `diagnostics` block — see
+ * `src/lib/risk/riskResponse.ts`, which validates it before the flow reducer
+ * ever sees it.
+ *
+ * Note `reason` is `LocalizedText`, not `string`: every user-facing string in
+ * this app is bilingual and the dialog renders `reason[language]`.
+ * `transferChallengeId` / `transferPostId` are required for the skill-transfer
+ * stage to fire at all.
+ */
 export type RiskDecision = {
   shouldIntervene: boolean;
+  outcome?: "continue" | "intercept" | "verify-ack";
   skill?: string;
-  riskReason?: string;
   challengeId?: string;
+  transferChallengeId?: string;
+  transferPostId?: string;
+  reason?: LocalizedText;
+  acknowledgement?: LocalizedText;
 };

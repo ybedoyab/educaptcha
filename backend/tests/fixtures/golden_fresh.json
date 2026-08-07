@@ -1,0 +1,408 @@
+[
+  {
+    "post": "p-garden",
+    "tone": "neutral",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "no-challenge-for-skill",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 0,
+    "expected": false,
+    "expectedChallenge": null
+  },
+  {
+    "post": "p-library",
+    "tone": "official",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "pretriage-benign",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 1,
+    "expected": false,
+    "expectedChallenge": null
+  },
+  {
+    "post": "p-science",
+    "tone": "official",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "pretriage-benign",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 1,
+    "expected": false,
+    "expectedChallenge": null
+  },
+  {
+    "post": "p-market",
+    "tone": "neutral",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "no-challenge-for-skill",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 0,
+    "expected": false,
+    "expectedChallenge": null
+  },
+  {
+    "post": "p-tech",
+    "tone": "neutral",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "pretriage-benign",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 0,
+    "expected": false,
+    "expectedChallenge": null
+  },
+  {
+    "post": "p-weather",
+    "tone": "official",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "no-challenge-for-skill",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 0,
+    "expected": false,
+    "expectedChallenge": null
+  },
+  {
+    "post": "p-bike",
+    "tone": "neutral",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "no-challenge-for-skill",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 0,
+    "expected": false,
+    "expectedChallenge": null
+  },
+  {
+    "post": "p-health-tips",
+    "tone": "official",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "pretriage-benign",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 0,
+    "expected": false,
+    "expectedChallenge": null
+  },
+  {
+    "post": "p-alert-urgent",
+    "tone": "manipulative",
+    "action": "share",
+    "score": 0.94,
+    "signals": [
+      "share-velocity",
+      "urgency-imperative",
+      "suppression-claim"
+    ],
+    "evidence": [
+      "300 shares/min since posting",
+      "Share it NOW before it disappears!",
+      "They are trying to delete this information."
+    ],
+    "skill": "emotional-pressure",
+    "challenge": "ep-spot",
+    "outcome": "intercept",
+    "gate": null,
+    "wouldPractice": null,
+    "agents": [
+      "text"
+    ],
+    "ms": 18,
+    "expected": true,
+    "expectedChallenge": "ep-spot"
+  },
+  {
+    "post": "p-flood-live",
+    "tone": "manipulative",
+    "action": "share",
+    "score": 0.92,
+    "signals": [
+      "share-velocity",
+      "scene-caption-mismatch",
+      "claimed-time-place",
+      "urgency-imperative"
+    ],
+    "evidence": [
+      "267 shares/min since posting",
+      "The photograph shows a flooded street during broad daylight, which contradicts the caption's claim of being 'LIVE from tonight'.",
+      "LIVE from tonight\u2019s emergency response",
+      "Share so everyone sees it."
+    ],
+    "skill": "image-context",
+    "challenge": "ic-match",
+    "outcome": "intercept",
+    "gate": null,
+    "wouldPractice": null,
+    "agents": [
+      "image",
+      "text"
+    ],
+    "ms": 3,
+    "expected": true,
+    "expectedChallenge": "ic-match"
+  },
+  {
+    "post": "p-wildfire",
+    "tone": "manipulative",
+    "action": "share",
+    "score": 0.82,
+    "signals": [
+      "share-velocity",
+      "region-mismatch",
+      "suppression-claim",
+      "no-verifiable-source",
+      "claimed-time-place"
+    ],
+    "evidence": [
+      "96 shares/min since posting",
+      "An American flag is flying on a flagpole on the left side of the street, which is inconsistent with the claim that this is Bogot\u00e1.",
+      "Officials are hiding it / Las autoridades lo ocultan",
+      "A toxic cloud is covering Bogot\u00e1 right now / Una nube t\u00f3xica cubre Bogot\u00e1 ahora mismo",
+      "covering Bogot\u00e1 right now / cubre Bogot\u00e1 ahora mismo"
+    ],
+    "skill": "wildfire-context",
+    "challenge": "wf-match",
+    "outcome": "intercept",
+    "gate": null,
+    "wouldPractice": null,
+    "agents": [
+      "image",
+      "text"
+    ],
+    "ms": 5,
+    "expected": true,
+    "expectedChallenge": "wf-match"
+  },
+  {
+    "post": "p-vaccine",
+    "tone": "manipulative",
+    "action": "share",
+    "score": 0.92,
+    "signals": [
+      "share-velocity",
+      "object-does-not-support-claim",
+      "proof-overclaim",
+      "urgency-imperative",
+      "suppression-claim",
+      "no-verifiable-source"
+    ],
+    "evidence": [
+      "54 shares/min since posting",
+      "the photograph shows a standard, sealed vaccine vial labeled Spikevax JN.1, which cannot visually demonstrate whether its contents are safe or unsafe",
+      "This vial proves the new formula is unsafe.",
+      "Share before they remove it.",
+      "before they remove it",
+      "This vial proves the new formula is unsafe. (No source or link provided)"
+    ],
+    "skill": "vaccine-claim",
+    "challenge": "vx-inspect",
+    "outcome": "intercept",
+    "gate": null,
+    "wouldPractice": null,
+    "agents": [
+      "image",
+      "text"
+    ],
+    "ms": 3,
+    "expected": true,
+    "expectedChallenge": "vx-inspect"
+  },
+  {
+    "post": "p-protest",
+    "tone": "ambiguous",
+    "action": "share",
+    "score": 0.91,
+    "signals": [
+      "scene-caption-mismatch",
+      "claimed-time-place",
+      "no-verifiable-source"
+    ],
+    "evidence": [
+      "The photograph shows a crowd gathered at night under lit streetlights, which contradicts the caption's claim that the photo is from \"this morning's march\".",
+      "This photo is from this morning\u2019s march.",
+      "Huge crowds in our capital today. This photo is from this morning\u2019s march."
+    ],
+    "skill": "protest-context",
+    "challenge": "pr-match",
+    "outcome": "intercept",
+    "gate": null,
+    "wouldPractice": null,
+    "agents": [
+      "image",
+      "text"
+    ],
+    "ms": 2,
+    "expected": true,
+    "expectedChallenge": "pr-match"
+  },
+  {
+    "post": "p-chart",
+    "tone": "manipulative",
+    "action": "share",
+    "score": 0.99,
+    "signals": [
+      "truncated-y-axis",
+      "visual-magnitude-vs-data-ratio",
+      "proof-overclaim",
+      "no-verifiable-source"
+    ],
+    "evidence": [
+      "The y-axis starts at 84 instead of 0, which exaggerates the relative difference between the two data points.",
+      "axis starts at 84; bars 120px vs 210px = 1.75x, values ~88.8 vs ~92.4 = 1.04x",
+      "Look at this chart \u2014 undeniable proof.",
+      "Look at this chart \u2014 undeniable proof. (No source provided for the chart data)"
+    ],
+    "skill": "misleading-chart",
+    "challenge": "ch-repair",
+    "outcome": "intercept",
+    "gate": null,
+    "wouldPractice": null,
+    "agents": [
+      "chart",
+      "text"
+    ],
+    "ms": 4,
+    "expected": true,
+    "expectedChallenge": "ch-repair"
+  },
+  {
+    "post": "p-inside",
+    "tone": "ambiguous",
+    "action": "share",
+    "score": 0.76,
+    "signals": [
+      "share-velocity",
+      "unnamed-authority",
+      "urgency-imperative",
+      "no-verifiable-source"
+    ],
+    "evidence": [
+      "24 shares/min since posting",
+      "A source inside the institution says",
+      "Send this to your family before it is too late.",
+      "this decision will affect everyone tomorrow"
+    ],
+    "skill": "emotional-pressure",
+    "challenge": "ep-transfer",
+    "outcome": "intercept",
+    "gate": null,
+    "wouldPractice": null,
+    "agents": [
+      "text"
+    ],
+    "ms": 2,
+    "expected": true,
+    "expectedChallenge": "ep-transfer"
+  },
+  {
+    "post": "p-flood-today",
+    "tone": "ambiguous",
+    "action": "share",
+    "score": 0.77,
+    "signals": [
+      "share-velocity",
+      "scene-caption-mismatch"
+    ],
+    "evidence": [
+      "44 shares/min since posting",
+      "the road is dry, the sky is clear blue, and there is no active flooding visible in the scene"
+    ],
+    "skill": "image-context",
+    "challenge": "ic-transfer",
+    "outcome": "intercept",
+    "gate": null,
+    "wouldPractice": null,
+    "agents": [
+      "image",
+      "text"
+    ],
+    "ms": 3,
+    "expected": true,
+    "expectedChallenge": "ic-transfer"
+  },
+  {
+    "post": "p-thread",
+    "tone": "neutral",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "pretriage-benign",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 0,
+    "expected": false,
+    "expectedChallenge": null
+  },
+  {
+    "post": "p-video",
+    "tone": "official",
+    "action": "share",
+    "score": 0.0,
+    "signals": [],
+    "evidence": [],
+    "skill": null,
+    "challenge": null,
+    "outcome": "continue",
+    "gate": "pretriage-benign",
+    "wouldPractice": null,
+    "agents": [],
+    "ms": 0,
+    "expected": false,
+    "expectedChallenge": null
+  }
+]

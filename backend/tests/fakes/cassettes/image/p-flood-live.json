@@ -1,0 +1,11 @@
+{
+  "signals": [
+    {
+      "id": "scene-caption-mismatch",
+      "skill": "image-context",
+      "confidence": 0.95,
+      "evidence": "The photograph shows a flooded street during broad daylight, which contradicts the caption's claim of being 'LIVE from tonight'."
+    }
+  ],
+  "noSignalReason": null
+}

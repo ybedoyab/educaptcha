@@ -1,0 +1,23 @@
+{
+  "signals": [
+    {
+      "id": "unnamed-authority",
+      "skill": "sources",
+      "confidence": 0.95,
+      "evidence": "A source inside the institution says"
+    },
+    {
+      "id": "urgency-imperative",
+      "skill": "emotional-pressure",
+      "confidence": 0.9,
+      "evidence": "Send this to your family before it is too late."
+    },
+    {
+      "id": "no-verifiable-source",
+      "skill": "sources",
+      "confidence": 0.85,
+      "evidence": "this decision will affect everyone tomorrow"
+    }
+  ],
+  "noSignalReason": null
+}

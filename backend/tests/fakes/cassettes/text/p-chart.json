@@ -1,0 +1,17 @@
+{
+  "signals": [
+    {
+      "id": "proof-overclaim",
+      "skill": "misleading-chart",
+      "confidence": 0.95,
+      "evidence": "Look at this chart \u2014 undeniable proof."
+    },
+    {
+      "id": "no-verifiable-source",
+      "skill": "sources",
+      "confidence": 0.85,
+      "evidence": "Look at this chart \u2014 undeniable proof. (No source provided for the chart data)"
+    }
+  ],
+  "noSignalReason": null
+}
