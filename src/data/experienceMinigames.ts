@@ -104,16 +104,16 @@ export const experienceMinigames: Record<string, Challenge> = {
     category: "emotional-manipulation",
     badge: "pressure-detector",
     title: {
-      en: "Sort facts from pressure",
-      es: "Separa hechos de presión",
+      en: "What did you find?",
+      es: "¿Qué encontraste?",
     },
     skillMetric: {
       en: "Transfer completed",
       es: "Transferencia completada",
     },
     explanation: {
-      en: "You applied the same skill to a subtler post.",
-      es: "Aplicaste la misma habilidad a una publicación más sutil.",
+      en: "You practiced applying this skill to a new example.",
+      es: "Practicaste aplicar esta habilidad a un nuevo ejemplo.",
     },
     explanationWhy: {
       en: "Pressure can sound quieter while still rushing a share decision.",
@@ -124,89 +124,36 @@ export const experienceMinigames: Record<string, Challenge> = {
       es: "Verifica antes de reenviar a la familia.",
     },
     interaction: {
-      type: "drag-classify",
+      type: "single-choice",
       instruction: {
-        en: "Sort into Verified evidence, Unverified claim, or Emotional pressure.",
-        es: "Clasifica en Evidencia verificada, Afirmación sin verificar o Presión emocional.",
+        en: "Choose what this evidence means.",
+        es: "Elige qué significa esta evidencia.",
       },
       maxAttempts: 2,
-      prompt: {
-        en: "A source inside the institution says this decision will affect everyone tomorrow. Send this to your family before it is too late. The official document was published on August 3.",
-        es: "Una fuente dentro de la institución dice que esta decisión afectará a todos mañana. Envíaselo a tu familia antes de que sea demasiado tarde. El documento oficial se publicó el 3 de agosto.",
-      },
-      wrongHint: {
-        en: "Anonymous claims are not verified evidence.",
-        es: "Las afirmaciones anónimas no son evidencia verificada.",
-      },
-      zones: [
+      options: [
         {
           id: "verified",
           label: {
-            en: "Verified evidence",
-            es: "Evidencia verificada",
+            en: "Fully verified evidence",
+            es: "Evidencia totalmente verificada",
           },
         },
         {
-          id: "unverified",
+          id: "mix",
           label: {
-            en: "Unverified claim",
-            es: "Afirmación sin verificar",
+            en: "Unverified claims mixed with pressure",
+            es: "Afirmaciones sin verificar mezcladas con presión",
           },
         },
         {
-          id: "pressure",
+          id: "safe",
           label: {
-            en: "Emotional pressure",
-            es: "Presión emocional",
+            en: "Safe to share immediately",
+            es: "Seguro para compartir de inmediato",
           },
         },
       ],
-      items: [
-        {
-          id: "source",
-          label: {
-            en: "A source inside the institution says…",
-            es: "Una fuente dentro de la institución dice…",
-          },
-          correctZoneId: "unverified",
-        },
-        {
-          id: "affect",
-          label: {
-            en: "this decision will affect everyone tomorrow",
-            es: "esta decisión afectará a todos mañana",
-          },
-          correctZoneId: "unverified",
-        },
-        {
-          id: "family",
-          label: {
-            en: "Send this to your family",
-            es: "Envíaselo a tu familia",
-          },
-          correctZoneId: "pressure",
-        },
-        {
-          id: "late",
-          label: {
-            en: "before it is too late",
-            es: "antes de que sea demasiado tarde",
-          },
-          correctZoneId: "pressure",
-        },
-        {
-          id: "doc",
-          label: {
-            en: "The official document was published on August 3",
-            es: "El documento oficial se publicó el 3 de agosto",
-          },
-          correctZoneId: "verified",
-        },
-      ],
-      rebuild: {
-        infoIds: ["doc"],
-        pressureIds: ["family", "late"],
-      },
+      correctOptionId: "mix",
     },
   },
   "ic-match": {
@@ -214,16 +161,16 @@ export const experienceMinigames: Record<string, Challenge> = {
     category: "visual-context",
     badge: "context-investigator",
     title: {
-      en: "Match the photo context",
-      es: "Empareja el contexto de la foto",
+      en: "Check this image",
+      es: "Revisa esta imagen",
     },
     skillMetric: {
-      en: "Context verified",
-      es: "Contexto verificado",
+      en: "Context checked",
+      es: "Contexto revisado",
     },
     explanation: {
-      en: "A real image can still be misleading when its date, location or context is changed.",
-      es: "Una imagen real puede ser engañosa cuando se cambia su fecha, ubicación o contexto.",
+      en: "Correct. The image is real, but its original date and location were changed.",
+      es: "Correcto. La imagen es real, pero se cambiaron su fecha y lugar originales.",
     },
     explanationWhy: {
       en: "Archive metadata often survives when social captions invent a new “tonight” story.",
@@ -236,8 +183,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "Check the claim, inspect evidence, then decide.",
-        es: "Revisa la afirmación, inspecciona la evidencia y decide.",
+        en: "Check the source before you share.",
+        es: "Revisa la fuente antes de compartir.",
       },
       maxAttempts: 2,
       claimQuestion: {
@@ -496,8 +443,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "Inspect evidence for the wildfire smoke claim.",
-        es: "Inspecciona la evidencia de la afirmación sobre el humo.",
+        en: "Check the source for the wildfire smoke claim.",
+        es: "Revisa la fuente de la afirmación sobre el humo.",
       },
       maxAttempts: 2,
       claim: {
@@ -806,8 +753,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "Inspect evidence for the protest caption.",
-        es: "Inspecciona la evidencia del pie de la protesta.",
+        en: "Check the source for the protest caption.",
+        es: "Revisa la fuente del pie de la protesta.",
       },
       maxAttempts: 2,
       claim: {

@@ -137,8 +137,8 @@ export const challenges: Challenge[] = [
     interaction: {
       type: "drag-classify",
       instruction: {
-        en: "Drop each clue into Who, When or Evidence.",
-        es: "Suelta cada pista en Quién, Cuándo o Evidencia.",
+        en: "Choose a card, then choose where it belongs.",
+        es: "Elige una tarjeta y luego dónde pertenece.",
       },
       maxAttempts: 2,
       prompt: {
@@ -430,8 +430,8 @@ export const challenges: Challenge[] = [
     interaction: {
       type: "drag-classify",
       instruction: {
-        en: "Sort each line into Information or Pressure.",
-        es: "Clasifica cada línea en Información o Presión.",
+        en: "Choose a card, then choose where it belongs.",
+        es: "Elige una tarjeta y luego dónde pertenece.",
       },
       maxAttempts: 2,
       prompt: {

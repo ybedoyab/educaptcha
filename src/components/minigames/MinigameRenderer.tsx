@@ -20,6 +20,7 @@ export interface MinigameRendererProps {
   wide?: boolean;
   embedded?: boolean;
   onClose?: () => void;
+  compactFeedback?: boolean;
 }
 
 export function MinigameRenderer({
@@ -31,6 +32,7 @@ export function MinigameRenderer({
   wide,
   embedded,
   onClose,
+  compactFeedback,
 }: MinigameRendererProps) {
   const { language, copy } = useI18n();
   const startedAt = useRef(Date.now());
@@ -55,6 +57,9 @@ export function MinigameRenderer({
   const interaction = challenge.interaction;
   const categoryLabel =
     copy.categories[challenge.category as keyof typeof copy.categories];
+
+  const hideChromeInstruction =
+    embedded && interaction.type === "context-match";
 
   const mode = done ? "review" : "play";
 
@@ -128,7 +133,9 @@ export function MinigameRenderer({
   return (
     <MinigameShell
       title={challenge.title[language]}
-      instruction={interaction.instruction[language]}
+      instruction={
+        hideChromeInstruction ? "" : interaction.instruction[language]
+      }
       categoryLabel={categoryLabel}
       stepLabel={stepLabel}
       whyText={challenge.explanationWhy[language]}
@@ -137,28 +144,27 @@ export function MinigameRenderer({
       compact={compact}
       wide={wide}
       embedded={embedded}
-      showWhy={Boolean(done)}
-      layout={
-        done
-          ? "feedback"
-          : interaction.type === "context-match"
-            ? "investigate"
-            : "single"
-      }
+      showWhy={Boolean(done) && !compactFeedback}
+      layout="single"
       footer={
         done ? (
           <MinigameFeedback
             correct={done.correct}
             explanation={challenge.explanation[language]}
             takeaway={challenge.takeaway[language]}
-            metricLabel={challenge.skillMetric[language]}
-            metricValue={
-              done.signalsTotal
-                ? `${done.signalsFound ?? 0}/${done.signalsTotal}`
-                : done.correct
-                  ? copy.minigame.complete
-                  : undefined
+            metricLabel={
+              compactFeedback ? undefined : challenge.skillMetric[language]
             }
+            metricValue={
+              compactFeedback
+                ? undefined
+                : done.signalsTotal
+                  ? `${done.signalsFound ?? 0}/${done.signalsTotal}`
+                  : done.correct
+                    ? copy.minigame.complete
+                    : undefined
+            }
+            compact={compactFeedback}
             onContinue={() => onComplete(done)}
           />
         ) : hint ? (

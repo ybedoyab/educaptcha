@@ -8,6 +8,7 @@ interface MinigameFeedbackProps {
   metricLabel?: string;
   metricValue?: string;
   onContinue: () => void;
+  compact?: boolean;
 }
 
 export function MinigameFeedback({
@@ -17,8 +18,25 @@ export function MinigameFeedback({
   metricLabel,
   metricValue,
   onContinue,
+  compact,
 }: MinigameFeedbackProps) {
   const { copy } = useI18n();
+
+  if (compact) {
+    return (
+      <div className="animate-slide-up space-y-3" role="status" aria-live="polite">
+        <p className="text-sm font-medium text-navy">{explanation}</p>
+        <button
+          type="button"
+          data-primary-cta="true"
+          onClick={onContinue}
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-navy px-4 text-sm font-semibold text-white"
+        >
+          {copy.minigame.continue}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -48,6 +66,7 @@ export function MinigameFeedback({
       </div>
       <button
         type="button"
+        data-primary-cta="true"
         onClick={onContinue}
         className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white sm:w-auto"
       >

@@ -17,15 +17,16 @@ describe("MinigameRenderer", () => {
         onComplete={() => undefined}
         onSkip={() => undefined}
         embedded
+        compactFeedback
       />,
     );
     expect(screen.queryByText("Why?")).toBeNull();
     expect(
-      screen.getByRole("button", { name: /check this image/i }),
+      screen.getByRole("button", { name: /check the source/i }),
     ).toBeInTheDocument();
   });
 
-  it("skip is available", async () => {
+  it("skip is available when not embedded", async () => {
     const user = userEvent.setup();
     let skipped = false;
     wrap(
@@ -39,5 +40,20 @@ describe("MinigameRenderer", () => {
     );
     await user.click(screen.getByRole("button", { name: /skip/i }));
     expect(skipped).toBe(true);
+  });
+
+  it("has exactly one primary CTA on the first screen", () => {
+    wrap(
+      <MinigameRenderer
+        challenge={experienceMinigames["ic-match"]}
+        onComplete={() => undefined}
+        onSkip={() => undefined}
+        embedded
+        compactFeedback
+      />,
+    );
+    expect(screen.getAllByRole("button", { name: /check the source/i })).toHaveLength(
+      1,
+    );
   });
 });

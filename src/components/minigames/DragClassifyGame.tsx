@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -13,7 +13,7 @@ import {
 import { useDroppable } from "@dnd-kit/core";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Check } from "lucide-react";
+import { Check, GripVertical } from "lucide-react";
 import type { Language } from "../../types";
 import type {
   ChallengeResult,
@@ -42,24 +42,40 @@ function DraggableCard({
   };
 
   return (
-    <button
+    <div
       ref={setNodeRef}
-      type="button"
       style={style}
-      {...listeners}
-      {...attributes}
-      onClick={onSelect}
-      disabled={placed}
-      className={`min-h-11 rounded-xl border px-3 py-2 text-left text-sm font-medium transition ${
+      data-testid={`drag-card-${id}`}
+      data-selected={selected ? "true" : "false"}
+      className={`group flex min-h-11 w-full items-stretch overflow-hidden rounded-xl border-2 transition ${
         placed
           ? "hidden"
           : selected
-            ? "border-teal bg-teal/10 text-navy"
-            : "border-navy/15 bg-white text-navy hover:border-teal/50"
+            ? "border-teal bg-teal/15 text-navy shadow-md ring-2 ring-teal/30"
+            : "border-navy/15 bg-white text-navy shadow-sm hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-md"
       }`}
     >
-      {label}
-    </button>
+      {/* Drag handle only — click/tap on the label is the canonical path */}
+      <button
+        type="button"
+        aria-label="Drag"
+        disabled={placed}
+        className="flex cursor-grab items-center px-2 text-navy/35 transition hover:bg-navy/5 hover:text-navy/55 active:cursor-grabbing"
+        {...listeners}
+        {...attributes}
+      >
+        <GripVertical className="h-4 w-4 shrink-0" aria-hidden />
+      </button>
+      <button
+        type="button"
+        disabled={placed}
+        aria-pressed={selected}
+        onClick={onSelect}
+        className="min-w-0 flex-1 cursor-pointer px-2 py-2 text-left text-sm font-medium active:scale-[0.99]"
+      >
+        {label}
+      </button>
+    </div>
   );
 }
 
@@ -81,17 +97,19 @@ function DropZone({
     <button
       ref={setNodeRef}
       type="button"
+      data-testid={`drop-zone-${id}`}
+      data-active={active || isOver ? "true" : "false"}
       onClick={onActivate}
       className={`min-h-28 w-full rounded-xl border-2 border-dashed p-3 text-left transition ${
         isOver || active
-          ? "border-teal bg-teal/10"
+          ? "border-teal bg-teal/15 shadow-inner ring-2 ring-teal/20"
           : "border-navy/20 bg-off-white"
       }`}
     >
       <p className="text-xs font-semibold uppercase tracking-wide text-navy/55">
         {label}
       </p>
-      <div className="mt-2 flex flex-wrap gap-2">{children}</div>
+      <div className="mt-2 flex min-h-10 flex-wrap gap-2">{children}</div>
     </button>
   );
 }
@@ -124,10 +142,13 @@ export function DragClassifyGame({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [rebuild, setRebuild] = useState(mode === "review");
+  const [showTapHint, setShowTapHint] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 120, tolerance: 8 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 120, tolerance: 8 },
+    }),
     useSensor(KeyboardSensor),
   );
 
@@ -135,6 +156,15 @@ export function DragClassifyGame({
     () => interaction.items.filter((i) => i.correctZoneId !== null),
     [interaction.items],
   );
+
+  useEffect(() => {
+    if (!selectedItem) {
+      setShowTapHint(false);
+      return;
+    }
+    const t = window.setTimeout(() => setShowTapHint(true), 3000);
+    return () => window.clearTimeout(t);
+  }, [selectedItem]);
 
   const place = (itemId: string, zoneId: string) => {
     const item = interaction.items.find((i) => i.id === itemId);
@@ -146,7 +176,6 @@ export function DragClassifyGame({
       onHint(interaction.wrongHint[language]);
       setSelectedItem(null);
       if (nextAttempts >= interaction.maxAttempts) {
-        // auto-complete remaining correctly for learning after max attempts fail path
         const auto: Record<string, string> = { ...placements };
         requiredItems.forEach((r) => {
           if (r.correctZoneId) auto[r.id] = r.correctZoneId;
@@ -185,7 +214,11 @@ export function DragClassifyGame({
   const onDragEnd = (event: DragEndEvent) => {
     setActiveId(null);
     const { active, over } = event;
-    if (!over) return;
+    if (!over) {
+      // Failed drag → select card for tap placement
+      setSelectedItem(String(active.id));
+      return;
+    }
     place(String(active.id), String(over.id));
   };
 
@@ -196,14 +229,32 @@ export function DragClassifyGame({
       <p className="rounded-xl bg-navy/5 px-3 py-2 text-sm text-navy/80">
         {interaction.prompt[language]}
       </p>
-      <p className="text-xs text-navy/50">{copy.minigame.dragA11y}</p>
+      <div>
+        <p className="text-sm font-medium text-navy">{copy.minigame.dragA11y}</p>
+        <p className="mt-0.5 text-xs text-navy/45">{copy.minigame.dragAlso}</p>
+      </div>
+
+      {selectedItem && (
+        <p
+          className="rounded-lg bg-teal/10 px-3 py-2 text-sm font-semibold text-teal"
+          role="status"
+          aria-live="polite"
+        >
+          {language === "es"
+            ? "Ahora elige una categoría ↓"
+            : "Now choose a category ↓"}
+        </p>
+      )}
 
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={(e) => setActiveId(String(e.active.id))}
         onDragEnd={onDragEnd}
-        onDragCancel={() => setActiveId(null)}
+        onDragCancel={() => {
+          if (activeId) setSelectedItem(activeId);
+          setActiveId(null);
+        }}
       >
         <div className="grid gap-2 sm:grid-cols-2">
           {unplaced.map((item) => (
@@ -213,14 +264,16 @@ export function DragClassifyGame({
               label={item.label[language]}
               selected={selectedItem === item.id}
               placed={Boolean(placements[item.id])}
-              onSelect={() =>
-                setSelectedItem((prev) => (prev === item.id ? null : item.id))
-              }
+              onSelect={() => setSelectedItem(item.id)}
             />
           ))}
         </div>
 
-        <div className={`grid gap-3 ${interaction.zones.length > 2 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+        <div
+          className={`grid gap-3 ${
+            interaction.zones.length > 2 ? "sm:grid-cols-3" : "sm:grid-cols-2"
+          }`}
+        >
           {interaction.zones.map((zone) => (
             <DropZone
               key={zone.id}
@@ -236,6 +289,7 @@ export function DragClassifyGame({
                 .map((i) => (
                   <span
                     key={i.id}
+                    data-testid={`placed-${i.id}`}
                     className="inline-flex items-center gap-1 rounded-lg bg-teal/15 px-2 py-1 text-xs font-semibold text-navy animate-check-pop"
                   >
                     <Check className="h-3 w-3 text-teal" aria-hidden />
@@ -248,36 +302,40 @@ export function DragClassifyGame({
 
         <DragOverlay>
           {activeId ? (
-            <div className="rounded-xl border border-teal bg-white px-3 py-2 text-sm font-medium shadow-lg">
-              {interaction.items.find((i) => i.id === activeId)?.label[language]}
+            <div className="flex items-center gap-2 rounded-xl border border-teal bg-white px-3 py-2 text-sm font-medium shadow-lg">
+              <GripVertical className="h-4 w-4 text-navy/40" aria-hidden />
+              {
+                interaction.items.find((i) => i.id === activeId)?.label[
+                  language
+                ]
+              }
             </div>
           ) : null}
         </DragOverlay>
       </DndContext>
 
+      {showTapHint && selectedItem && (
+        <p className="text-xs text-navy/50" role="status">
+          {language === "es"
+            ? "Toca una categoría para colocarla."
+            : "Tap a category to place it."}
+        </p>
+      )}
+
       {rebuild && interaction.rebuild && (
         <div className="animate-slide-up rounded-xl border border-navy/10 p-3">
-          <p className="text-xs font-semibold uppercase text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
             {copy.minigame.rebuild}
           </p>
-          <div className="mt-2 space-y-1">
-            {interaction.rebuild.infoIds.map((id) => (
-              <p key={id} className="rounded-lg bg-sky/10 px-2 py-1.5 text-sm text-navy">
-                {interaction.items.find((i) => i.id === id)?.label[language]}
-              </p>
-            ))}
-            {interaction.rebuild.pressureIds.map((id) => (
-              <p
-                key={id}
-                className="rounded-lg bg-amber/15 px-2 py-1.5 text-sm font-medium text-navy"
-              >
-                {interaction.items.find((i) => i.id === id)?.label[language]}
-              </p>
-            ))}
-            <p className="rounded-lg border border-dashed border-navy/20 px-2 py-3 text-xs text-navy/40">
-              {copy.minigame.missingData}
-            </p>
-          </div>
+          <p className="mt-2 text-sm text-navy/80">
+            {interaction.rebuild.infoIds
+              .map(
+                (id) =>
+                  interaction.items.find((i) => i.id === id)?.label[language],
+              )
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
         </div>
       )}
     </div>

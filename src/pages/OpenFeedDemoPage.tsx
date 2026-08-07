@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   DemoSessionProvider,
@@ -15,20 +15,8 @@ import { useI18n } from "../i18n/I18nContext";
 function DemoIntro() {
   const { introSeen, setIntroSeen } = useDemoSession();
   const { language } = useI18n();
-  const [step, setStep] = useState(0);
 
   if (introSeen) return null;
-
-  const screens = [
-    {
-      en: "You are browsing a simulated social feed.",
-      es: "Estás navegando un feed social simulado.",
-    },
-    {
-      en: "Try sharing the highlighted post. EduCAPTCHA will appear before the action.",
-      es: "Intenta compartir la publicación resaltada. EduCAPTCHA aparecerá antes de la acción.",
-    },
-  ];
 
   return (
     <div
@@ -38,30 +26,20 @@ function DemoIntro() {
       aria-labelledby="intro-title"
     >
       <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
-        <p className="text-xs font-semibold uppercase tracking-wide text-teal">
-          OpenFeed
-        </p>
-        <h2 id="intro-title" className="mt-2 text-lg font-semibold text-navy">
-          {screens[step][language]}
+        <h2 id="intro-title" className="text-lg font-semibold text-navy">
+          {language === "es"
+            ? "Estás en un feed social simulado. Intenta compartir la publicación resaltada."
+            : "You’re on a simulated social feed. Try sharing the highlighted post."}
         </h2>
-        <div className="mt-5 flex justify-end gap-2">
-          {step === 0 ? (
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="inline-flex min-h-11 items-center rounded-xl bg-teal px-4 text-sm font-semibold text-white"
-            >
-              {language === "es" ? "Siguiente" : "Next"}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIntroSeen(true)}
-              className="inline-flex min-h-11 items-center rounded-xl bg-navy px-4 text-sm font-semibold text-white"
-            >
-              {language === "es" ? "Empezar" : "Start browsing"}
-            </button>
-          )}
+        <div className="mt-5 flex justify-end">
+          <button
+            type="button"
+            data-primary-cta="true"
+            onClick={() => setIntroSeen(true)}
+            className="inline-flex min-h-11 items-center rounded-xl bg-navy px-4 text-sm font-semibold text-white"
+          >
+            {language === "es" ? "Empezar" : "Start"}
+          </button>
         </div>
       </div>
     </div>

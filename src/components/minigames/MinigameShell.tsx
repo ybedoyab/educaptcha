@@ -41,7 +41,9 @@ export function MinigameShell({
 
   const body = (
     <>
-      <p className="text-sm font-medium text-navy">{instruction}</p>
+      {instruction ? (
+        <p className="text-sm font-medium text-navy">{instruction}</p>
+      ) : null}
       {children}
       {showWhy && (
         <details className="rounded-xl bg-off-white px-3 py-2">
