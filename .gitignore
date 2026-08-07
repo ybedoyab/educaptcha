@@ -28,3 +28,10 @@ playwright/.cache
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code
+CLAUDE.md
+
+# pnpm
+pnpm-lock.yaml
+pnpm-workspace.yaml
