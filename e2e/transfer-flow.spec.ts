@@ -35,12 +35,12 @@ test("transfer flow uses West Columbia metadata, not Lagos", async ({
   // Return to feed → Cancel & check source
   await expect(
     page.getByRole("button", {
-      name: /cancel & check source|cancelar y revisar fuente/i,
+      name: /cancel and check source|cancelar y revisar fuente/i,
     }),
   ).toBeVisible();
   await page
     .getByRole("button", {
-      name: /cancel & check source|cancelar y revisar fuente/i,
+      name: /cancel and check source|cancelar y revisar fuente/i,
     })
     .click();
 

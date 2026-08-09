@@ -42,67 +42,31 @@ import {
 import { useI18n } from "../i18n/I18nContext";
 import type { LocalizedText } from "../types";
 import type { ChallengeResult } from "../types/minigame";
+import {
+  COMMENT_SORT,
+  FEED_NAV,
+  type AlertItem,
+  type CommentSort,
+  type CommentsMap,
+  type DraftComment,
+  type FeedNav,
+} from "../components/openfeed/openFeed.types";
+import {
+  OPEN_FEED_ACTION,
+  OPEN_FEED_IDS,
+  OPEN_FEED_MESSAGES,
+  OPEN_FEED_SEED_ALERTS,
+  OPEN_FEED_SKIPPED_RESULT,
+  OPEN_FEED_STORAGE_KEYS,
+  OPEN_FEED_TIMINGS,
+  formatLocalizedExperienceText,
+} from "../components/openfeed/openFeed.constants";
+import { OPEN_FEED_ERRORS } from "../components/openfeed/openFeed.errors";
+import { selectVisiblePosts } from "../components/openfeed/openFeed.utils";
 
-export type FeedNav =
-  | "home"
-  | "explore"
-  | "alerts"
-  | "saved"
-  | "profile";
-
-export type AlertItem = {
-  id: string;
-  kind: "reply" | "verified" | "challenge";
-  text: LocalizedText;
-  at: string;
-  postId?: string;
-};
-
-export type DraftComment = {
-  postId: string;
-  body: string;
-  parentId?: string;
-};
-
-type CommentsMap = Record<string, FeedComment[]>;
+export type { FeedNav } from "../components/openfeed/openFeed.types";
 
 type ToastValue = LocalizedText | null;
-
-const SCENARIO_GUIDE: LocalizedText = {
-  en: "Try sharing the highlighted post.",
-  es: "Intenta compartir la publicación resaltada.",
-};
-
-const TRANSFER_TOAST: LocalizedText = {
-  en: "Now apply this skill to a new post.",
-  es: "Ahora aplica esta habilidad en otra publicación.",
-};
-
-const VERIFY_ACK: LocalizedText = {
-  en: "Good instinct — open a source and compare details.",
-  es: "Buen instinto — abre una fuente y compara los detalles.",
-};
-
-const SHARED_TOAST: LocalizedText = {
-  en: "Shared (simulated)",
-  es: "Compartido (simulado)",
-};
-
-const REPOST_TOAST: LocalizedText = {
-  en: "Image reposted (simulated)",
-  es: "Imagen republicada (simulada)",
-};
-
-const SKIPPED_RESULT: ChallengeResult = {
-  completed: false,
-  correct: false,
-  score: 0,
-  attempts: 0,
-  selectedIds: [],
-  durationMs: 0,
-  hintsUsed: 0,
-  skipped: true,
-};
 
 function toToast(value: LocalizedText | string | null): ToastValue {
   if (value === null) return null;
@@ -111,14 +75,13 @@ function toToast(value: LocalizedText | string | null): ToastValue {
 }
 
 function transferReason(skill?: string): LocalizedText {
-  return {
-    en: skill
-      ? `Apply what you learned about ${skill.replace(/-/g, " ")} to this post.`
-      : "Apply what you learned to this new post.",
-    es: skill
-      ? `Aplica lo que aprendiste sobre ${skill.replace(/-/g, " ")} en esta publicación.`
-      : "Aplica lo que aprendiste en esta nueva publicación.",
-  };
+  if (!skill) {
+    return formatLocalizedExperienceText("transferReasonGeneric", {});
+  }
+
+  return formatLocalizedExperienceText("transferReasonNamed", {
+    skill: skill.replace(/-/g, " "),
+  });
 }
 
 type DemoSessionValue = {
@@ -136,8 +99,8 @@ type DemoSessionValue = {
   comments: CommentsMap;
   likeComment: (postId: string, commentId: string) => void;
   deleteComment: (postId: string, commentId: string) => void;
-  commentSort: "featured" | "recent";
-  setCommentSort: (s: "featured" | "recent") => void;
+  commentSort: CommentSort;
+  setCommentSort: (s: CommentSort) => void;
   flow: DemoFlowState;
   draftComment: DraftComment | null;
   highlightedPostId: string | null;
@@ -197,57 +160,31 @@ function seedComments(): CommentsMap {
   return map;
 }
 
-const seedAlerts: AlertItem[] = [
-  {
-    id: "a1",
-    kind: "reply",
-    text: {
-      en: "Ada replied to a community garden post.",
-      es: "Ada respondió a una publicación del jardín comunitario.",
-    },
-    at: "2026-08-06T12:00:00Z",
-    postId: "p-garden",
-  },
-  {
-    id: "a2",
-    kind: "verified",
-    text: {
-      en: "Health Dept. bulletin was marked as an official source.",
-      es: "El boletín del Dept. de Salud se marcó como fuente oficial.",
-    },
-    at: "2026-08-06T11:30:00Z",
-    postId: "p-health-tips",
-  },
-  {
-    id: "a3",
-    kind: "challenge",
-    text: {
-      en: "You completed a context verification practice.",
-      es: "Completaste una práctica de verificación de contexto.",
-    },
-    at: "2026-08-06T10:00:00Z",
-  },
-];
-
 export function DemoSessionProvider({ children }: { children: ReactNode }) {
-  const [nav, setNav] = useState<FeedNav>("home");
+  const [nav, setNav] = useState<FeedNav>(FEED_NAV.HOME);
   const [query, setQuery] = useState("");
-  const [liked, setLiked] = useLocalStorage<string[]>("educaptcha-liked", []);
-  const [saved, setSaved] = useLocalStorage<string[]>("educaptcha-saved", []);
+  const [liked, setLiked] = useLocalStorage<string[]>(
+    OPEN_FEED_STORAGE_KEYS.liked,
+    [],
+  );
+  const [saved, setSaved] = useLocalStorage<string[]>(
+    OPEN_FEED_STORAGE_KEYS.saved,
+    [],
+  );
   const [comments, setComments] = useLocalStorage<CommentsMap>(
-    "educaptcha-comments",
+    OPEN_FEED_STORAGE_KEYS.comments,
     seedComments(),
   );
-  const [commentSort, setCommentSort] = useState<"featured" | "recent">(
-    "featured",
+  const [commentSort, setCommentSort] = useState<CommentSort>(
+    COMMENT_SORT.FEATURED,
   );
-  const [alerts, setAlerts] = useState<AlertItem[]>(seedAlerts);
+  const [alerts, setAlerts] = useState<AlertItem[]>(OPEN_FEED_SEED_ALERTS);
   const [outcomes, setOutcomes] = useLocalStorage<OutcomeRecord[]>(
-    "educaptcha-outcomes",
+    OPEN_FEED_STORAGE_KEYS.outcomes,
     [],
   );
   const [introSeen, setIntroSeen] = useLocalStorage<boolean>(
-    "educaptcha-intro-seen",
+    OPEN_FEED_STORAGE_KEYS.introSeen,
     false,
   );
   const [toast, setToastState] = useState<ToastValue>(null);
@@ -303,40 +240,10 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     [guidedScenarioId],
   );
 
-  const filteredPosts = useMemo(() => {
-    let list = [...openFeedPosts];
-    if (nav === "saved") {
-      list = list.filter((p) => savedSet.has(p.id));
-    } else if (nav === "explore") {
-      list = list.filter(
-        (p) => p.tone !== "manipulative" || p.category === "science",
-      );
-      list = [...list].sort((a, b) => b.reactions - a.reactions);
-    } else if (nav === "profile") {
-      list = list.filter(
-        (p) => p.tone === "official" || p.mediaKind === "thread",
-      );
-    }
-
-    const q = query.trim().toLowerCase();
-    if (q) {
-      list = list.filter((p) => {
-        const hay = [
-          p.author.en,
-          p.author.es,
-          p.handle,
-          p.body.en,
-          p.body.es,
-          p.category,
-          ...p.tags,
-        ]
-          .join(" ")
-          .toLowerCase();
-        return hay.includes(q);
-      });
-    }
-    return list;
-  }, [nav, query, savedSet]);
+  const filteredPosts = useMemo(
+    () => selectVisiblePosts(openFeedPosts, nav, savedSet, query),
+    [nav, query, savedSet],
+  );
 
   const returnFocus = useCallback((id: string) => {
     setFocusReturnId(id);
@@ -455,14 +362,14 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       inFlightRef.current = true;
 
       const seq = ++requestSeqRef.current;
-      const key = `${action}:${post.id}`;
+      const key = OPEN_FEED_IDS.pendingAction(action, post.id);
       // Grace delay: a warm cache answers in ~5ms, and flashing a spinner for
       // that long looks like a glitch.
       const graceTimer = setTimeout(() => {
         if (requestSeqRef.current === seq && mountedRef.current) {
           setPendingActionKey(key);
         }
-      }, 250);
+      }, OPEN_FEED_TIMINGS.pendingActionGraceMs);
 
       return analyzeRisk(post, action, language, commentText)
         .then((remote) => {
@@ -491,15 +398,12 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
   const launchScenario = useCallback((scenarioId: string): OpenFeedPost | null => {
     const post = openFeedPosts.find((p) => p.scenarioId === scenarioId);
     if (!post) {
-      setToast({
-        en: "Scenario not found — showing the full feed.",
-        es: "Escenario no encontrado — mostrando el feed completo.",
-      });
+      setToast(OPEN_FEED_MESSAGES.scenarioNotFound);
       return null;
     }
     setGuidedScenarioId(scenarioId);
     setHighlightedPostId(post.id);
-    setScenarioGuide(SCENARIO_GUIDE);
+    setScenarioGuide(OPEN_FEED_MESSAGES.scenarioGuide);
     return post;
   }, [setToast]);
 
@@ -532,11 +436,11 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
           return decision;
         }
         incrementShare(post.id);
-        setToast(SHARED_TOAST);
+        setToast(OPEN_FEED_MESSAGES.sharedToast);
         return decision;
       };
 
-      const decision = decideForPost("share", post, intent);
+      const decision = decideForPost(OPEN_FEED_ACTION.share, post, intent);
       return isPromise(decision) ? decision.then(finish) : finish(decision);
     },
     [
@@ -584,7 +488,12 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
         };
       }
 
-      const decision = decideForPost("comment", post, intent, trimmed);
+      const decision = decideForPost(
+        OPEN_FEED_ACTION.comment,
+        post,
+        intent,
+        trimmed,
+      );
 
       const finish = (d: ActionDecision, remote: boolean): ActionDecision => {
         // The local disjunction below is a tautology today: decideFreeBrowse
@@ -644,11 +553,11 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
           startIntercept(decision);
           return decision;
         }
-        setToast(REPOST_TOAST);
+        setToast(OPEN_FEED_MESSAGES.repostToast);
         return decision;
       };
 
-      const decision = decideForPost("repost-image", post, intent);
+      const decision = decideForPost(OPEN_FEED_ACTION.repostImage, post, intent);
       return isPromise(decision) ? decision.then(finish) : finish(decision);
     },
     [decideForPost, flow, maybeStartTransfer, setToast, startIntercept],
@@ -669,10 +578,10 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     (transferPostId: string | undefined) => {
       if (!transferPostId) return;
       setHighlightedPostId(transferPostId);
-      setToast(TRANSFER_TOAST);
+      setToast(OPEN_FEED_MESSAGES.transferToast);
       requestAnimationFrame(() => {
         document
-          .getElementById(`post-${transferPostId}`)
+          .getElementById(OPEN_FEED_IDS.post(transferPostId))
           ?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     },
@@ -702,11 +611,11 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       if (choice === "confirm") {
         if (intent.type === "share") {
           incrementShare(intent.postId);
-          setToast(SHARED_TOAST);
+          setToast(OPEN_FEED_MESSAGES.sharedToast);
         } else if (intent.type === "comment") {
           commitComment(intent.postId, intent.body, intent.parentId);
         } else if (intent.type === "repost-image") {
-          setToast(REPOST_TOAST);
+          setToast(OPEN_FEED_MESSAGES.repostToast);
         }
         dispatch({ type: "RESOLVE_INTENT", transferPostId });
         if (hasTransfer) {
@@ -717,7 +626,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       }
 
       if (choice === "open-source") {
-        setToast(VERIFY_ACK);
+        setToast(OPEN_FEED_MESSAGES.verifyAcknowledgement);
       }
 
       // cancel and open-source: do not execute intent; still allow transfer
@@ -777,21 +686,21 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       flow.status === "challenge-feedback"
     ) {
       if (flow.isTransfer) {
-        dispatch({ type: "SKIP_CHALLENGE", result: SKIPPED_RESULT });
+        dispatch({ type: "SKIP_CHALLENGE", result: OPEN_FEED_SKIPPED_RESULT });
         returnFocus(flow.intent.returnElementId);
         return;
       }
       const post = openFeedPosts.find((p) => p.id === flow.intent.postId);
       dispatch({
         type: "SKIP_CHALLENGE",
-        result: SKIPPED_RESULT,
+        result: OPEN_FEED_SKIPPED_RESULT,
         transferPostId: post?.transferPostId,
       });
       returnFocus(flow.intent.returnElementId);
       return;
     }
     if (flow.status === "transfer-active") {
-      dispatch({ type: "SKIP_CHALLENGE", result: SKIPPED_RESULT });
+      dispatch({ type: "SKIP_CHALLENGE", result: OPEN_FEED_SKIPPED_RESULT });
       returnFocus(flow.intent.returnElementId);
     }
   }, [flow, returnFocus]);
@@ -873,10 +782,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       {
         id: `a-${Date.now()}`,
         kind: "challenge",
-        text: {
-          en: "You completed a learning check.",
-          es: "Completaste una revisión de aprendizaje.",
-        },
+        text: OPEN_FEED_MESSAGES.completedAlert,
         at: new Date().toISOString(),
         postId: flow.outcome.postId,
       },
@@ -955,7 +861,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
 export function useDemoSession() {
   const ctx = useContext(DemoSessionContext);
   if (!ctx) {
-    throw new Error("useDemoSession must be used within DemoSessionProvider");
+    throw new Error(OPEN_FEED_ERRORS.missingProvider);
   }
   return ctx;
 }
