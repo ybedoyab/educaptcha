@@ -4,6 +4,7 @@ test("main routes navigate without 404", async ({ page }) => {
   for (const route of [
     "/",
     "/demo",
+    "/demo/bookface",
     "/practice",
     "/dashboard",
     "/integration",

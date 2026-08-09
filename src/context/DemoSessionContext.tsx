@@ -160,7 +160,25 @@ function seedComments(): CommentsMap {
   return map;
 }
 
-export function DemoSessionProvider({ children }: { children: ReactNode }) {
+/**
+ * Copy the session itself emits (toasts, the scenario banner, the alert it
+ * appends). Each skin sends the same events but names the action differently —
+ * Y "reposts", Bookface "shares" — so the strings are a provider input rather
+ * than a constant. Pass a module-level object; it is spread into the defaults.
+ */
+export type DemoSessionMessages = Partial<typeof OPEN_FEED_MESSAGES>;
+
+export function DemoSessionProvider({
+  children,
+  messages,
+}: {
+  children: ReactNode;
+  messages?: DemoSessionMessages;
+}) {
+  const msg = useMemo(
+    () => ({ ...OPEN_FEED_MESSAGES, ...messages }),
+    [messages],
+  );
   const [nav, setNav] = useState<FeedNav>(FEED_NAV.HOME);
   const [query, setQuery] = useState("");
   const [liked, setLiked] = useLocalStorage<string[]>(
@@ -398,14 +416,14 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
   const launchScenario = useCallback((scenarioId: string): OpenFeedPost | null => {
     const post = openFeedPosts.find((p) => p.scenarioId === scenarioId);
     if (!post) {
-      setToast(OPEN_FEED_MESSAGES.scenarioNotFound);
+      setToast(msg.scenarioNotFound);
       return null;
     }
     setGuidedScenarioId(scenarioId);
     setHighlightedPostId(post.id);
-    setScenarioGuide(OPEN_FEED_MESSAGES.scenarioGuide);
+    setScenarioGuide(msg.scenarioGuide);
     return post;
-  }, [setToast]);
+  }, [msg, setToast]);
 
   const requestShare = useCallback(
     (post: OpenFeedPost, returnElementId: string): MaybeAsync<ActionDecision> => {
@@ -436,7 +454,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
           return decision;
         }
         incrementShare(post.id);
-        setToast(OPEN_FEED_MESSAGES.sharedToast);
+        setToast(msg.sharedToast);
         return decision;
       };
 
@@ -448,6 +466,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       flow,
       incrementShare,
       maybeStartTransfer,
+      msg,
       setToast,
       startIntercept,
     ],
@@ -553,14 +572,14 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
           startIntercept(decision);
           return decision;
         }
-        setToast(OPEN_FEED_MESSAGES.repostToast);
+        setToast(msg.repostToast);
         return decision;
       };
 
       const decision = decideForPost(OPEN_FEED_ACTION.repostImage, post, intent);
       return isPromise(decision) ? decision.then(finish) : finish(decision);
     },
-    [decideForPost, flow, maybeStartTransfer, setToast, startIntercept],
+    [decideForPost, flow, maybeStartTransfer, msg, setToast, startIntercept],
   );
 
   const resolveTransferTarget = useCallback(
@@ -578,14 +597,14 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     (transferPostId: string | undefined) => {
       if (!transferPostId) return;
       setHighlightedPostId(transferPostId);
-      setToast(OPEN_FEED_MESSAGES.transferToast);
+      setToast(msg.transferToast);
       requestAnimationFrame(() => {
         document
           .getElementById(OPEN_FEED_IDS.post(transferPostId))
           ?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     },
-    [setToast],
+    [msg, setToast],
   );
 
   const resolvePendingIntent = useCallback(
@@ -611,11 +630,11 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       if (choice === "confirm") {
         if (intent.type === "share") {
           incrementShare(intent.postId);
-          setToast(OPEN_FEED_MESSAGES.sharedToast);
+          setToast(msg.sharedToast);
         } else if (intent.type === "comment") {
           commitComment(intent.postId, intent.body, intent.parentId);
         } else if (intent.type === "repost-image") {
-          setToast(OPEN_FEED_MESSAGES.repostToast);
+          setToast(msg.repostToast);
         }
         dispatch({ type: "RESOLVE_INTENT", transferPostId });
         if (hasTransfer) {
@@ -626,7 +645,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       }
 
       if (choice === "open-source") {
-        setToast(OPEN_FEED_MESSAGES.verifyAcknowledgement);
+        setToast(msg.verifyAcknowledgement);
       }
 
       // cancel and open-source: do not execute intent; still allow transfer
@@ -643,6 +662,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       enterTransferPending,
       flow,
       incrementShare,
+      msg,
       resolveTransferTarget,
       returnFocus,
       setToast,
@@ -782,7 +802,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
       {
         id: `a-${Date.now()}`,
         kind: "challenge",
-        text: OPEN_FEED_MESSAGES.completedAlert,
+        text: msg.completedAlert,
         at: new Date().toISOString(),
         postId: flow.outcome.postId,
       },
@@ -790,7 +810,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     ]);
     setHighlightedPostId(null);
     dispatch({ type: "RESET_FLOW" });
-  }, [flow, setOutcomes, language]);
+  }, [flow, msg, setOutcomes, language]);
 
   // Speculative warm-up. A cold analysis costs ~5s (network-bound), so without
   // this the first interception on any post would miss its window and fall back

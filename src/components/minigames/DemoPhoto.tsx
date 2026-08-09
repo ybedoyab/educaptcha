@@ -12,6 +12,12 @@ interface DemoPhotoProps {
   className?: string;
   showArchiveBadge?: boolean;
   eager?: boolean;
+  /**
+   * Corner rounding for the frame. A prop rather than something `className` can
+   * override, because two conflicting radius utilities resolve by stylesheet
+   * order, not by class order. Bookface renders photos full-bleed and square.
+   */
+  radiusClassName?: string;
 }
 
 export function DemoPhoto({
@@ -22,6 +28,7 @@ export function DemoPhoto({
   className = "",
   showArchiveBadge = false,
   eager = false,
+  radiusClassName = "rounded-xl",
 }: DemoPhotoProps) {
   const { copy, language } = useI18n();
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -49,7 +56,7 @@ export function DemoPhoto({
 
   return (
     <div
-      className={`relative aspect-video w-full overflow-hidden rounded-xl bg-navy/5 ${className}`}
+      className={`relative aspect-video w-full overflow-hidden bg-navy/5 ${radiusClassName} ${className}`}
     >
       {status === "loading" && (
         <div

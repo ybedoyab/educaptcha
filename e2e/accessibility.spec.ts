@@ -32,6 +32,29 @@ test("demo feed has no critical/serious axe violations", async ({ page }) => {
   await analyzeSerious(page, "demo-feed");
 });
 
+test("bookface feed has no critical/serious axe violations", async ({
+  page,
+}) => {
+  await bypassIntro(page);
+  await page.goto("/demo/bookface/scenario/image-context");
+  await analyzeSerious(page, "bookface-feed");
+});
+
+test("bookface post menu has no critical/serious axe violations", async ({
+  page,
+}) => {
+  await bypassIntro(page);
+  await page.goto("/demo/bookface");
+  await page
+    .getByRole("button", {
+      name: /more options for the post|más opciones de la publicación/i,
+    })
+    .first()
+    .click();
+  await expect(page.getByRole("menu").first()).toBeVisible();
+  await analyzeSerious(page, "bookface-post-menu");
+});
+
 test("open challenge has no critical/serious axe violations", async ({
   page,
 }) => {

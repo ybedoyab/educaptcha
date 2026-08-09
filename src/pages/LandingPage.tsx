@@ -57,6 +57,20 @@ export function LandingPage() {
                     : "Launch the interactive demo"}
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </Link>
+                <p className="mt-6 text-sm text-navy/70">
+                  {language === "es"
+                    ? "La misma capa educativa funciona en cualquier interfaz. Bookface reproduce un feed de estilo Facebook con la misma pausa de verificación."
+                    : "The same educational layer works in any interface. Bookface mirrors a Facebook-style feed with the identical verification pause."}
+                </p>
+                <Link
+                  to="/demo/bookface"
+                  className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border border-navy/15 bg-white px-5 py-2.5 text-sm font-semibold text-navy shadow-sm transition hover:bg-navy/5"
+                >
+                  {language === "es"
+                    ? "Abrir la demo Bookface"
+                    : "Launch the Bookface demo"}
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </Link>
               </div>
               <div
                 className="overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-lg"

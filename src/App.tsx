@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { I18nProvider, useI18n } from "./i18n/I18nContext";
 import { LandingPage } from "./pages/LandingPage";
 import { OpenFeedDemoPage } from "./pages/OpenFeedDemoPage";
+import { BookfaceDemoPage } from "./pages/BookfaceDemoPage";
 import { PracticePage } from "./pages/PracticePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { IntegrationPage } from "./pages/IntegrationPage";
@@ -24,6 +25,11 @@ function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/demo" element={<OpenFeedDemoPage />} />
         <Route path="/demo/scenario/:scenarioId" element={<OpenFeedDemoPage />} />
+        <Route path="/demo/bookface" element={<BookfaceDemoPage />} />
+        <Route
+          path="/demo/bookface/scenario/:scenarioId"
+          element={<BookfaceDemoPage />}
+        />
         <Route path="/demo/test-session" element={<TestSessionPage />} />
         <Route path="/practice" element={<PracticePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />

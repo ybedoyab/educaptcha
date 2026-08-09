@@ -63,6 +63,8 @@ npm run test:all
 | `/` | Landing |
 | `/demo` | OpenFeed immersive social simulation |
 | `/demo/scenario/:id` | Guided OpenFeed scenario (e.g. `image-context`) |
+| `/demo/bookface` | Bookface — the same simulation in a Facebook-style layout |
+| `/demo/bookface/scenario/:id` | Guided Bookface scenario |
 | `/practice` | Practice mode minigames |
 | `/integration` | Integration simulator + proposed embed snippets |
 | `/dashboard` | Organization dashboard demo (simulated metrics) |
@@ -125,7 +127,7 @@ See `backend/README.md` for the pipeline, latency characteristics and deployment
 
 ```text
 src/
-  components/     Landing, OpenFeed, practice minigames, dashboard
+  components/     Landing, OpenFeed (Y skin), Bookface skin, minigames, dashboard
   context/        Demo session + flow state
   data/           Posts, challenges, media assets, source traces
   hooks/          LocalStorage and demo progress
@@ -143,12 +145,13 @@ assets/           Brand PNG lockups (optional; logo is SVG in-app)
 
 - **Landing** — product pitch, short browser mock, how-it-works
 - **OpenFeed** — full-screen social feed with EduCAPTCHA interruptions, SourceTrace, intent return, and skill transfer
+- **Bookface** — a second skin over the same feed data and the same intercept pipeline, styled after a Facebook-style layout, showing the learning layer is host-agnostic
 - **Practice mode** — curated visual minigames with skip, feedback, and session summary
 - **Integration simulator** — comment flow + proposed npm / script snippets
 - **Dashboard** — simulated org metrics and live learning-transfer readout from OpenFeed sessions
 - **i18n** — English and Español
 - **Accessibility** — keyboard use, dialog focus, skippable challenges, `prefers-reduced-motion`
-- **Responsive** — mobile-first OpenFeed and practice layouts
+- **Responsive** — mobile-first feed and practice layouts
 
 ## Prototype limitations
 
