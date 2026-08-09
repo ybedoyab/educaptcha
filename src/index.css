@@ -6,6 +6,13 @@
   --color-sky: #38bdf8;
   --color-amber: #f59e0b;
   --color-off-white: #f8fafc;
+  --color-social-blue: #1d9bf0;
+  --color-social-text: #0f1419;
+  --color-social-muted: #536471;
+  --color-social-border: #eff3f4;
+  --color-social-surface: #f7f9f9;
+  --color-social-green: #00ba7c;
+  --color-social-pink: #f91880;
   --font-sans: "Segoe UI", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Trebuchet MS", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
 }

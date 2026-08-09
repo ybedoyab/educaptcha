@@ -34,10 +34,10 @@ test.describe("image-context simplified flow", () => {
     await page.getByRole("button", { name: /continue|continuar/i }).first().click();
 
     await expect(
-      page.getByRole("button", { name: /cancel & check source|cancelar y revisar fuente/i }),
+      page.getByRole("button", { name: /cancel and check source|cancelar y revisar fuente/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /share anyway|compartir de todos modos/i }),
+      page.getByRole("button", { name: /repost anyway|republicar de todos modos/i }),
     ).toBeVisible();
     // No third open-source button
     await expect(page.getByRole("button", { name: /^open source$|^abrir fuente$/i })).toHaveCount(0);

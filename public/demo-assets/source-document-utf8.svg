@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Source document">
+  <rect width="640" height="360" fill="#E2E8F0"/>
+  <rect x="120" y="30" width="400" height="300" rx="12" fill="#F8FAFC" stroke="#0F172A" stroke-width="3"/>
+  <rect x="150" y="60" width="200" height="18" rx="6" fill="#0F172A"/>
+  <rect x="150" y="100" width="340" height="10" rx="5" fill="#0F172A" opacity="0.2"/>
+  <rect x="150" y="122" width="320" height="10" rx="5" fill="#0F172A" opacity="0.15"/>
+  <rect x="150" y="144" width="300" height="10" rx="5" fill="#0F172A" opacity="0.12"/>
+  <rect x="150" y="180" width="160" height="70" rx="10" fill="#0EA5A4" opacity="0.25"/>
+  <text x="170" y="220" fill="#0F172A" font-family="Segoe UI,sans-serif" font-size="14" font-weight="700">DOI / PDF</text>
+  <rect x="340" y="190" width="140" height="50" rx="10" fill="#38BDF8" opacity="0.3"/>
+  <text x="360" y="220" fill="#0F172A" font-family="Segoe UI,sans-serif" font-size="14" font-weight="700">Institution</text>
+  <text x="150" y="300" fill="#0F172A" font-family="Segoe UI,sans-serif" font-size="13">Author &#8212; Date &#8212; Original link</text>
+</svg>
+

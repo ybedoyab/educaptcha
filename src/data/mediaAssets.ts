@@ -93,7 +93,7 @@ export const mediaAssets: Record<string, MediaAsset> = {
   },
   "neutral-news-report": {
     id: "neutral-news-report",
-    publicPath: "/demo-assets/neutral-news-report.svg",
+    publicPath: "/demo-assets/neutral-news-report-utf8.svg",
     type: "svg",
     alt: {
       en: "Simulated neutral news report thumbnail",
@@ -102,7 +102,7 @@ export const mediaAssets: Record<string, MediaAsset> = {
   },
   "source-document": {
     id: "source-document",
-    publicPath: "/demo-assets/source-document.svg",
+    publicPath: "/demo-assets/source-document-utf8.svg",
     type: "svg",
     alt: {
       en: "Simulated source document preview",

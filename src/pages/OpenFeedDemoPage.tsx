@@ -4,41 +4,44 @@ import {
   DemoSessionProvider,
   useDemoSession,
 } from "../context/DemoSessionContext";
-import { OpenFeedHeader } from "../components/openfeed/OpenFeedHeader";
-import { OpenFeedSidebar } from "../components/openfeed/OpenFeedSidebar";
-import { OpenFeedFeed } from "../components/openfeed/OpenFeedFeed";
-import { OpenFeedTrends } from "../components/openfeed/OpenFeedTrends";
-import { OpenFeedPostDetail } from "../components/openfeed/OpenFeedPostDetail";
+import { OpenFeedHeader } from "../components/openfeed/organisms/OpenFeedHeader";
+import { OpenFeedSidebar } from "../components/openfeed/organisms/OpenFeedSidebar";
+import { OpenFeedMobileNav } from "../components/openfeed/organisms/OpenFeedMobileNav";
+import { OpenFeedFeed } from "../components/openfeed/organisms/OpenFeedFeed";
+import { OpenFeedTrends } from "../components/openfeed/organisms/OpenFeedTrends";
+import { OpenFeedPostDetail } from "../components/openfeed/organisms/OpenFeedPostDetail";
 import { OpenFeedChallengeDialog } from "../components/openfeed/OpenFeedChallengeDialog";
 import { useI18n } from "../i18n/I18nContext";
+import {
+  OPEN_FEED_IDS,
+  OPEN_FEED_TIMINGS,
+} from "../components/openfeed/openFeed.constants";
 
 function DemoIntro() {
   const { introSeen, setIntroSeen } = useDemoSession();
-  const { language } = useI18n();
+  const { copy } = useI18n();
 
   if (introSeen) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-navy/50 p-4 sm:items-center"
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-social-text/45 p-3 sm:items-center"
       role="dialog"
       aria-modal="true"
       aria-labelledby="intro-title"
     >
-      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
-        <h2 id="intro-title" className="text-lg font-semibold text-navy">
-          {language === "es"
-            ? "Estás en un feed social simulado. Intenta compartir la publicación resaltada."
-            : "You’re on a simulated social feed. Try sharing the highlighted post."}
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <h2 id="intro-title" className="text-xl font-extrabold text-social-text">
+          {copy.experience.introTitle}
         </h2>
         <div className="mt-5 flex justify-end">
           <button
             type="button"
             data-primary-cta="true"
             onClick={() => setIntroSeen(true)}
-            className="inline-flex min-h-11 items-center rounded-xl bg-navy px-4 text-sm font-semibold text-white"
+            className="inline-flex min-h-11 items-center rounded-full bg-social-blue px-5 text-sm font-bold text-white hover:bg-social-blue/90"
           >
-            {language === "es" ? "Empezar" : "Start"}
+            {copy.experience.startBrowsing}
           </button>
         </div>
       </div>
@@ -48,32 +51,25 @@ function DemoIntro() {
 
 function ScenarioBootstrap() {
   const { scenarioId } = useParams();
-  const { launchScenario, setToast, scenarioGuide } = useDemoSession();
+  const { launchScenario, scenarioGuide } = useDemoSession();
   const { language } = useI18n();
 
   useEffect(() => {
     if (!scenarioId) return;
     const post = launchScenario(scenarioId);
-    if (!post) {
-      setToast(
-        language === "es"
-          ? "Escenario no encontrado — mostrando el feed completo."
-          : "Scenario not found — showing the full feed.",
-      );
-      return;
-    }
+    if (!post) return;
     const t = window.setTimeout(() => {
       document
-        .getElementById(`post-${post.id}`)
+        .getElementById(OPEN_FEED_IDS.post(post.id))
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 120);
+    }, OPEN_FEED_TIMINGS.scenarioScrollMs);
     return () => window.clearTimeout(t);
-  }, [scenarioId, launchScenario, setToast, language]);
+  }, [scenarioId, launchScenario]);
 
   if (!scenarioGuide) return null;
   return (
     <div
-      className="shrink-0 border-b border-teal/20 bg-teal/10 px-4 py-2 text-center text-sm font-medium text-navy"
+      className="shrink-0 border-b border-social-blue/20 bg-social-blue/10 px-4 py-2 text-center text-sm font-bold text-social-text"
       role="status"
     >
       {scenarioGuide[language]}
@@ -86,7 +82,10 @@ function Toast() {
   const { language } = useI18n();
   useEffect(() => {
     if (!toast) return;
-    const t = window.setTimeout(() => setToast(null), 3200);
+    const t = window.setTimeout(
+      () => setToast(null),
+      OPEN_FEED_TIMINGS.toastMs,
+    );
     return () => window.clearTimeout(t);
   }, [toast, setToast]);
   if (!toast) return null;
@@ -94,7 +93,7 @@ function Toast() {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-4 left-1/2 z-[90] -translate-x-1/2 rounded-xl bg-navy px-4 py-2 text-sm font-medium text-white shadow-lg"
+      className="fixed bottom-20 left-1/2 z-[90] -translate-x-1/2 rounded-full bg-social-text px-5 py-3 text-sm font-bold text-white shadow-xl md:bottom-4"
     >
       {toast[language]}
     </div>
@@ -109,21 +108,14 @@ function TransferHighlighter() {
     if (!id) return;
     const t = window.setTimeout(() => {
       document
-        .getElementById(`post-${id}`)
+        .getElementById(OPEN_FEED_IDS.post(id))
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 200);
+    }, OPEN_FEED_TIMINGS.transferScrollMs);
     return () => window.clearTimeout(t);
   }, [flow]);
   return null;
 }
 
-/**
- * Screen-reader announcement while an external risk check is in flight.
- *
- * Separate from `Toast` on purpose: Toast auto-clears after 3200ms and would
- * collide with the "Shared (simulated)" message. Renders nothing visually and
- * adds no overlay, so it changes neither layout nor the axe surface.
- */
 function RiskCheckStatus() {
   const { pendingActionKey } = useDemoSession();
   const { copy } = useI18n();
@@ -136,14 +128,15 @@ function RiskCheckStatus() {
 
 function OpenFeedShell() {
   return (
-    <div className="flex h-[100dvh] flex-col overflow-hidden bg-off-white">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-white text-social-text">
       <OpenFeedHeader />
       <ScenarioBootstrap />
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+      <div className="mx-auto flex min-h-0 w-full max-w-[1265px] flex-1">
         <OpenFeedSidebar />
         <OpenFeedFeed />
         <OpenFeedTrends />
       </div>
+      <OpenFeedMobileNav />
       <OpenFeedPostDetail />
       <OpenFeedChallengeDialog />
       <DemoIntro />

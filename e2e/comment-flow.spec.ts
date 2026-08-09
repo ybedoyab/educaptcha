@@ -12,18 +12,28 @@ test("comment draft is not published before challenge resolves", async ({
   const composer = page.locator("#composer-p-flood-live-root");
   await expect(composer).toBeVisible();
   await composer.fill("I saw this in several groups, so it must be true.");
-  await page.getByRole("button", { name: /^post$|^publicar$/i }).click();
+  await composer
+    .locator("..")
+    .getByRole("button", { name: /^reply$|^responder$/i })
+    .click();
 
-  const own = page.getByText("@you.demo");
-  const dialogOpen = await page.locator("dialog[open]").count();
-  if (dialogOpen > 0) {
+  const detailDialog = page.locator(
+    'dialog[aria-labelledby="post-detail-title"]',
+  );
+  const challengeDialog = page.locator(
+    'dialog[open]:not([aria-labelledby="post-detail-title"])',
+  );
+  const own = detailDialog.getByText("@you.demo");
+  const challengeOpen = await challengeDialog.count();
+  if (challengeOpen > 0) {
     await expect(own).toHaveCount(0);
-    await page
-      .locator("dialog[open]")
+    await challengeDialog
       .getByRole("button", { name: /close|cerrar/i })
       .click();
     await expect(
-      page.getByText(/you were about to post|estabas a punto de publicar/i),
+      detailDialog.getByText(
+        /you were about to post|estabas a punto de publicar/i,
+      ),
     ).toBeVisible({ timeout: 8000 });
   }
 });
