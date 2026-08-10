@@ -1,4 +1,8 @@
 import { test, expect } from "@playwright/test";
+import {
+  completeImageContextFlow,
+  expectCancelShareVisible,
+} from "./helpers/imageContextFlow";
 
 async function dismissIntro(page: import("@playwright/test").Page) {
   await page.addInitScript(() => {
@@ -7,7 +11,8 @@ async function dismissIntro(page: import("@playwright/test").Page) {
 }
 
 test.describe("image-context simplified flow", () => {
-  test("spot → check source → decide → return", async ({ page }) => {
+  test("intercept → check → decide → result → return", async ({ page }) => {
+    test.setTimeout(60_000);
     await dismissIntro(page);
     await page.goto("/demo/scenario/image-context");
 
@@ -15,31 +20,29 @@ test.describe("image-context simplified flow", () => {
     await page.locator("#share-p-flood-live").click();
     await expect(page.locator("dialog[open]")).toHaveCount(1);
 
-    // Exactly one primary CTA at spot
     await expect(
-      page.getByRole("button", { name: /check the source|revisar la fuente/i }),
-    ).toBeVisible();
-    await expect(page.getByText(/before you share, check one thing|antes de compartir, revisa una cosa/i)).toBeVisible();
-
-    await page.getByRole("button", { name: /check the source|revisar la fuente/i }).click();
-
-    // Source trace visible
-    await expect(page.getByText(/no original source provided|sin fuente original/i)).toBeVisible();
-    await expect(page.getByText(/lagos, nigeria/i)).toBeVisible();
-    await page.getByRole("button", { name: /choose what this means|elegir qué significa/i }).click();
-
-    await page.getByRole("button", { name: /real image, wrong context|imagen real, contexto incorrecto/i }).click();
-    await page.getByRole("button", { name: /check|comprobar/i }).click();
-
-    await page.getByRole("button", { name: /continue|continuar/i }).first().click();
-
-    await expect(
-      page.getByRole("button", { name: /cancel and check source|cancelar y revisar fuente/i }),
+      page
+        .locator("dialog[open]")
+        .getByRole("button", { name: /check photo|revisar foto/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /repost anyway|republicar de todos modos/i }),
+      page
+        .locator("dialog[open]")
+        .getByText(
+          /before you share, check this photo|antes de compartir, revisa esta foto/i,
+        ),
     ).toBeVisible();
-    // No third open-source button
-    await expect(page.getByRole("button", { name: /^open source$|^abrir fuente$/i })).toHaveCount(0);
+
+    await completeImageContextFlow(page);
+
+    await expectCancelShareVisible(page);
+    await expect(
+      page.getByRole("button", {
+        name: /share anyway|compartir igual/i,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /^open source$|^abrir fuente$/i }),
+    ).toHaveCount(0);
   });
 });

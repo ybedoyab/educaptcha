@@ -33,6 +33,10 @@ export interface SingleChoiceInteraction extends BaseInteraction {
   type: "single-choice";
   options: { id: string; label: LocalizedText }[];
   correctOptionId: string;
+  /** Optional post claim / snippet shown above the question */
+  claim?: LocalizedText;
+  /** Clear question; falls back to instruction */
+  prompt?: LocalizedText;
 }
 
 export interface SpotSignal {
@@ -57,6 +61,14 @@ export interface SpotSignalsInteraction extends BaseInteraction {
   imageSrc?: string;
   mediaAssetId?: string;
   reactions: number;
+  /** Caption / claim framing the pause */
+  claim?: LocalizedText;
+  conclusions?: {
+    id: string;
+    label: LocalizedText;
+    correct: boolean;
+  }[];
+  conclusion?: LocalizedText;
 }
 
 export interface DragItem {
@@ -162,6 +174,8 @@ export interface ImageInspectionInteraction extends BaseInteraction {
   imageSrc?: string;
   mediaAssetId?: string;
   imageAlt: LocalizedText;
+  /** Caption / post claim shown on the pause step */
+  claim?: LocalizedText;
   hotspots: InspectionHotspot[];
   maxMarks: number;
   conclusions: {
@@ -169,6 +183,8 @@ export interface ImageInspectionInteraction extends BaseInteraction {
     label: LocalizedText;
     correct: boolean;
   }[];
+  /** Short result line after a correct answer */
+  conclusion?: LocalizedText;
 }
 
 export interface ChartRepairInteraction extends BaseInteraction {
@@ -179,6 +195,13 @@ export interface ChartRepairInteraction extends BaseInteraction {
   targetStart: number;
   tolerance: number;
   successMessage: LocalizedText;
+  claim?: LocalizedText;
+  conclusions?: {
+    id: string;
+    label: LocalizedText;
+    correct: boolean;
+  }[];
+  conclusion?: LocalizedText;
 }
 
 export type ChallengeInteraction =

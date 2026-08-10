@@ -3,6 +3,7 @@ import type { OpenFeedPost as OpenFeedPostData } from "../../../data/openFeedPos
 import { usePostInteractions } from "../../../features/demo-session";
 import { useI18n } from "../../../i18n/I18nContext";
 import { DemoPhoto } from "../../minigames/DemoPhoto";
+import { PostVerificationTrail } from "../../experience/PostVerificationTrail";
 import { BookfaceActionButton } from "../atoms/BookfaceActionButton";
 import { BookfaceEngagementBar } from "../molecules/BookfaceEngagementBar";
 import { BookfaceIntentReturnBar } from "../molecules/BookfaceIntentReturnBar";
@@ -27,6 +28,7 @@ export function BookfacePost({ post, expanded = false }: BookfacePostProps) {
     isLiked,
     isSaved,
     isHighlighted,
+    checkStatus,
     shareCount,
     showReturn,
     hasMedia,
@@ -35,6 +37,8 @@ export function BookfacePost({ post, expanded = false }: BookfacePostProps) {
     shareLocked,
     imageBusy,
     imageLocked,
+    hasShared,
+    justShared,
     handleShare,
     handleImage,
     handleVerify,
@@ -63,6 +67,9 @@ export function BookfacePost({ post, expanded = false }: BookfacePostProps) {
         hue={post.avatarHue}
         highlighted={isHighlighted}
         highlightedLabel={copy.experience.highlighted}
+        checkStatus={checkStatus}
+        aiVerifiedLabel={copy.experience.aiVerifiedBadge}
+        misleadingLabel={copy.experience.verifiedBadge}
         menu={
           <BookfacePostMenu
             postId={post.id}
@@ -117,6 +124,7 @@ export function BookfacePost({ post, expanded = false }: BookfacePostProps) {
         reactionCount={post.reactions + (isLiked ? 1 : 0)}
         commentCount={commentCount}
         shareCount={shareCount}
+        sharePulse={justShared}
       />
 
       <div className="mx-4 border-t border-bf-border" />
@@ -142,13 +150,23 @@ export function BookfacePost({ post, expanded = false }: BookfacePostProps) {
           icon={Forward}
           label={copy.experience.share}
           tone="share"
+          active={hasShared}
           busy={shareBusy}
           locked={shareLocked}
+          animatePop={justShared}
           onClick={handleShare}
         />
       </div>
 
       {showReturn ? <BookfaceIntentReturnBar /> : null}
+
+      {checkStatus ? (
+        <PostVerificationTrail
+          post={post}
+          status={checkStatus}
+          skin="bookface"
+        />
+      ) : null}
 
       {expanded ? (
         <span className="sr-only">{copy.experience.expandedDetail}</span>

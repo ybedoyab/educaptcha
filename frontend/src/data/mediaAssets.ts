@@ -42,6 +42,15 @@ export const mediaAssets: Record<string, MediaAsset> = {
     },
     creditId: "flood-guadalajara",
   },
+  "flooded-street-vehicles": {
+    id: "flooded-street-vehicles",
+    publicPath: "/demo-assets/photos/flooded-street-vehicles.jpg",
+    type: "jpg",
+    alt: {
+      en: "Vehicles on a flooded urban street",
+      es: "Vehículos en una calle urbana inundada",
+    },
+  },
   "wildfire-washington-dc": {
     id: "wildfire-washington-dc",
     publicPath: "/demo-assets/photos/wildfire-washington-dc.jpg",

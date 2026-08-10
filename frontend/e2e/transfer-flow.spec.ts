@@ -1,61 +1,57 @@
 import { test, expect } from "@playwright/test";
-
-async function finishFromDecide(page: import("@playwright/test").Page) {
-  await page
-    .getByRole("button", {
-      name: /choose what this means|elegir qué significa/i,
-    })
-    .click();
-  await page
-    .getByRole("button", {
-      name: /real image, wrong context|imagen real, contexto incorrecto/i,
-    })
-    .click();
-  await page.getByRole("button", { name: /check|comprobar/i }).click();
-  await page.getByRole("button", { name: /continue|continuar/i }).first().click();
-}
+import { completeImageContextFlow } from "./helpers/imageContextFlow";
 
 test("transfer flow uses West Columbia metadata, not Lagos", async ({
   page,
 }) => {
+  test.setTimeout(90_000);
   await page.addInitScript(() => {
     localStorage.setItem("educaptcha-intro-seen", JSON.stringify(true));
   });
   await page.goto("/demo/scenario/image-context");
 
-  // Open and complete Lagos challenge
   await page.locator("#share-p-flood-live").click();
   await expect(page.locator("dialog[open]")).toHaveCount(1);
-  await page
-    .getByRole("button", { name: /check the source|revisar la fuente/i })
-    .click();
-  await expect(page.getByText(/Lagos, Nigeria/i)).toBeVisible();
-  await finishFromDecide(page);
+  await completeImageContextFlow(page);
 
-  // Return to feed → Cancel & check source
   await expect(
     page.getByRole("button", {
-      name: /cancel and check source|cancelar y revisar fuente/i,
+      name: /cancel share|cancelar compartir/i,
     }),
   ).toBeVisible();
   await page
     .getByRole("button", {
-      name: /cancel and check source|cancelar y revisar fuente/i,
+      name: /cancel share|cancelar compartir/i,
     })
     .click();
 
-  // Transfer post → share opens second EduCAPTCHA
   await expect(page.locator("#post-p-flood-today")).toBeVisible();
   await page.locator("#share-p-flood-today").click();
   await expect(page.locator("dialog[open]")).toHaveCount(1);
 
-  await page
-    .getByRole("button", { name: /check the source|revisar la fuente/i })
-    .click();
-  await expect(page.getByText(/West Columbia/i)).toBeVisible();
-  await expect(page.getByText(/2015/)).toBeVisible();
-  await expect(page.locator("dialog[open]").getByText(/Lagos/i)).toHaveCount(0);
+  const d = page.locator("dialog[open]");
+  await d.getByRole("button", { name: /check photo|revisar foto/i }).click({
+    force: true,
+  });
+  await expect(d.getByText(/West Columbia/i)).toBeVisible();
+  await expect(d.getByText(/October 11, 2015/i).first()).toBeVisible();
+  await expect(d.getByText(/Lagos/i)).toHaveCount(0);
 
-  await finishFromDecide(page);
+  // Already on Check — finish Decide → Result → Continue
+  await d
+    .getByRole("button", { name: /what does this mean|qué significa/i })
+    .click({ force: true });
+  await d
+    .getByRole("button", {
+      name: /real image used in the wrong context|imagen real usada en el contexto equivocado/i,
+    })
+    .click({ force: true });
+  await d
+    .getByRole("button", { name: /see result|ver resultado/i })
+    .click({ force: true });
+  await d
+    .getByRole("button", { name: /continue|continuar/i })
+    .first()
+    .click({ force: true });
   await expect(page.locator("dialog[open]")).toHaveCount(0);
 });

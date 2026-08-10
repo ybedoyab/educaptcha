@@ -2,6 +2,7 @@ import type { OpenFeedPost as OpenFeedPostData } from "../../../data/openFeedPos
 import { usePostInteractions } from "../../../features/demo-session";
 import { useI18n } from "../../../i18n/I18nContext";
 import { DemoPhoto } from "../../minigames/DemoPhoto";
+import { PostVerificationTrail } from "../../experience/PostVerificationTrail";
 import { FeedAvatar } from "../atoms/FeedAvatar";
 import { IntentReturnBar } from "../molecules/IntentReturnBar";
 import { PostActions } from "../molecules/PostActions";
@@ -19,6 +20,7 @@ export function OpenFeedPost({ post, expanded = false }: OpenFeedPostProps) {
     isLiked,
     isSaved,
     isHighlighted,
+    checkStatus,
     repostCount,
     showReturn,
     hasMedia,
@@ -27,6 +29,8 @@ export function OpenFeedPost({ post, expanded = false }: OpenFeedPostProps) {
     shareLocked,
     imageBusy,
     imageLocked,
+    hasShared,
+    justShared,
     handleRepost,
     handleImage,
     handleVerify,
@@ -65,6 +69,9 @@ export function OpenFeedPost({ post, expanded = false }: OpenFeedPostProps) {
             time={post.time[language]}
             highlighted={isHighlighted}
             highlightedLabel={copy.experience.highlighted}
+            checkStatus={checkStatus}
+            aiVerifiedLabel={copy.experience.aiVerifiedBadge}
+            misleadingLabel={copy.experience.verifiedBadge}
           />
           <p className="whitespace-pre-wrap text-[15px] leading-5 text-social-text">
             {post.body[language]}
@@ -104,14 +111,20 @@ export function OpenFeedPost({ post, expanded = false }: OpenFeedPostProps) {
 
           {showReturn ? <IntentReturnBar /> : null}
 
+          {checkStatus ? (
+            <PostVerificationTrail post={post} status={checkStatus} skin="y" />
+          ) : null}
+
           <PostActions
             commentCount={commentCount}
             reactionCount={post.reactions + (isLiked ? 1 : 0)}
             repostCount={repostCount}
             liked={isLiked}
             saved={isSaved}
+            reposted={hasShared}
             repostBusy={shareBusy}
             repostLocked={shareLocked}
+            repostAnimate={justShared}
             labels={{
               comment: copy.experience.comment,
               repost: copy.experience.repost,

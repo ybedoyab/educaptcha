@@ -25,14 +25,16 @@ export function MinigameFeedback({
   if (compact) {
     return (
       <div className="animate-slide-up space-y-3" role="status" aria-live="polite">
-        <p className="text-sm font-medium text-navy">{explanation}</p>
+        <p className="text-sm text-navy/70">
+          {copy.experience.resultNextHint}
+        </p>
         <button
           type="button"
           data-primary-cta="true"
           onClick={onContinue}
-          className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-navy px-4 text-sm font-semibold text-white"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-teal px-4 text-sm font-semibold text-white"
         >
-          {copy.minigame.continue}
+          {copy.experience.continueToDecision}
         </button>
       </div>
     );

@@ -1,11 +1,23 @@
 import type { SourceTraceStep } from "../types/sourceTrace";
 
+/** Stable Commons / public-domain references used as “open source” targets. */
+const SOURCE_URLS = {
+  lagosCommons:
+    "https://commons.wikimedia.org/wiki/File:Street_Flood.jpg",
+  westColumbiaCommons:
+    "https://commons.wikimedia.org/wiki/File:National_Guard_responds_to_flooding_in_South_Carolina_151011-Z-VD915-004.jpg",
+  wildfireCommons:
+    "https://commons.wikimedia.org/wiki/Special:Search?search=wildfire+smoke+Washington+DC&go=Go",
+  protestCommons:
+    "https://commons.wikimedia.org/wiki/Special:Search?search=protest+gate&go=Go",
+} as const;
+
 /** Lagos flood out-of-context — OpenFeed image-context + practice visual-1 */
 export const lagosFloodSourceTrace: SourceTraceStep[] = [
   {
     id: "claim",
     kind: "claim",
-    label: { en: "Claim", es: "Afirmación" },
+    label: { en: "Post claim", es: "Afirmación del post" },
     value: {
       en: "LIVE from tonight’s emergency.",
       es: "EN VIVO desde la emergencia de esta noche.",
@@ -13,20 +25,9 @@ export const lagosFloodSourceTrace: SourceTraceStep[] = [
     status: "conflicting",
   },
   {
-    id: "social",
-    kind: "social",
-    label: { en: "Social post", es: "Publicación social" },
-    value: { en: "Breaking Frames", es: "Breaking Frames" },
-    detail: {
-      en: "Viral desk · high engagement",
-      es: "Escritorio viral · alto engagement",
-    },
-    status: "unknown",
-  },
-  {
     id: "source",
     kind: "publisher",
-    label: { en: "Source", es: "Fuente" },
+    label: { en: "Source in post", es: "Fuente en el post" },
     value: {
       en: "No original source provided",
       es: "Sin fuente original",
@@ -36,17 +37,29 @@ export const lagosFloodSourceTrace: SourceTraceStep[] = [
   {
     id: "archive",
     kind: "archive",
-    label: { en: "Visual archive match", es: "Coincidencia de archivo" },
+    label: { en: "Original source found", es: "Fuente original encontrada" },
     value: { en: "Wikimedia Commons", es: "Wikimedia Commons" },
     status: "archived",
+    href: SOURCE_URLS.lagosCommons,
   },
   {
     id: "original",
     kind: "original",
-    label: { en: "Original", es: "Original" },
+    label: { en: "Original photo", es: "Foto original" },
     value: { en: "Lagos, Nigeria", es: "Lagos, Nigeria" },
     detail: { en: "June 24, 2019", es: "24 de junio de 2019" },
     status: "verified",
+    href: SOURCE_URLS.lagosCommons,
+  },
+  {
+    id: "today-check",
+    kind: "publisher",
+    label: { en: "Is it from today?", es: "¿Es de hoy?" },
+    value: {
+      en: "No — archived June 24, 2019 (not tonight’s emergency)",
+      es: "No — archivada el 24 de junio de 2019 (no es la emergencia de esta noche)",
+    },
+    status: "conflicting",
   },
 ];
 
@@ -55,7 +68,7 @@ export const westColumbiaSourceTrace: SourceTraceStep[] = [
   {
     id: "claim",
     kind: "claim",
-    label: { en: "Claim", es: "Afirmación" },
+    label: { en: "Post claim", es: "Afirmación del post" },
     value: {
       en: "Proof from today’s disaster in our city.",
       es: "Prueba del desastre de hoy en nuestra ciudad.",
@@ -63,50 +76,47 @@ export const westColumbiaSourceTrace: SourceTraceStep[] = [
     status: "conflicting",
   },
   {
-    id: "social",
-    kind: "social",
-    label: { en: "Social post", es: "Publicación social" },
-    value: { en: "Rapid Eyes", es: "Rapid Eyes" },
-    detail: {
-      en: "People posting this as proof of today’s flood",
-      es: "Se publica como prueba de la inundación de hoy",
-    },
-    status: "unknown",
-  },
-  {
     id: "source",
     kind: "publisher",
-    label: { en: "Source", es: "Fuente" },
+    label: { en: "Source in post", es: "Fuente en el post" },
     value: {
-      en: "No original source in the caption",
-      es: "Sin fuente original en el pie",
+      en: "No original source provided",
+      es: "Sin fuente original",
     },
     status: "missing",
   },
   {
     id: "archive",
     kind: "archive",
-    label: { en: "Visual archive match", es: "Coincidencia de archivo" },
+    label: { en: "Original source found", es: "Fuente original encontrada" },
     value: {
       en: "U.S. Air National Guard / Wikimedia Commons",
       es: "Guardia Nacional Aérea de EE. UU. / Wikimedia Commons",
     },
-    detail: {
-      en: "Airman Megan Floyd",
-      es: "Airman Megan Floyd",
-    },
     status: "archived",
+    href: SOURCE_URLS.westColumbiaCommons,
   },
   {
     id: "original",
     kind: "original",
-    label: { en: "Original", es: "Original" },
+    label: { en: "Original photo", es: "Foto original" },
     value: {
       en: "West Columbia, South Carolina",
       es: "West Columbia, Carolina del Sur",
     },
     detail: { en: "October 11, 2015", es: "11 de octubre de 2015" },
     status: "verified",
+    href: SOURCE_URLS.westColumbiaCommons,
+  },
+  {
+    id: "today-check",
+    kind: "publisher",
+    label: { en: "Is it from today?", es: "¿Es de hoy?" },
+    value: {
+      en: "No — archived October 11, 2015 (not today’s disaster)",
+      es: "No — archivada el 11 de octubre de 2015 (no es el desastre de hoy)",
+    },
+    status: "conflicting",
   },
 ];
 
@@ -115,7 +125,7 @@ export const wildfireDcSourceTrace: SourceTraceStep[] = [
   {
     id: "claim",
     kind: "claim",
-    label: { en: "Claim", es: "Afirmación" },
+    label: { en: "Post claim", es: "Afirmación del post" },
     value: {
       en: "A toxic cloud is covering Bogotá right now.",
       es: "Una nube tóxica cubre Bogotá ahora mismo.",
@@ -123,97 +133,103 @@ export const wildfireDcSourceTrace: SourceTraceStep[] = [
     status: "conflicting",
   },
   {
-    id: "social",
-    kind: "social",
-    label: { en: "Social post", es: "Publicación social" },
-    value: { en: "SkyWatch Live", es: "SkyWatch Live" },
-    status: "unknown",
-  },
-  {
     id: "source",
     kind: "publisher",
-    label: { en: "Source", es: "Fuente" },
+    label: { en: "Source in post", es: "Fuente en el post" },
     value: {
-      en: "No official bulletin linked",
-      es: "Sin boletín oficial enlazado",
+      en: "No original source provided",
+      es: "Sin fuente original",
     },
     status: "missing",
   },
   {
     id: "archive",
     kind: "archive",
-    label: { en: "Visual archive match", es: "Coincidencia de archivo" },
-    value: { en: "Wikimedia Commons", es: "Wikimedia Commons" },
+    label: { en: "Original source found", es: "Fuente original encontrada" },
+    value: {
+      en: "News / wire photo archives",
+      es: "Archivos de agencia de noticias",
+    },
     status: "archived",
+    href: SOURCE_URLS.wildfireCommons,
   },
   {
     id: "original",
     kind: "original",
-    label: { en: "Original", es: "Original" },
+    label: { en: "Original photo", es: "Foto original" },
     value: {
-      en: "Washington, D.C., USA",
-      es: "Washington, D.C., EE. UU.",
+      en: "Washington, D.C., United States",
+      es: "Washington, D. C., Estados Unidos",
     },
-    detail: {
-      en: "Wildfire smoke · 2023",
-      es: "Humo de incendios · 2023",
-    },
+    detail: { en: "June 2023 wildfire smoke", es: "Humo de incendios, junio 2023" },
     status: "verified",
+    href: SOURCE_URLS.wildfireCommons,
+  },
+  {
+    id: "today-check",
+    kind: "publisher",
+    label: { en: "Is it from today / Bogotá?", es: "¿Es de hoy / Bogotá?" },
+    value: {
+      en: "No — Washington, D.C. wildfire smoke (June 2023), not Bogotá",
+      es: "No — humo en Washington, D. C. (junio 2023), no Bogotá",
+    },
+    status: "conflicting",
   },
 ];
 
-/**
- * Protest under a gate — reused with a “this morning” caption.
- * Only known archive metadata from project credits (year 2024, Wikimedia).
- */
+/** Protest photo reuse */
 export const protestGateSourceTrace: SourceTraceStep[] = [
   {
     id: "claim",
     kind: "claim",
-    label: { en: "Claim", es: "Afirmación" },
+    label: { en: "Post claim", es: "Afirmación del post" },
     value: {
-      en: "This photo is from this morning’s march.",
-      es: "Esta foto es de la marcha de esta mañana.",
+      en: "This happened downtown this morning.",
+      es: "Esto pasó en el centro esta mañana.",
     },
     status: "conflicting",
   },
   {
-    id: "social",
-    kind: "social",
-    label: { en: "Social post", es: "Publicación social" },
-    value: { en: "StreetWire", es: "StreetWire" },
-    status: "unknown",
-  },
-  {
     id: "source",
     kind: "publisher",
-    label: { en: "Source", es: "Fuente" },
+    label: { en: "Source in post", es: "Fuente en el post" },
     value: {
-      en: "No event source in the caption",
-      es: "Sin fuente del evento en el pie",
+      en: "No original source provided",
+      es: "Sin fuente original",
     },
     status: "missing",
   },
   {
     id: "archive",
     kind: "archive",
-    label: { en: "Visual archive match", es: "Coincidencia de archivo" },
-    value: { en: "Wikimedia Commons", es: "Wikimedia Commons" },
-    detail: {
-      en: "Protest under the gate",
-      es: "Protesta bajo la puerta",
+    label: { en: "Original source found", es: "Fuente original encontrada" },
+    value: {
+      en: "News photo archives",
+      es: "Archivos fotográficos de noticias",
     },
     status: "archived",
+    href: SOURCE_URLS.protestCommons,
   },
   {
     id: "original",
     kind: "original",
-    label: { en: "Original", es: "Original" },
+    label: { en: "Original photo", es: "Foto original" },
     value: {
-      en: "Earlier protest under the gate",
-      es: "Protesta anterior bajo la puerta",
+      en: "Earlier protest coverage — 2024",
+      es: "Cobertura de una protesta anterior — 2024",
     },
-    detail: { en: "2024 archive coverage", es: "Cobertura de archivo 2024" },
+    detail: { en: "Different date and place", es: "Otra fecha y otro lugar" },
     status: "verified",
+    href: SOURCE_URLS.protestCommons,
+  },
+  {
+    id: "today-check",
+    kind: "publisher",
+    label: { en: "Is it from this morning?", es: "¿Es de esta mañana?" },
+    value: {
+      en: "No — reused from earlier protest coverage",
+      es: "No — reutilizada de una cobertura de protesta anterior",
+    },
+    status: "conflicting",
   },
 ];

@@ -22,7 +22,7 @@ describe("MinigameRenderer", () => {
     );
     expect(screen.queryByText("Why?")).toBeNull();
     expect(
-      screen.getByRole("button", { name: /check the source/i }),
+      screen.getByRole("button", { name: /check photo/i }),
     ).toBeInTheDocument();
   });
 
@@ -52,7 +52,7 @@ describe("MinigameRenderer", () => {
         compactFeedback
       />,
     );
-    expect(screen.getAllByRole("button", { name: /check the source/i })).toHaveLength(
+    expect(screen.getAllByRole("button", { name: /check photo/i })).toHaveLength(
       1,
     );
   });

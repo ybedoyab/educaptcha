@@ -10,6 +10,7 @@ interface BookfaceActionButtonProps
   active?: boolean;
   busy?: boolean;
   locked?: boolean;
+  animatePop?: boolean;
   tone: ActionTone;
 }
 
@@ -29,6 +30,7 @@ export function BookfaceActionButton({
   active = false,
   busy = false,
   locked = false,
+  animatePop = false,
   tone,
   className = "",
   disabled,
@@ -41,14 +43,17 @@ export function BookfaceActionButton({
   return (
     <button
       type="button"
-      className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg text-[15px] font-semibold transition-colors hover:bg-bf-hover ${stateClass} ${isDisabled ? "cursor-not-allowed opacity-60" : ""} ${className}`}
+      className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg text-[15px] font-semibold transition-colors hover:bg-bf-hover ${stateClass} ${isDisabled && !active ? "cursor-not-allowed opacity-60" : ""} ${className}`}
       aria-busy={busy || undefined}
       aria-disabled={isDisabled || undefined}
+      aria-pressed={active || undefined}
       disabled={isDisabled}
       {...buttonProps}
     >
       <IconComponent
-        className={`h-5 w-5 ${busy ? "animate-spin" : ""}`}
+        className={`h-5 w-5 ${busy ? "animate-spin" : ""} ${
+          animatePop ? "animate-share-flash" : ""
+        }`}
         fill={active && !busy ? "currentColor" : "none"}
         aria-hidden="true"
       />

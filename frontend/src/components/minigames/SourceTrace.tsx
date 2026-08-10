@@ -1,21 +1,29 @@
-import { ArrowDown, Archive, AlertTriangle, CheckCircle2, HelpCircle, XCircle } from "lucide-react";
+import {
+  FileText,
+  HelpCircle,
+  Search,
+  Calendar,
+  ExternalLink,
+} from "lucide-react";
 import type { SourceTraceStep } from "../../types/sourceTrace";
 import { useI18n } from "../../i18n/I18nContext";
 
-const statusIcon = {
-  verified: CheckCircle2,
-  unknown: HelpCircle,
-  archived: Archive,
-  missing: XCircle,
-  conflicting: AlertTriangle,
+const kindIcon = {
+  claim: FileText,
+  social: HelpCircle,
+  repost: HelpCircle,
+  publisher: HelpCircle,
+  archive: Search,
+  original: Calendar,
 } as const;
 
-const statusClass = {
-  verified: "border-teal/30 bg-teal/10 text-teal",
-  unknown: "border-amber/30 bg-amber/10 text-amber",
-  archived: "border-sky/30 bg-sky/10 text-sky",
-  missing: "border-amber/40 bg-amber/15 text-amber",
-  conflicting: "border-amber/40 bg-amber/15 text-amber",
+const kindTone = {
+  claim: "text-teal",
+  social: "text-amber",
+  repost: "text-amber",
+  publisher: "text-amber",
+  archive: "text-teal",
+  original: "text-teal",
 } as const;
 
 interface Props {
@@ -23,51 +31,141 @@ interface Props {
   className?: string;
 }
 
-/** Presentation-only source chain. Scenario content lives in data files. */
+type DisplayRow =
+  | { type: "step"; step: SourceTraceStep }
+  | {
+      type: "source-photo";
+      archive: SourceTraceStep;
+      original: SourceTraceStep;
+    };
+
+/** Merge consecutive archive + original into one evidence card. */
+function coalesceSteps(steps: SourceTraceStep[]): DisplayRow[] {
+  const rows: DisplayRow[] = [];
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i]!;
+    const next = steps[i + 1];
+    if (step.kind === "archive" && next?.kind === "original") {
+      rows.push({ type: "source-photo", archive: step, original: next });
+      i += 1;
+      continue;
+    }
+    rows.push({ type: "step", step });
+  }
+  return rows;
+}
+
+/** Compact evidence list — verification pause, not an academic dossier. */
 export function SourceTrace({ steps, className = "" }: Props) {
-  const { language } = useI18n();
+  const { language, copy } = useI18n();
+  const openLabel = copy.experience.openSource;
+  const rows = coalesceSteps(steps);
 
   return (
-    <ol
-      className={`space-y-0 ${className}`}
-      aria-label={language === "es" ? "Rastro de fuente" : "Source trace"}
+    <ul
+      className={`space-y-2 ${className}`}
+      aria-label={
+        language === "es" ? "Evidencia de verificación" : "Verification evidence"
+      }
     >
-      {steps.map((step, index) => {
-        const Icon = step.status ? statusIcon[step.status] : null;
-        return (
-          <li key={step.id} className="relative">
-            <div
-              className={`rounded-xl border px-3 py-3 ${
-                step.status
-                  ? statusClass[step.status]
-                  : "border-navy/10 bg-white text-navy"
-              }`}
+      {rows.map((row) => {
+        if (row.type === "source-photo") {
+          const { archive, original } = row;
+          const href = archive.href ?? original.href;
+          const place = original.detail
+            ? `${original.value[language]} — ${original.detail[language]}`
+            : original.value[language];
+          const label =
+            language === "es"
+              ? "Fuente y foto originales"
+              : "Original source & photo";
+
+          return (
+            <li
+              key={`${archive.id}-${original.id}`}
+              className="flex items-start gap-3 rounded-xl border border-teal/25 bg-teal/[0.03] px-3 py-3"
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide opacity-70">
-                    {step.label[language]}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold leading-snug">
-                    {step.value[language]}
-                  </p>
-                  {step.detail && (
-                    <p className="mt-1 text-xs opacity-80">
-                      {step.detail[language]}
-                    </p>
-                  )}
-                </div>
-                {Icon && <Icon className="h-4 w-4 shrink-0" aria-hidden />}
+              <Search className="mt-0.5 h-5 w-5 shrink-0 text-teal" aria-hidden />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-navy">{label}</p>
+                <p className="mt-0.5 text-sm leading-snug text-navy/70">
+                  {archive.value[language]}
+                </p>
+                <p className="mt-1 flex items-start gap-1.5 text-sm leading-snug text-navy/70">
+                  <Calendar
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal"
+                    aria-hidden
+                  />
+                  <span>{place}</span>
+                </p>
+                {href ? (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-lg border border-teal/30 bg-white px-2.5 text-xs font-semibold text-teal hover:bg-teal/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                    {openLabel}
+                  </a>
+                ) : null}
               </div>
+            </li>
+          );
+        }
+
+        const { step } = row;
+        const Icon = kindIcon[step.kind] ?? FileText;
+        const tone = kindTone[step.kind] ?? "text-navy/60";
+        const value =
+          step.detail != null
+            ? `${step.value[language]} — ${step.detail[language]}`
+            : step.value[language];
+        const hasLink = Boolean(step.href);
+        const isSourceLink =
+          hasLink && (step.kind === "archive" || step.kind === "original");
+
+        return (
+          <li
+            key={step.id}
+            className={`flex items-start gap-3 rounded-xl border border-navy/10 bg-white px-3 py-3 ${
+              isSourceLink ? "border-teal/25 bg-teal/[0.03]" : ""
+            }`}
+          >
+            <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${tone}`} aria-hidden />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-navy">{step.label[language]}</p>
+              <p className="mt-0.5 text-sm leading-snug text-navy/70">{value}</p>
+              {isSourceLink && step.href ? (
+                <a
+                  href={step.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-lg border border-teal/30 bg-white px-2.5 text-xs font-semibold text-teal hover:bg-teal/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                  {openLabel}
+                </a>
+              ) : null}
             </div>
-            {index < steps.length - 1 && (
-              <div className="flex justify-center py-1" aria-hidden>
-                <ArrowDown className="h-4 w-4 text-navy/30" />
-              </div>
-            )}
+            {hasLink && !isSourceLink && step.href ? (
+              <a
+                href={step.href}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-navy/45 hover:bg-navy/5 hover:text-navy"
+                aria-label={
+                  language === "es"
+                    ? "Abrir fuente original"
+                    : "Open original source"
+                }
+              >
+                <ExternalLink className="h-4 w-4" aria-hidden />
+              </a>
+            ) : null}
           </li>
         );
       })}
-    </ol>
+    </ul>
   );
 }

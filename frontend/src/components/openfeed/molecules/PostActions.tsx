@@ -7,8 +7,10 @@ interface PostActionsProps {
   repostCount: number;
   liked: boolean;
   saved: boolean;
+  reposted?: boolean;
   repostBusy: boolean;
   repostLocked?: boolean;
+  repostAnimate?: boolean;
   labels: {
     comment: string;
     repost: string;
@@ -35,8 +37,10 @@ export function PostActions({
   repostCount,
   liked,
   saved,
+  reposted = false,
   repostBusy,
   repostLocked = false,
+  repostAnimate = false,
   labels,
   ids,
   onComment,
@@ -60,8 +64,10 @@ export function PostActions({
         icon={Repeat2}
         label={labels.repost}
         count={repostCount}
+        active={reposted}
         busy={repostBusy}
         locked={repostLocked}
+        animatePop={repostAnimate}
         tone="repost"
         onClick={onRepost}
       />
@@ -95,4 +101,3 @@ export function PostActions({
     </div>
   );
 }
-

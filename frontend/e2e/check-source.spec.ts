@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { completeImageContextFlow } from "./helpers/imageContextFlow";
 
-test("Check source / verify controls acknowledge without claiming a source opened", async ({
+test("Cancel share acknowledges verification without claiming a source opened", async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -9,24 +10,10 @@ test("Check source / verify controls acknowledge without claiming a source opene
   await page.goto("/demo/scenario/image-context");
 
   await page.locator("#share-p-flood-live").click();
-  await page
-    .getByRole("button", { name: /check the source|revisar la fuente/i })
-    .click();
-  await page
-    .getByRole("button", {
-      name: /choose what this means|elegir qué significa/i,
-    })
-    .click();
-  await page
-    .getByRole("button", {
-      name: /real image, wrong context|imagen real, contexto incorrecto/i,
-    })
-    .click();
-  await page.getByRole("button", { name: /check|comprobar/i }).click();
-  await page.getByRole("button", { name: /continue|continuar/i }).first().click();
+  await completeImageContextFlow(page);
 
   const cancel = page.getByRole("button", {
-    name: /cancel and check source|cancelar y revisar fuente/i,
+    name: /cancel share|cancelar compartir/i,
   });
   await expect(cancel).toBeVisible();
   await cancel.click();

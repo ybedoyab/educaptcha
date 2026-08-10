@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck, Volume2 } from "lucide-react";
 import { Logo } from "./Logo";
 import { useI18n } from "../i18n/I18nContext";
 
@@ -32,30 +32,33 @@ export function Hero() {
           <p className="mt-4 max-w-xl text-base leading-relaxed text-navy/70 sm:text-lg">
             {copy.hero.subtitle}
           </p>
+          <p className="mt-3 text-sm font-semibold text-teal">{copy.hero.flowLabel}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/demo"
               className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal/90"
             >
-              {language === "es"
-                ? "Abrir la demo interactiva"
-                : "Launch the interactive demo"}
+              {copy.hero.ctaY}
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <Link
-              to="/practice"
+              to="/demo/bookface"
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-navy/15 bg-white px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy/5"
+            >
+              {copy.hero.ctaBookface}
+            </Link>
+            <a
+              href="#how-it-works"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-transparent px-5 py-2.5 text-sm font-semibold text-navy/70 underline-offset-4 hover:underline"
             >
               {copy.hero.ctaDemo}
-            </Link>
-            <Link
-              to="/integration"
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-navy/15 bg-white px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy/5"
-            >
-              {copy.hero.ctaIntegration}
-            </Link>
+            </a>
           </div>
           <p className="mt-6 flex items-start gap-2 text-sm text-navy/60">
+            <Volume2 className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden />
+            {copy.hero.inclusiveNote}
+          </p>
+          <p className="mt-3 flex items-start gap-2 text-sm text-navy/55">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden />
             {copy.hero.disclaimer}
           </p>
@@ -73,17 +76,21 @@ export function Hero() {
             </div>
             <div className="bg-gradient-to-b from-sky/10 to-off-white p-4 sm:p-6">
               <div className="rounded-xl border border-navy/10 bg-white p-4 shadow-sm">
-                <p className="text-sm font-semibold text-navy">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-navy/45">
+                  EduCAPTCHA
+                </p>
+                <p className="mt-2 text-base font-bold text-navy">
                   {copy.hero.mockPrompt}
                 </p>
-                <ul className="mt-3 space-y-2">
-                  <li className="rounded-lg border border-amber/40 bg-amber/5 px-3 py-2 text-sm text-navy">
-                    {copy.hero.mockOptionA}
-                  </li>
-                  <li className="rounded-lg border border-navy/10 px-3 py-2 text-sm text-navy/70">
-                    {copy.hero.mockOptionB}
-                  </li>
-                </ul>
+                <p className="mt-1 text-sm text-navy/65">{copy.hero.mockOptionA}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="inline-flex min-h-10 items-center rounded-xl bg-teal px-4 text-sm font-semibold text-white">
+                    {language === "es" ? "Revisar foto" : "Check photo"}
+                  </span>
+                  <span className="inline-flex min-h-10 items-center rounded-xl border border-navy/15 px-4 text-sm font-semibold text-navy">
+                    {language === "es" ? "Compartir igual" : "Share anyway"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

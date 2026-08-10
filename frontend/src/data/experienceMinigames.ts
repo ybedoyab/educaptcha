@@ -10,24 +10,24 @@ const OUT_OF_CONTEXT_CONCLUSIONS = [
   {
     id: "current",
     label: {
-      en: "Current local event",
-      es: "Evento local actual",
+      en: "This is a current local event",
+      es: "Es un evento local de hoy",
     },
     correct: false,
   },
   {
     id: "wrong-context",
     label: {
-      en: "Real image, wrong context",
-      es: "Imagen real, contexto incorrecto",
+      en: "This is a real image used in the wrong context",
+      es: "Es una imagen real usada en el contexto equivocado",
     },
     correct: true,
   },
   {
     id: "ai",
     label: {
-      en: "AI-generated image",
-      es: "Imagen generada por IA",
+      en: "This is an AI-generated image",
+      es: "Es una imagen generada por IA",
     },
     correct: false,
   },
@@ -61,10 +61,14 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "spot-signals",
       instruction: {
-        en: "Find the 3 warning signs.",
-        es: "Encuentra las 3 señales de alerta.",
+        en: "AI found urgency language before any verifiable source. Spot the pressure signals, then say what they mean.",
+        es: "La IA encontró lenguaje de urgencia antes de una fuente verificable. Marca las señales de presión y di qué significan.",
       },
       maxAttempts: 2,
+      claim: {
+        en: "URGENT: They are trying to delete this before it disappears. Share it NOW.",
+        es: "URGENTE: Están intentando borrar esto antes de que desaparezca. Compártela YA.",
+      },
       mediaTitle: { en: "AlertNow Desk", es: "AlertNow Desk" },
       mediaOutlet: { en: "Viral desk", es: "Escritorio viral" },
       mediaMeta: {
@@ -130,6 +134,36 @@ export const experienceMinigames: Record<string, Challenge> = {
           label: { en: "Share command", es: "Orden de compartir" },
         },
       ],
+      conclusions: [
+        {
+          id: "pressure",
+          label: {
+            en: "It uses urgency, fear, and a share command to skip verification",
+            es: "Usa urgencia, miedo y una orden de compartir para saltarse la verificación",
+          },
+          correct: true,
+        },
+        {
+          id: "true",
+          label: {
+            en: "The urgency proves the claim is true",
+            es: "La urgencia prueba que la afirmación es verdad",
+          },
+          correct: false,
+        },
+        {
+          id: "share-now",
+          label: {
+            en: "I should share now so others can decide",
+            es: "Debo compartir ya para que otros decidan",
+          },
+          correct: false,
+        },
+      ],
+      conclusion: {
+        en: "Urgency, fear, and share commands push people to react before verifying.",
+        es: "Urgencia, miedo y órdenes de compartir empujan a reaccionar sin verificar.",
+      },
     },
   },
   "ep-transfer": {
@@ -161,6 +195,14 @@ export const experienceMinigames: Record<string, Challenge> = {
       instruction: {
         en: "Choose what this evidence means.",
         es: "Elige qué significa esta evidencia.",
+      },
+      prompt: {
+        en: "What did you find in this follow-up post?",
+        es: "¿Qué encontraste en este post de seguimiento?",
+      },
+      claim: {
+        en: "Forward this to your family group before it’s too late.",
+        es: "Reenvía esto al grupo familiar antes de que sea tarde.",
       },
       maxAttempts: 2,
       options: [
@@ -194,16 +236,16 @@ export const experienceMinigames: Record<string, Challenge> = {
     category: "visual-context",
     badge: "context-investigator",
     title: {
-      en: "Check this image",
-      es: "Revisa esta imagen",
+      en: "Before you share, check this photo",
+      es: "Antes de compartir, revisa esta foto",
     },
     skillMetric: {
-      en: "Context checked",
-      es: "Contexto revisado",
+      en: "Source checked",
+      es: "Fuente revisada",
     },
     explanation: {
-      en: "Correct. The image is real, but its original date and location were changed.",
-      es: "Correcto. La imagen es real, pero se cambiaron su fecha y lugar originales.",
+      en: "This is a real image, but it was reused with the wrong date and location.",
+      es: "Es una imagen real, pero se reutilizó con fecha y lugar incorrectos.",
     },
     explanationWhy: {
       en: "Archive metadata often survives when social captions invent a new “tonight” story.",
@@ -216,8 +258,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "Check the source before you share.",
-        es: "Revisa la fuente antes de compartir.",
+        en: "AI found this photo may be archived and reused — not a live image from tonight. Check the original date and place.",
+        es: "La IA encontró que esta foto puede ser de archivo y reutilizada — no una imagen en vivo de esta noche. Revisa la fecha y el lugar originales.",
       },
       maxAttempts: 2,
       claimQuestion: {
@@ -328,8 +370,8 @@ export const experienceMinigames: Record<string, Challenge> = {
         es: "Original: Lagos, Nigeria — 24 de junio de 2019",
       },
       conclusion: {
-        en: "Correct. The image is real, but its original date and location were changed.",
-        es: "Correcto. La imagen es real, pero se cambiaron su fecha y lugar originales.",
+        en: "This is a real image, but it was reused with the wrong date and location.",
+        es: "Es una imagen real, pero se reutilizó con fecha y lugar incorrectos.",
       },
     },
   },
@@ -338,20 +380,20 @@ export const experienceMinigames: Record<string, Challenge> = {
     category: "visual-context",
     badge: "context-investigator",
     title: {
-      en: "Verify the subtler claim",
-      es: "Verifica la afirmación más sutil",
+      en: "Check this photo before sharing",
+      es: "Revisa esta foto antes de compartir",
     },
     skillMetric: {
-      en: "Transfer completed",
-      es: "Transferencia completada",
+      en: "Source checked",
+      es: "Fuente revisada",
     },
     explanation: {
-      en: "A real image can still be misleading when its date, location or context is changed.",
-      es: "Una imagen real puede ser engañosa cuando se cambia su fecha, ubicación o contexto.",
+      en: "This is a real image, but it was reused with the wrong date and location.",
+      es: "Es una imagen real, pero se reutilizó con fecha y lugar incorrectos.",
     },
     explanationWhy: {
-      en: "Public-domain response photos are often reused as “proof” of a later disaster.",
-      es: "Fotos de respuesta de dominio público a menudo se reutilizan como “prueba” de un desastre posterior.",
+      en: "Older response photos are often reused as “proof” of a later disaster.",
+      es: "Fotos antiguas de respuesta a menudo se reutilizan como “prueba” de un desastre posterior.",
     },
     takeaway: {
       en: "Find the original date and place before sharing.",
@@ -360,13 +402,13 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "Check the source before you share.",
-        es: "Revisa la fuente antes de compartir.",
+        en: "AI found another image with the same out-of-context risk. Check the original source before sharing.",
+        es: "La IA encontró otra imagen con el mismo riesgo fuera de contexto. Revisa la fuente original antes de compartir.",
       },
       maxAttempts: 2,
       claim: {
-        en: "Proof from today’s disaster in our city — share now.",
-        es: "Prueba del desastre de hoy en nuestra ciudad — comparte ya.",
+        en: "Proof from today’s disaster in our city.",
+        es: "Prueba del desastre de hoy en nuestra ciudad.",
       },
       mediaAssetId: "flood-response-2015",
       imageAlt: {
@@ -422,8 +464,8 @@ export const experienceMinigames: Record<string, Challenge> = {
         es: "Original: West Columbia, SC — 11 de octubre de 2015",
       },
       conclusion: {
-        en: "Authentic image, incorrect context.",
-        es: "Imagen auténtica, contexto incorrecto.",
+        en: "This is a real image, but it was reused with the wrong date and location.",
+        es: "Es una imagen real, pero se reutilizó con fecha y lugar incorrectos.",
       },
     },
   },
@@ -454,8 +496,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "Check the source for the wildfire smoke claim.",
-        es: "Revisa la fuente de la afirmación sobre el humo.",
+        en: "AI found a place mismatch risk: the caption says one city, but visual cues may point elsewhere. Check the original source.",
+        es: "La IA encontró riesgo de lugar incorrecto: el texto nombra una ciudad, pero las señales visuales pueden apuntar a otra. Revisa la fuente original.",
       },
       maxAttempts: 2,
       claim: {
@@ -564,6 +606,14 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "What should you check first?",
         es: "¿Qué debes revisar primero?",
       },
+      prompt: {
+        en: "Another sky/place claim appeared. What should you check first?",
+        es: "Apareció otra afirmación de cielo/lugar. ¿Qué debes revisar primero?",
+      },
+      claim: {
+        en: "Proof from today’s disaster in our city.",
+        es: "Prueba del desastre de hoy en nuestra ciudad.",
+      },
       maxAttempts: 2,
       options: [
         {
@@ -618,16 +668,20 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "image-inspection",
       instruction: {
-        en: "Mark what the photo can show, then choose a conclusion.",
-        es: "Marca lo que la foto puede mostrar y elige una conclusión.",
+        en: "AI found that the photo may not prove the caption’s claim. Separate what the image shows from what the text asserts.",
+        es: "La IA encontró que la foto puede no probar lo que afirma el pie. Separa lo que muestra la imagen de lo que dice el texto.",
       },
       maxAttempts: 2,
+      claim: {
+        en: "This vial proves the new formula is unsafe. Share before they remove it.",
+        es: "Este vial prueba que la nueva fórmula no es segura. Comparte antes de que lo quiten.",
+      },
       mediaAssetId: "vaccine-vial-2024",
       imageAlt: {
         en: "COVID-19 vaccine vial photograph",
         es: "Fotografía de un vial de vacuna COVID-19",
       },
-      maxMarks: 2,
+      maxMarks: 3,
       hotspots: [
         {
           id: "label",
@@ -637,8 +691,8 @@ export const experienceMinigames: Record<string, Challenge> = {
           h: 25,
           isWarning: false,
           label: {
-            en: "Vial label visible — product identity only",
-            es: "Etiqueta del vial visible — solo identidad del producto",
+            en: "A labeled vaccine vial",
+            es: "Un vial de vacuna con etiqueta",
           },
         },
         {
@@ -649,8 +703,20 @@ export const experienceMinigames: Record<string, Challenge> = {
           h: 20,
           isWarning: true,
           label: {
-            en: "Safety claim is not in the photo",
-            es: "La afirmación de seguridad no está en la foto",
+            en: "That the new formula is unsafe",
+            es: "Que la nueva fórmula no es segura",
+          },
+        },
+        {
+          id: "ban",
+          x: 60,
+          y: 20,
+          w: 30,
+          h: 20,
+          isWarning: true,
+          label: {
+            en: "That this product will be banned today",
+            es: "Que este producto será prohibido hoy",
           },
         },
       ],
@@ -658,8 +724,8 @@ export const experienceMinigames: Record<string, Challenge> = {
         {
           id: "unsupported",
           label: {
-            en: "Real photo, unsupported textual claim",
-            es: "Foto real, afirmación textual sin respaldo",
+            en: "Real photo, but the safety claim is not proven by the image",
+            es: "Foto real, pero la afirmación de seguridad no la prueba la imagen",
           },
           correct: true,
         },
@@ -680,6 +746,10 @@ export const experienceMinigames: Record<string, Challenge> = {
           correct: false,
         },
       ],
+      conclusion: {
+        en: "The photo is real. The “unsafe” claim is not in the image — it needs another source.",
+        es: "La foto es real. La afirmación de “no segura” no está en la imagen — necesita otra fuente.",
+      },
     },
   },
   "vx-transfer": {
@@ -711,6 +781,14 @@ export const experienceMinigames: Record<string, Challenge> = {
       instruction: {
         en: "Best next step?",
         es: "¿Mejor siguiente paso?",
+      },
+      prompt: {
+        en: "A photo is being used as proof of a safety claim. Best next step?",
+        es: "Una foto se usa como prueba de una afirmación de seguridad. ¿Mejor siguiente paso?",
+      },
+      claim: {
+        en: "Clinic tip: bring your vaccine card — walk-ins welcome Friday.",
+        es: "Consejo de clínica: trae tu carnet de vacunación — viernes sin cita.",
       },
       maxAttempts: 2,
       options: [
@@ -766,8 +844,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "Check the source for the protest caption.",
-        es: "Revisa la fuente del pie de la protesta.",
+        en: "AI found this protest photo may be reused from earlier coverage. Check the original date and place.",
+        es: "La IA encontró que esta foto de protesta puede ser reutilizada de una cobertura anterior. Revisa la fecha y el lugar originales.",
       },
       maxAttempts: 2,
       claim: {
@@ -877,6 +955,14 @@ export const experienceMinigames: Record<string, Challenge> = {
         en: "Which check matters most?",
         es: "¿Qué revisión importa más?",
       },
+      prompt: {
+        en: "Another crowd photo claims “today.” Which check matters most?",
+        es: "Otra foto de multitud afirma “hoy”. ¿Qué revisión importa más?",
+      },
+      claim: {
+        en: "Huge crowds in our capital today. This photo is from this morning’s march.",
+        es: "Multitudes enormes en la capital hoy. Esta foto es de la marcha de esta mañana.",
+      },
       maxAttempts: 2,
       options: [
         {
@@ -931,10 +1017,14 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "chart-repair",
       instruction: {
-        en: "Drag the axis start toward zero to restore proportion.",
-        es: "Arrastra el inicio del eje hacia cero para restaurar la proporción.",
+        en: "AI found a chart scaling risk — the axis may exaggerate the change. Repair the axis, then say what the trick was.",
+        es: "La IA encontró riesgo en la escala de la gráfica — el eje puede exagerar el cambio. Repara el eje y di cuál era el truco.",
       },
       maxAttempts: 2,
+      claim: {
+        en: "Engagement exploded overnight. Look at this chart — undeniable proof.",
+        es: "El engagement explotó de la noche a la mañana. Mira esta gráfica — prueba innegable.",
+      },
       series: [
         { id: "a", label: { en: "Yesterday", es: "Ayer" }, value: 92 },
         { id: "b", label: { en: "Today", es: "Hoy" }, value: 98 },
@@ -946,6 +1036,36 @@ export const experienceMinigames: Record<string, Challenge> = {
       successMessage: {
         en: "With a fuller axis, the jump looks modest — not “explosion.”",
         es: "Con un eje más completo, el salto se ve modesto — no una “explosión”.",
+      },
+      conclusions: [
+        {
+          id: "exaggerate",
+          label: {
+            en: "A truncated axis made a small change look huge",
+            es: "Un eje truncado hizo que un cambio pequeño se viera enorme",
+          },
+          correct: true,
+        },
+        {
+          id: "boom",
+          label: {
+            en: "Engagement really exploded overnight",
+            es: "El engagement realmente explotó de la noche a la mañana",
+          },
+          correct: false,
+        },
+        {
+          id: "broken",
+          label: {
+            en: "The chart numbers themselves are fake",
+            es: "Los números de la gráfica son falsos",
+          },
+          correct: false,
+        },
+      ],
+      conclusion: {
+        en: "Always check where the vertical axis starts before trusting a dramatic chart.",
+        es: "Siempre revisa dónde empieza el eje vertical antes de confiar en una gráfica dramática.",
       },
     },
   },
@@ -978,6 +1098,14 @@ export const experienceMinigames: Record<string, Challenge> = {
       instruction: {
         en: "What should you inspect on a viral chart?",
         es: "¿Qué debes inspeccionar en una gráfica viral?",
+      },
+      prompt: {
+        en: "Another dramatic chart appeared. What should you inspect first?",
+        es: "Apareció otra gráfica dramática. ¿Qué debes inspeccionar primero?",
+      },
+      claim: {
+        en: "New privacy update — numbers speak for themselves.",
+        es: "Nueva actualización de privacidad — los números hablan solos.",
       },
       maxAttempts: 2,
       options: [

@@ -105,6 +105,9 @@ export function DemoSessionProvider({
   const [highlightedPostId, setHighlightedPostId] = useState<string | null>(
     null,
   );
+  const [postVerification, setPostVerification] = useState<
+    Record<string, "ai-cleared" | "misleading">
+  >({});
   const [scenarioGuide, setScenarioGuide] = useState<LocalizedText | null>(
     null,
   );
@@ -112,6 +115,8 @@ export function DemoSessionProvider({
     null,
   );
   const [shareCounts, setShareCounts] = useState<Record<string, number>>({});
+  /** Brief pulse id for X/FB-style share animation after a successful share. */
+  const [justSharedPostId, setJustSharedPostId] = useState<string | null>(null);
   const [loading] = useState(false);
 
   const [pendingActionKey, setPendingActionKey] = useState<string | null>(null);
@@ -140,9 +145,35 @@ export function DemoSessionProvider({
       mountedRef.current = false;
     };
   }, []);
+  useEffect(() => {
+    if (!justSharedPostId) return;
+    const t = window.setTimeout(() => setJustSharedPostId(null), 700);
+    return () => window.clearTimeout(t);
+  }, [justSharedPostId]);
 
   const likedSet = useMemo(() => new Set(liked), [liked]);
   const savedSet = useMemo(() => new Set(saved), [saved]);
+
+  const markPostAiCleared = useCallback((postId: string) => {
+    const post = openFeedPosts.find((p) => p.id === postId);
+    // Risky demo posts must go through EduCAPTCHA — never a green “AI verified”.
+    if (
+      post &&
+      (post.triggerSkill ||
+        post.tone === "manipulative" ||
+        post.tone === "ambiguous")
+    ) {
+      return;
+    }
+    setPostVerification((prev) => {
+      if (prev[postId] === "misleading") return prev;
+      return { ...prev, [postId]: "ai-cleared" };
+    });
+  }, []);
+
+  const markPostMisleading = useCallback((postId: string) => {
+    setPostVerification((prev) => ({ ...prev, [postId]: "misleading" }));
+  }, []);
 
   const setToast = useCallback((t: LocalizedText | string | null) => {
     setToastState(toToast(t));
@@ -196,10 +227,14 @@ export function DemoSessionProvider({
   );
 
   const incrementShare = useCallback((postId: string) => {
-    setShareCounts((prev) => ({
-      ...prev,
-      [postId]: (prev[postId] ?? 0) + 1,
-    }));
+    setShareCounts((prev) => {
+      // Already shared once in this session — do not climb 1, 2, 3…
+      if (prev[postId] != null) return prev;
+      const base =
+        openFeedPosts.find((p) => p.id === postId)?.shares ?? 0;
+      return { ...prev, [postId]: base + 1 };
+    });
+    setJustSharedPostId(postId);
   }, []);
 
   const startIntercept = useCallback(
@@ -312,7 +347,16 @@ export function DemoSessionProvider({
           return decision;
         }
         incrementShare(post.id);
-        setToast(msg.sharedToast);
+        const risky =
+          Boolean(post.triggerSkill) ||
+          post.tone === "manipulative" ||
+          post.tone === "ambiguous";
+        if (risky) {
+          setToast(msg.sharedToast);
+        } else {
+          markPostAiCleared(post.id);
+          setToast(msg.sharedToastAiVerified ?? msg.sharedToast);
+        }
         return decision;
       };
 
@@ -323,6 +367,7 @@ export function DemoSessionProvider({
       decideForPost,
       flow,
       incrementShare,
+      markPostAiCleared,
       maybeStartTransfer,
       msg,
       setToast,
@@ -455,7 +500,16 @@ export function DemoSessionProvider({
           startIntercept(decision);
           return decision;
         }
-        setToast(msg.repostToast);
+        const risky =
+          Boolean(post.triggerSkill) ||
+          post.tone === "manipulative" ||
+          post.tone === "ambiguous";
+        if (risky) {
+          setToast(msg.repostToast);
+        } else {
+          markPostAiCleared(post.id);
+          setToast(msg.sharedToastAiVerified ?? msg.repostToast);
+        }
         return decision;
       };
 
@@ -466,7 +520,15 @@ export function DemoSessionProvider({
       );
       return isPromise(decision) ? decision.then(finish) : finish(decision);
     },
-    [decideForPost, flow, maybeStartTransfer, msg, setToast, startIntercept],
+    [
+      decideForPost,
+      flow,
+      markPostAiCleared,
+      maybeStartTransfer,
+      msg,
+      setToast,
+      startIntercept,
+    ],
   );
 
   const resolveTransferTarget = useCallback(
@@ -545,13 +607,15 @@ export function DemoSessionProvider({
         return;
       }
 
-      // cancel: do not execute intent; still allow transfer
+      // cancel: do not execute intent; still allow transfer.
+      // Soft acknowledgement — user chose not to share after verifying.
       dispatch({ type: "CANCEL_INTENT", transferPostId });
       if (hasTransfer) {
         enterTransferPending(transferPostId);
       } else {
         setDraftComment(null);
       }
+      setToast(msg.verifyAcknowledgement);
       returnFocus(intent.returnElementId);
     },
     [
@@ -574,6 +638,9 @@ export function DemoSessionProvider({
         (flow.status === "challenge-feedback" && !flow.isTransfer)
       ) {
         const post = openFeedPosts.find((p) => p.id === flow.intent.postId);
+        if (!result.skipped) {
+          markPostMisleading(flow.intent.postId);
+        }
         dispatch({
           type: "COMPLETE_INITIAL",
           result,
@@ -588,13 +655,16 @@ export function DemoSessionProvider({
         flow.status === "transfer-active" ||
         (flow.status === "challenge-feedback" && flow.isTransfer)
       ) {
+        if (!result.skipped) {
+          markPostMisleading(flow.intent.postId);
+        }
         dispatch({ type: "COMPLETE_TRANSFER_DONE", result });
         if ("intent" in flow) {
           returnFocus(flow.intent.returnElementId);
         }
       }
     },
-    [flow, returnFocus],
+    [flow, markPostMisleading, returnFocus],
   );
 
   const skipChallenge = useCallback(() => {
@@ -742,9 +812,11 @@ export function DemoSessionProvider({
     flow,
     draftComment,
     highlightedPostId,
+    postVerification,
     scenarioGuide,
     guidedScenarioId,
     shareCounts,
+    justSharedPostId,
     introSeen,
     setIntroSeen,
     toast,

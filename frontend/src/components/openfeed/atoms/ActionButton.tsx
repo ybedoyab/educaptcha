@@ -12,6 +12,8 @@ interface ActionButtonProps
   busy?: boolean;
   /** Immediate interaction lock (before spinner grace). */
   locked?: boolean;
+  /** Play the X-style green repost pop once. */
+  animatePop?: boolean;
   tone: ActionTone;
 }
 
@@ -45,6 +47,7 @@ export function ActionButton({
   active = false,
   busy = false,
   locked = false,
+  animatePop = false,
   tone,
   className = "",
   disabled,
@@ -58,20 +61,30 @@ export function ActionButton({
   return (
     <button
       type="button"
-      className={`group inline-flex min-h-11 min-w-11 items-center gap-1 text-xs text-social-muted transition-colors ${toneClasses.hover} ${activeClass} ${isDisabled ? "cursor-not-allowed opacity-60" : ""} ${className}`}
+      className={`group inline-flex min-h-11 min-w-11 items-center gap-1 text-xs text-social-muted transition-colors ${toneClasses.hover} ${activeClass} ${isDisabled && !active ? "cursor-not-allowed opacity-60" : ""} ${className}`}
       aria-label={label}
       aria-busy={busy || undefined}
       aria-disabled={isDisabled || undefined}
+      aria-pressed={active || undefined}
       disabled={isDisabled}
       {...buttonProps}
     >
       <span className="grid h-9 w-9 place-items-center rounded-full transition-colors group-hover:bg-current/10">
         <IconComponent
-          className={`h-[18px] w-[18px] ${busy ? "animate-spin" : ""}`}
+          className={`h-[18px] w-[18px] ${busy ? "animate-spin" : ""} ${
+            animatePop && tone === "repost" ? "animate-repost-pop" : ""
+          } ${animatePop && tone === "like" ? "animate-share-flash" : ""}`}
           aria-hidden="true"
         />
       </span>
-      {count === undefined ? null : <span aria-hidden="true">{count}</span>}
+      {count === undefined ? null : (
+        <span
+          aria-hidden="true"
+          className={animatePop ? "animate-share-flash tabular-nums" : "tabular-nums"}
+        >
+          {count}
+        </span>
+      )}
     </button>
   );
 }

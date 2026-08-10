@@ -22,18 +22,25 @@ export function riskApiBase(): string | null {
 }
 
 /**
- * A real analysis costs ~5s (network-bound, not thinking-bound), which is why
- * the feed prefetches with `dryRun` on mount. A click that still misses the
- * cache must fall back to local immediately rather than stall.
+ * A cold agent graph costs a few seconds (network-bound). The feed prefetches
+ * with `dryRun` on mount so a click should hit a warm cache. If the cache still
+ * misses, wait briefly for an in-flight prefetch / short analyze rather than
+ * stalling the share UX.
  */
-const CLICK_TIMEOUT_MS = 1500;
-const PREFETCH_TIMEOUT_MS = 12000;
+const CLICK_TIMEOUT_MS = 4500;
+const PREFETCH_TIMEOUT_MS = 15000;
+/** Cap concurrent Gemini-backed prefetches so a feed mount does not stampede. */
+const PREFETCH_CONCURRENCY = 2;
 const CIRCUIT_TRIP_AFTER = 2;
 
 let consecutiveFailures = 0;
 
 /** Dedupes prefetch across remounts / language switches / skin navigations. */
 const prefetchedKeys = new Set<string>();
+
+type PrefetchJob = () => Promise<void>;
+const prefetchQueue: PrefetchJob[] = [];
+let prefetchActive = 0;
 
 /** A dead backend must not add dead air to every click for the rest of the session. */
 function circuitOpen(): boolean {
@@ -47,6 +54,8 @@ export function resetRiskCircuit(): void {
 /** Test helper — clear prefetch dedupe between cases. */
 export function resetPrefetchDedupe(): void {
   prefetchedKeys.clear();
+  prefetchQueue.length = 0;
+  prefetchActive = 0;
 }
 
 export type RiskAction = "share" | "comment" | "repost-image" | "save" | "verify-link";
@@ -131,6 +140,26 @@ async function post(base: string, path: string, body: unknown, timeoutMs: number
   }
 }
 
+/** True when the service timed out / failed agents and did not warm the cache. */
+function responseNeedsPrefetchRetry(body: unknown): boolean {
+  if (!body || typeof body !== "object") return false;
+  const diagnostics = (body as { diagnostics?: { agentErrors?: unknown } }).diagnostics;
+  const errors = diagnostics?.agentErrors;
+  return Array.isArray(errors) && errors.length > 0;
+}
+
+function pumpPrefetchQueue(): void {
+  while (prefetchActive < PREFETCH_CONCURRENCY && prefetchQueue.length > 0) {
+    const job = prefetchQueue.shift();
+    if (!job) break;
+    prefetchActive += 1;
+    void job().finally(() => {
+      prefetchActive -= 1;
+      pumpPrefetchQueue();
+    });
+  }
+}
+
 export async function analyzeRisk(
   post_: OpenFeedPost,
   action: RiskAction,
@@ -170,7 +199,8 @@ export async function analyzeRisk(
  * Prefetch every post — curated demo labels (tone, triggerSkill, minigameId)
  * must not decide what reaches the backend. Deduped by action+postId so
  * remounts and language switches do not re-warm identical content analyses
- * (responses already carry bilingual copy).
+ * (responses already carry bilingual copy). Concurrency is capped so a feed
+ * mount does not stampede Gemini and blow the graph deadline.
  */
 export function prefetchRisk(
   posts: OpenFeedPost[],
@@ -184,22 +214,35 @@ export function prefetchRisk(
     const key = `${action}:${p.id}`;
     if (prefetchedKeys.has(key)) continue;
     prefetchedKeys.add(key);
-    void post(
-      base,
-      "/risk/analyze",
-      buildPayload(p, action, language, undefined, true),
-      PREFETCH_TIMEOUT_MS,
-    )
-      .then((res) => {
+
+    prefetchQueue.push(async () => {
+      try {
+        const res = await post(
+          base,
+          "/risk/analyze",
+          buildPayload(p, action, language, undefined, true),
+          PREFETCH_TIMEOUT_MS,
+        );
         // !ok must not trip the interactive circuit — prefetch is speculative.
         // Drop the dedupe key so a later remount can retry.
-        if (!res.ok) prefetchedKeys.delete(key);
-      })
-      .catch(() => {
+        if (!res.ok) {
+          prefetchedKeys.delete(key);
+          return;
+        }
+        // Deadline / agent failures still return 200 but do not warm the cache.
+        try {
+          const body: unknown = await res.json();
+          if (responseNeedsPrefetchRetry(body)) prefetchedKeys.delete(key);
+        } catch {
+          /* keep key — body unreadable but transport succeeded */
+        }
+      } catch {
         /* prefetch is best-effort; allow a later remount to retry this key */
         prefetchedKeys.delete(key);
-      });
+      }
+    });
   }
+  pumpPrefetchQueue();
 }
 
 /** Anonymous outcome. Fire-and-forget; `keepalive` survives a tab close. */

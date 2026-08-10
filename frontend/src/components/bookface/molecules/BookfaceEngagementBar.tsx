@@ -6,6 +6,7 @@ interface BookfaceEngagementBarProps {
   reactionCount: number;
   commentCount: number;
   shareCount: number;
+  sharePulse?: boolean;
 }
 
 /** The counts row between the post body and the Like / Comment / Share bar. */
@@ -13,6 +14,7 @@ export function BookfaceEngagementBar({
   reactionCount,
   commentCount,
   shareCount,
+  sharePulse = false,
 }: BookfaceEngagementBarProps) {
   const { copy, language } = useI18n();
 
@@ -27,7 +29,9 @@ export function BookfaceEngagementBar({
       <span className="truncate">
         {fillTemplate(copy.experience.bfCommentCount, { count: commentCount })}
         {" · "}
-        {fillTemplate(copy.experience.bfShareCount, { count: shareCount })}
+        <span className={sharePulse ? "inline-block animate-share-flash font-semibold text-bf-blue" : undefined}>
+          {fillTemplate(copy.experience.bfShareCount, { count: shareCount })}
+        </span>
       </span>
     </div>
   );

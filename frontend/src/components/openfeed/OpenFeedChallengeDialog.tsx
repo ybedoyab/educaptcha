@@ -21,7 +21,6 @@ export function OpenFeedChallengeDialog() {
     flow.status === "transfer-active";
 
   const challengeId = active ? flow.challengeId : null;
-  const reason = active ? flow.reason : null;
   const game = challengeId ? experienceMinigames[challengeId] : null;
   const isTransfer =
     flow.status === "transfer-active" ||
@@ -56,13 +55,14 @@ export function OpenFeedChallengeDialog() {
     return () => dialog.removeEventListener("cancel", onCancel);
   }, [skipChallenge]);
 
-  const heading = isTransfer
+  // Small brand mark only — the in-game steps carry the actionable title.
+  const brandHint = isTransfer
     ? language === "es"
-      ? "Aplica lo mismo a otra publicación"
-      : "Apply the same check to another post"
+      ? "Otra foto para revisar"
+      : "Another photo to check"
     : language === "es"
-      ? "Antes de compartir"
-      : "Before you share";
+      ? "Pausa de verificación"
+      : "Verification pause";
 
   return (
     <dialog
@@ -73,15 +73,15 @@ export function OpenFeedChallengeDialog() {
     >
       {active && game && (
         <div className="flex h-full w-full max-w-[560px] flex-col overflow-hidden bg-white shadow-2xl sm:h-auto sm:max-h-[92vh] sm:rounded-2xl">
-          <header className="sticky top-0 z-10 flex shrink-0 items-start justify-between gap-3 border-b border-navy/8 bg-white px-4 py-3">
+          <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-3 border-b border-navy/8 bg-white px-4 py-2.5">
             <div className="min-w-0">
               <Logo size="sm" />
-              <h2 id={titleId} className="mt-2 text-base font-semibold text-navy">
-                {heading}
-              </h2>
-              {reason && (
-                <p className="mt-1 text-sm text-navy/65">{reason[language]}</p>
-              )}
+              <p id={titleId} className="sr-only">
+                {brandHint}
+              </p>
+              <p className="mt-0.5 text-xs text-navy/50" aria-hidden>
+                {brandHint}
+              </p>
             </div>
             <button
               type="button"
@@ -99,6 +99,9 @@ export function OpenFeedChallengeDialog() {
               challenge={game}
               embedded
               compactFeedback
+              interceptReason={
+                active && "reason" in flow ? flow.reason[language] : null
+              }
               onComplete={completeChallenge}
               onSkip={skipChallenge}
             />

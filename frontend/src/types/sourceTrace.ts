@@ -22,6 +22,8 @@ export interface SourceTraceStep {
   value: LocalizedText;
   status?: SourceTraceStatus;
   detail?: LocalizedText;
+  /** Optional external reference — presentation only. */
+  href?: string;
 }
 
 /**

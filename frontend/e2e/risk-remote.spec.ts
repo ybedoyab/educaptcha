@@ -67,7 +67,7 @@ test("shouldIntervene:false lets the share through with no dialog", async ({ pag
   await gotoDemo(page);
   await stub(page, { decision: { outcome: "continue", shouldIntervene: false } });
 
-  // Three shares would normally clear the local cooldown and interrupt.
+  // Remote continue must win even if the local engine would intercept on first share.
   for (let i = 0; i < 3; i++) {
     await page.locator("#share-p-flood-live").click();
     await page.waitForTimeout(150);
@@ -83,36 +83,30 @@ test("an unknown challengeId falls back to local and still opens a dialog", asyn
   await gotoDemo(page);
   await stub(page, intercept({ challengeId: "definitely-not-a-real-challenge" }));
 
-  for (let i = 0; i < 3; i++) {
-    await page.locator("#share-p-flood-live").click();
-    await page.waitForTimeout(200);
-  }
+  await page.locator("#share-p-flood-live").click();
   await expect(page.locator("dialog[open]")).toHaveCount(1);
 });
 
 test("a slow service falls back to the local decision", async ({ page }) => {
+  test.setTimeout(60_000);
   await gotoDemo(page);
-  // Well past the 1500ms client budget.
-  await stub(page, intercept({ challengeId: "ep-spot" }), { delayMs: 3000 });
+  // Well past the 4500ms client click budget in riskClient.
+  await stub(page, intercept({ challengeId: "ep-spot" }), { delayMs: 6000 });
 
-  for (let i = 0; i < 3; i++) {
-    await page.locator("#share-p-flood-live").click();
-    await page.waitForTimeout(250);
-  }
+  await page.locator("#share-p-flood-live").click();
   // Local engine picked ic-match for this post, not the service's ep-spot.
   const dialog = page.locator("dialog[open]");
   await expect(dialog).toHaveCount(1);
-  await expect(dialog).toContainText(/when and where|cuándo y dónde/i);
+  await expect(dialog).toContainText(
+    /before you share, check this photo|antes de compartir, revisa esta foto/i,
+  );
 });
 
 test("a 500 from the service is invisible to the user", async ({ page }) => {
   await gotoDemo(page);
   await page.route(ANALYZE, (route) => route.fulfill({ status: 500, body: "boom" }));
 
-  for (let i = 0; i < 3; i++) {
-    await page.locator("#share-p-flood-live").click();
-    await page.waitForTimeout(150);
-  }
+  await page.locator("#share-p-flood-live").click();
   await expect(page.locator("dialog[open]")).toHaveCount(1);
   await expect(page.locator("body")).not.toContainText(/error|failed|500/i);
 });
@@ -121,10 +115,7 @@ test("a malformed body falls back rather than crashing", async ({ page }) => {
   await gotoDemo(page);
   await stub(page, { decision: { outcome: "intercept", shouldIntervene: true } }); // no challengeId
 
-  for (let i = 0; i < 3; i++) {
-    await page.locator("#share-p-flood-live").click();
-    await page.waitForTimeout(150);
-  }
+  await page.locator("#share-p-flood-live").click();
   await expect(page.locator("dialog[open]")).toHaveCount(1);
 });
 

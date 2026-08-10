@@ -85,53 +85,58 @@ function reasonFor(
   commentText?: string,
 ): LocalizedText {
   if (action === "share") {
+    if (post.triggerSkill === "wildfire-context") {
+      return {
+        en: "AI found a place mismatch risk: the caption says one city, but visual cues may point elsewhere. Complete this check before sharing.",
+        es: "La IA encontró riesgo de lugar incorrecto: el texto nombra una ciudad, pero las señales visuales pueden apuntar a otra. Completa esta verificación antes de compartir.",
+      };
+    }
     if (
       post.triggerSkill === "image-context" ||
-      post.triggerSkill === "wildfire-context" ||
       post.triggerSkill === "protest-context"
     ) {
       return {
-        en: "Before sharing this image, check when and where it was taken.",
-        es: "Antes de compartir esta imagen, comprueba cuándo y dónde fue tomada.",
+        en: "AI found this photo may be archived and reused — not a live image from today. Check the original date and place.",
+        es: "La IA encontró que esta foto puede ser de archivo y reutilizada — no una imagen en vivo de hoy. Revisa la fecha y el lugar originales.",
       };
     }
     if (post.triggerSkill === "emotional-pressure") {
       return {
-        en: "This post uses urgency before offering a verifiable source.",
-        es: "Esta publicación usa urgencia antes de ofrecer una fuente verificable.",
+        en: "AI found urgency language before any verifiable source. Pause and check what is actually proven.",
+        es: "La IA encontró lenguaje de urgencia antes de una fuente verificable. Pausa y revisa qué está realmente comprobado.",
       };
     }
     if (post.triggerSkill === "misleading-chart") {
       return {
-        en: "Before sharing this chart, check where the vertical axis starts.",
-        es: "Antes de compartir esta gráfica, revisa dónde empieza el eje vertical.",
+        en: "AI found a chart scaling risk — the axis may exaggerate the change. Check where the vertical axis starts.",
+        es: "La IA encontró riesgo en la escala de la gráfica — el eje puede exagerar el cambio. Revisa dónde empieza el eje vertical.",
       };
     }
     if (post.triggerSkill === "vaccine-claim") {
       return {
-        en: "Before sharing, separate what the photo shows from what the caption claims.",
-        es: "Antes de compartir, separa lo que muestra la foto de lo que afirma el pie.",
+        en: "AI found that the photo may not prove the caption’s claim. Separate what the image shows from what the text asserts.",
+        es: "La IA encontró que la foto puede no probar lo que afirma el pie. Separa lo que muestra la imagen de lo que dice el texto.",
       };
     }
   }
 
   if (action === "comment" && commentText) {
     return {
-      en: "Your draft repeats the claim without identifying its source.",
-      es: "Tu borrador repite la afirmación sin identificar su fuente.",
+      en: "AI found your draft repeats the claim without a source. Edit or verify before posting.",
+      es: "La IA encontró que tu borrador repite la afirmación sin fuente. Edita o verifica antes de publicar.",
     };
   }
 
   if (action === "repost-image") {
     return {
-      en: "This image may be authentic but missing its original context.",
-      es: "Esta imagen puede ser auténtica, pero carecer de su contexto original.",
+      en: "AI found this image may be authentic but missing its original context. Complete the check before resharing.",
+      es: "La IA encontró que esta imagen puede ser auténtica, pero sin su contexto original. Completa la verificación antes de volver a compartir.",
     };
   }
 
   return {
-    en: "A short verification check can help before you continue.",
-    es: "Una breve revisión de verificación puede ayudar antes de continuar.",
+    en: "AI flagged a verification risk on this post. Complete this short check before you continue.",
+    es: "La IA marcó un riesgo de verificación en este post. Completa este chequeo breve antes de continuar.",
   };
 }
 
@@ -170,8 +175,9 @@ export function createTriggerEngine(initial?: Partial<EngineState>) {
       return { type: "continue" };
     }
 
-    // Cooldown: at most one intervention every 2–3 actions
-    if (state.actionsSinceLast < 3) {
+    // Cooldown only after an intervention already happened — the first risky
+    // share/repost must open EduCAPTCHA so "Shared" never means "unchecked".
+    if (state.lastSkill !== null && state.actionsSinceLast < 3) {
       return { type: "continue" };
     }
 

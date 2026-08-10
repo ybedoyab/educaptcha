@@ -21,6 +21,8 @@ export interface MinigameRendererProps {
   embedded?: boolean;
   onClose?: () => void;
   compactFeedback?: boolean;
+  /** Why EduCAPTCHA opened — shown on the first pause step. */
+  interceptReason?: string | null;
 }
 
 export function MinigameRenderer({
@@ -33,6 +35,7 @@ export function MinigameRenderer({
   embedded,
   onClose,
   compactFeedback,
+  interceptReason,
 }: MinigameRendererProps) {
   const { language, copy } = useI18n();
   const startedAt = useRef(Date.now());
@@ -59,7 +62,12 @@ export function MinigameRenderer({
     copy.categories[challenge.category as keyof typeof copy.categories];
 
   const hideChromeInstruction =
-    embedded && interaction.type === "context-match";
+    embedded &&
+    (interaction.type === "context-match" ||
+      interaction.type === "image-inspection" ||
+      interaction.type === "spot-signals" ||
+      interaction.type === "chart-repair" ||
+      interaction.type === "single-choice");
 
   const mode = done ? "review" : "play";
 
@@ -73,6 +81,10 @@ export function MinigameRenderer({
             revealed={Boolean(done)}
             onSolved={(r) => finish(r)}
             onHint={setHint}
+            onSkip={onSkip}
+            mode={mode}
+            reviewResult={done}
+            interceptReason={interceptReason}
           />
         );
       case "drag-classify":
@@ -92,8 +104,10 @@ export function MinigameRenderer({
             language={language}
             onSolved={(r) => finish(r)}
             onHint={setHint}
+            onSkip={onSkip}
             mode={mode}
             reviewResult={done}
+            interceptReason={interceptReason}
           />
         );
       case "chart-repair":
@@ -103,6 +117,10 @@ export function MinigameRenderer({
             language={language}
             lockedAt={done ? interaction.targetStart : undefined}
             onSolved={(r) => finish(r)}
+            onHint={setHint}
+            onSkip={onSkip}
+            mode={mode}
+            interceptReason={interceptReason}
           />
         );
       case "image-inspection":
@@ -112,7 +130,10 @@ export function MinigameRenderer({
             language={language}
             onSolved={(r) => finish(r)}
             onHint={setHint}
+            onSkip={onSkip}
             mode={mode}
+            reviewResult={done}
+            interceptReason={interceptReason}
           />
         );
       case "single-choice":
@@ -121,8 +142,10 @@ export function MinigameRenderer({
             interaction={interaction}
             language={language}
             onSolved={(r) => finish(r)}
+            onSkip={onSkip}
             mode={mode}
             reviewResult={done}
+            interceptReason={interceptReason}
           />
         );
       default:

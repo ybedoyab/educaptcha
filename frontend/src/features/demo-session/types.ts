@@ -49,9 +49,17 @@ export type DemoSessionValue = {
   flow: DemoFlowState;
   draftComment: DraftComment | null;
   highlightedPostId: string | null;
+  /**
+   * Session-local verification status per post:
+   * - `ai-cleared` — share continued; agents found no conflict
+   * - `misleading` — user completed EduCAPTCHA and the claim did not hold up
+   */
+  postVerification: Record<string, "ai-cleared" | "misleading">;
   scenarioGuide: LocalizedText | null;
   guidedScenarioId: string | null;
   shareCounts: Record<string, number>;
+  /** Post id that just completed a share — drives a short repost animation. */
+  justSharedPostId: string | null;
   introSeen: boolean;
   setIntroSeen: (seen: boolean) => void;
   toast: ToastValue;
@@ -68,8 +76,11 @@ export type DemoSessionValue = {
    */
   lockedActionKey: string | null;
   /**
-   * True while ANY interactive remote risk analyze is in flight. All share /
-   * image / comment controls should disable for the duration.
+   * True while ANY interactive remote risk analyze is in flight.
+   * Prefer locking only the pending control (`lockedActionKey` /
+   * `pendingActionKey`); other posts should stay usable so scrolling the feed
+   * does not feel frozen. Concurrent remote analyzes are still deduped at the
+   * request layer.
    */
   riskInteractionLocked: boolean;
   /**

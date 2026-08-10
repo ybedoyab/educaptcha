@@ -22,10 +22,12 @@ export function usePostInteractions(post: OpenFeedPost) {
     setToast,
     comments,
     highlightedPostId,
+    postVerification,
     flow,
     shareCounts,
+    justSharedPostId,
     pendingActionKey,
-    riskInteractionLocked,
+    lockedActionKey,
   } = useDemoSession();
 
   const shareKey = OPEN_FEED_IDS.pendingAction(OPEN_FEED_ACTION.share, post.id);
@@ -36,25 +38,35 @@ export function usePostInteractions(post: OpenFeedPost) {
 
   const shareBusy = pendingActionKey === shareKey;
   const imageBusy = pendingActionKey === imageKey;
-  const interactionLocked = riskInteractionLocked;
+  /** This post already shared once in the session (count is base+1). */
+  const hasShared = shareCounts[post.id] != null;
+  /** Only lock the control that owns the in-flight analyze — not the whole feed. */
+  const sharePending =
+    lockedActionKey === shareKey || pendingActionKey === shareKey;
+  const imagePending =
+    lockedActionKey === imageKey || pendingActionKey === imageKey;
 
   const commentCount = (comments[post.id] ?? []).length;
   const isLiked = liked.has(post.id);
   const isSaved = saved.has(post.id);
   const isHighlighted = highlightedPostId === post.id;
+  const checkStatus = postVerification[post.id] ?? null;
   const shareCount = shareCounts[post.id] ?? post.shares;
   const showReturn =
     flow.status === "return-to-context" && flow.intent.postId === post.id;
   const hasMedia = Boolean(post.mediaAssetId || post.imageSrc);
   const canVerify = Boolean(post.triggerSkill || post.mediaAssetId);
+  const justShared = justSharedPostId === post.id;
 
   const handleShare = () => {
-    if (interactionLocked) return;
+    // Keep the control usable so cooldown / remote retries can run; incrementShare
+    // itself is once-only so the visible count never climbs past base+1.
+    if (sharePending || showReturn) return;
     requestShare(post, OPEN_FEED_IDS.share(post.id));
   };
 
   const handleImage = () => {
-    if (!hasMedia || interactionLocked) return;
+    if (!hasMedia || imagePending) return;
     requestRepostImage(post, OPEN_FEED_IDS.repostImage(post.id));
   };
 
@@ -71,18 +83,19 @@ export function usePostInteractions(post: OpenFeedPost) {
     isLiked,
     isSaved,
     isHighlighted,
+    checkStatus,
     shareCount,
     /** Alias used by the Y skin ("repost count"). */
     repostCount: shareCount,
+    hasShared,
+    justShared,
     showReturn,
     hasMedia,
     canVerify,
     shareBusy,
     imageBusy,
-    /** Global: any interactive risk analyze locks all share/image/comment. */
-    interactionLocked,
-    shareLocked: interactionLocked,
-    imageLocked: interactionLocked,
+    shareLocked: sharePending || showReturn,
+    imageLocked: imagePending,
     handleShare,
     handleRepost: handleShare,
     handleImage,

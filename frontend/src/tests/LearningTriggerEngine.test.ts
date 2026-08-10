@@ -20,12 +20,21 @@ describe("LearningTriggerEngine", () => {
     expect(decision.type).toBe("intercept");
     if (decision.type === "intercept") {
       expect(decision.challengeId).toBe("ic-match");
-      expect(decision.reason.en).toMatch(/when and where/i);
+      expect(decision.reason.en).toMatch(/AI found|date|place|archived/i);
     }
   });
 
-  it("free browse respects cooldown", () => {
+  it("first risky share opens EduCAPTCHA (no warm-up continues)", () => {
     const engine = createTriggerEngine({ actionsSinceLast: 0 });
+    const first = engine.decideFreeBrowse("share", flood, shareIntent());
+    expect(first.type).toBe("intercept");
+  });
+
+  it("free browse respects cooldown after an intervention", () => {
+    const engine = createTriggerEngine({
+      actionsSinceLast: 0,
+      lastSkill: "emotional-pressure",
+    });
     const first = engine.decideFreeBrowse("share", flood, shareIntent());
     expect(first.type).toBe("continue");
     const second = engine.decideFreeBrowse("share", flood, shareIntent());

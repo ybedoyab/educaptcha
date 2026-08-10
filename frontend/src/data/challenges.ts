@@ -245,20 +245,26 @@ export const challenges: Challenge[] = [
       conclusions: [
         {
           id: "current",
-          label: { en: "Current local event", es: "Evento local actual" },
+          label: {
+            en: "This is a current local event",
+            es: "Es un evento local de hoy",
+          },
           correct: false,
         },
         {
           id: "wrong-context",
           label: {
-            en: "Real image, wrong context",
-            es: "Imagen real, contexto incorrecto",
+            en: "This is a real image used in the wrong context",
+            es: "Es una imagen real usada en el contexto equivocado",
           },
           correct: true,
         },
         {
           id: "ai",
-          label: { en: "AI-generated image", es: "Imagen generada por IA" },
+          label: {
+            en: "This is an AI-generated image",
+            es: "Es una imagen generada por IA",
+          },
           correct: false,
         },
       ],

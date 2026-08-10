@@ -10,7 +10,7 @@ const interaction = experienceMinigames["ic-match"]
   .interaction as ContextMatchInteraction;
 
 describe("ContextMatchGame primary CTA invariant", () => {
-  it("exposes exactly one primary CTA in spot and check", async () => {
+  it("exposes exactly one primary CTA in intercept and check", async () => {
     const user = userEvent.setup();
     render(
       <I18nProvider>
@@ -27,19 +27,19 @@ describe("ContextMatchGame primary CTA invariant", () => {
       1,
     );
     expect(
-      screen.getByRole("button", { name: /check the source/i }),
+      screen.getByRole("button", { name: /check photo/i }),
     ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /check the source/i }));
+    await user.click(screen.getByRole("button", { name: /check photo/i }));
     expect(document.querySelectorAll('[data-primary-cta="true"]')).toHaveLength(
       1,
     );
     expect(
-      screen.getByRole("button", { name: /choose what this means/i }),
+      screen.getByRole("button", { name: /what does this mean/i }),
     ).toBeInTheDocument();
   });
 
-  it("keeps a single Check CTA after selecting a decision", async () => {
+  it("keeps a single See result CTA after selecting a decision", async () => {
     const user = userEvent.setup();
     render(
       <I18nProvider>
@@ -51,18 +51,23 @@ describe("ContextMatchGame primary CTA invariant", () => {
         />
       </I18nProvider>,
     );
-    await user.click(screen.getByRole("button", { name: /check the source/i }));
+    await user.click(screen.getByRole("button", { name: /check photo/i }));
     await user.click(
-      screen.getByRole("button", { name: /choose what this means/i }),
+      screen.getByRole("button", { name: /what does this mean/i }),
     );
     expect(document.querySelectorAll('[data-primary-cta="true"]')).toHaveLength(
       0,
     );
     await user.click(
-      screen.getByRole("button", { name: /real image, wrong context/i }),
+      screen.getByRole("button", {
+        name: /real image used in the wrong context/i,
+      }),
     );
     expect(document.querySelectorAll('[data-primary-cta="true"]')).toHaveLength(
       1,
     );
+    expect(
+      screen.getByRole("button", { name: /see result/i }),
+    ).toBeInTheDocument();
   });
 });
