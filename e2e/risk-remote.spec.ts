@@ -144,3 +144,29 @@ test("guided scenarios never call the service", async ({ page }) => {
   await expect(page.locator("dialog[open]")).toHaveCount(1);
   expect(clickCalls, "guided path must stay local so the pitch never depends on the network").toBe(0);
 });
+
+test("rapid double-click Share posts analyze once and opens one dialog", async ({
+  page,
+}) => {
+  await gotoDemo(page);
+  let clickPosts = 0;
+  await page.route(ANALYZE, async (route) => {
+    const payload = route.request().postDataJSON();
+    if (payload?.dryRun) {
+      await route.fulfill({
+        json: { decision: { outcome: "continue", shouldIntervene: false } },
+      });
+      return;
+    }
+    clickPosts += 1;
+    await page.waitForTimeout(400);
+    await route.fulfill({ json: intercept() });
+  });
+
+  const before = await page.locator("#share-p-flood-live").textContent();
+  await page.locator("#share-p-flood-live").dblclick({ delay: 30 });
+  await expect(page.locator("dialog[open]")).toHaveCount(1);
+  expect(clickPosts).toBe(1);
+  // Share count must not have advanced before the remote decision (dialog open).
+  await expect(page.locator("#share-p-flood-live")).toHaveText(before ?? "");
+});

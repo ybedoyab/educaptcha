@@ -291,7 +291,7 @@ export const translations = {
       scenarioNotFound: "Scenario not found — showing the full feed.",
       transferToast: "Now apply this skill to a new post.",
       verifyAcknowledgement:
-        "Good instinct — open a source and compare details.",
+        "Good instinct — verify the original source before sharing.",
       sharedToast: "Reposted (simulated)",
       repostToast: "Image reposted (simulated)",
       transferReasonNamed:
@@ -701,7 +701,7 @@ export const translations = {
         "Escenario no encontrado — mostrando el feed completo.",
       transferToast: "Ahora aplica esta habilidad en otra publicación.",
       verifyAcknowledgement:
-        "Buen instinto — abre una fuente y compara los detalles.",
+        "Buen instinto — verifica la fuente original antes de compartir.",
       sharedToast: "Republicado (simulado)",
       repostToast: "Imagen republicada (simulada)",
       transferReasonNamed:

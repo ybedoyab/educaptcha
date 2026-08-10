@@ -7,20 +7,23 @@ Order is behaviour, not style — `tests/test_policy_gates.py` pins it, mirrorin
      2  save                           -> continue, counter += 1             pre-LLM
      3  guided                         -> intercept from post binding        pre-LLM
      4  counter += 1        (increment BEFORE the check: the 3rd action intercepts)
-     5  nothing resolvable             -> continue, no-challenge-for-skill   pre-LLM
-     6  comment and not affirming      -> continue, non-affirming-comment    pre-LLM
-     7  counter < COOLDOWN_ACTIONS     -> continue, cooldown                 pre-LLM
-     8  candidate == last skill        -> continue, no-repeat-skill          pre-LLM
-     9  pretriage benign               -> continue, pretriage-benign         pre-LLM
-    10  ---- specialists run in parallel ----
-    11  score < threshold              -> continue, below-threshold
-    12  challenge unresolvable         -> continue, no-challenge-for-skill
-    13  intercept; counter = 0; recent_skills.appendleft(skill)
+     5  comment and not affirming      -> continue, non-affirming-comment    pre-LLM
+     6  counter < COOLDOWN_ACTIONS     -> continue, cooldown                 pre-LLM
+     7  candidate == last skill        -> continue, no-repeat-skill          pre-LLM
+     8  pretriage benign               -> continue, pretriage-benign         pre-LLM
+     9  ---- specialists run in parallel ----
+    10  score < threshold              -> continue, below-threshold
+    11  challenge unresolvable         -> continue, no-challenge-for-skill
+    12  intercept; counter = 0; recent_skills.appendleft(skill)
 
-Gates 6-9 run *before* any model call, which skips roughly two thirds of LLM
+Gates 5-8 run *before* any model call, which skips roughly two thirds of LLM
 work on a real feed. The cost is that suppressed actions have no score, so
 SHADOW_MODE_ON_SUPPRESSED runs the graph anyway (returning continue) when you
 want the metrics.
+
+Unknown text-only posts (no catalog binding, no asset) are NOT discarded here:
+Catalog.resolve falls back to skill_to_challenge after agents pick a skill.
+Obviously benign short text is filtered by pretriage instead.
 """
 
 from __future__ import annotations
@@ -116,29 +119,25 @@ def pre_llm_gates(
     if not req.dry_run:
         session.record_action()
 
-    # 5 — no post binding and no analyzable media means nothing can ever resolve.
-    if binding is None and req.post.media.asset_id is None and req.post.media.kind == "text":
-        return stop(CONTINUE, "no-challenge-for-skill")
-
-    # 6 — a source-seeking draft must never be quizzed.
+    # 5 — a source-seeking draft must never be quizzed.
     if req.action == "comment" and not is_affirming_comment(req.comment_text or ""):
         return stop(CONTINUE, "non-affirming-comment")
 
-    # Gates 7 and 8 are decisions about *this* moment in the session. A dry run
+    # Gates 6 and 7 are decisions about *this* moment in the session. A dry run
     # is not making a decision — it is precomputing content analysis so the real
     # click lands on a warm cache. Applying them here would suppress the very
     # analysis the prefetch exists to produce (the counter never advances on a
     # dry run, so the cooldown would fire every single time and cache nothing).
     if not req.dry_run:
-        # 7 — at most one interruption every few actions.
+        # 6 — at most one interruption every few actions.
         if session.actions_since_last_intervention < settings.cooldown_actions:
             return stop(CONTINUE, "cooldown")
 
-        # 8 — never practise the same skill twice in a row (when we can predict it).
+        # 7 — never practise the same skill twice in a row (when we can predict it).
         if settings.no_repeat_skill and candidate is not None and candidate == session.last_skill:
             return stop(CONTINUE, "no-repeat-skill")
 
-    # 9 — obviously benign, decided without a model.
+    # 8 — obviously benign, decided without a model.
     if pretriage_benign:
         return stop(CONTINUE, "pretriage-benign")
 
@@ -161,15 +160,15 @@ def post_llm_gates(
     risk_score: float,
     dominant_skill: SkillId | None,
 ) -> FinalResult:
-    # 11
+    # 10
     if risk_score < settings.risk_threshold or dominant_skill is None:
         return FinalResult(CONTINUE, "below-threshold")
 
-    # 8 again — the model may land on a different skill than the binding predicted.
+    # 7 again — the model may land on a different skill than the binding predicted.
     if settings.no_repeat_skill and dominant_skill == session.last_skill:
         return FinalResult(CONTINUE, "no-repeat-skill")
 
-    # 12 — risk is real but no minigame teaches this skill yet (ai-content, sources).
+    # 11 — risk is real but no minigame teaches this skill yet (ai-content, sources).
     resolved = catalog.resolve(req.post.id, dominant_skill)
     if resolved is None:
         return FinalResult(CONTINUE, "no-challenge-for-skill", would_practice=dominant_skill)
@@ -182,7 +181,7 @@ def post_llm_gates(
     binding = catalog.post_bindings.get(req.post.id)
     skill = binding.skill if binding is not None else dominant_skill
 
-    # 13
+    # 12
     if not req.dry_run:
         session.record_intervention(skill)
     return FinalResult(_intercept(req, skill, resolved), None)

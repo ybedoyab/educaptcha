@@ -66,8 +66,28 @@ def test_post_bindings_are_not_derivable_from_skill_alone():
     assert cat.skill_to_challenge["image-context"].initial == "ic-match"
 
 
+def _node_supports_register_hooks() -> bool:
+    """module.registerHooks landed in Node 22.15+; skip live import on older runtimes."""
+    probe = subprocess.run(
+        [
+            "node",
+            "--input-type=module",
+            "-e",
+            "import { registerHooks } from 'node:module'; console.log(typeof registerHooks)",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    return probe.returncode == 0 and "function" in (probe.stdout or "")
+
+
 @pytest.mark.skipif(
     not SRC_DATA.exists(), reason="frontend sources absent (Docker/backend-only CI)"
+)
+@pytest.mark.skipif(
+    not _node_supports_register_hooks(),
+    reason="Node registerHooks unavailable (need Node >= 22.15 for live TS import)",
 )
 def test_catalog_matches_live_frontend_modules():
     """Re-evaluate the real TS and diff — catches a rename the moment it lands."""

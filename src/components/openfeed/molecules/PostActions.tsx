@@ -8,6 +8,7 @@ interface PostActionsProps {
   liked: boolean;
   saved: boolean;
   repostBusy: boolean;
+  repostLocked?: boolean;
   labels: {
     comment: string;
     repost: string;
@@ -35,6 +36,7 @@ export function PostActions({
   liked,
   saved,
   repostBusy,
+  repostLocked = false,
   labels,
   ids,
   onComment,
@@ -59,6 +61,7 @@ export function PostActions({
         label={labels.repost}
         count={repostCount}
         busy={repostBusy}
+        locked={repostLocked}
         tone="repost"
         onClick={onRepost}
       />

@@ -33,10 +33,12 @@ export function OpenFeedPost({ post, expanded = false }: OpenFeedPostProps) {
     flow,
     shareCounts,
     pendingActionKey,
+    lockedActionKey,
   } = useDemoSession();
 
-  const shareBusy =
-    pendingActionKey === OPEN_FEED_IDS.pendingAction(OPEN_FEED_ACTION.share, post.id);
+  const shareKey = OPEN_FEED_IDS.pendingAction(OPEN_FEED_ACTION.share, post.id);
+  const shareBusy = pendingActionKey === shareKey;
+  const shareLocked = lockedActionKey === shareKey;
   const repostImageBusy =
     pendingActionKey ===
     OPEN_FEED_IDS.pendingAction(OPEN_FEED_ACTION.repostImage, post.id);
@@ -133,6 +135,7 @@ export function OpenFeedPost({ post, expanded = false }: OpenFeedPostProps) {
             liked={isLiked}
             saved={isSaved}
             repostBusy={shareBusy}
+            repostLocked={shareLocked}
             labels={{
               comment: copy.experience.comment,
               repost: copy.experience.repost,

@@ -10,6 +10,8 @@ interface ActionButtonProps
   count?: number;
   active?: boolean;
   busy?: boolean;
+  /** Immediate interaction lock (before spinner grace). */
+  locked?: boolean;
   tone: ActionTone;
 }
 
@@ -42,20 +44,25 @@ export function ActionButton({
   count,
   active = false,
   busy = false,
+  locked = false,
   tone,
   className = "",
+  disabled,
   ...buttonProps
 }: ActionButtonProps) {
   const IconComponent = busy ? Loader2 : Icon;
   const toneClasses = TONE_CLASSES[tone];
   const activeClass = active ? toneClasses.active : "";
+  const isDisabled = Boolean(disabled || locked);
 
   return (
     <button
       type="button"
-      className={`group inline-flex min-h-11 min-w-11 items-center gap-1 text-xs text-social-muted transition-colors ${toneClasses.hover} ${activeClass} ${className}`}
+      className={`group inline-flex min-h-11 min-w-11 items-center gap-1 text-xs text-social-muted transition-colors ${toneClasses.hover} ${activeClass} ${isDisabled ? "cursor-not-allowed opacity-60" : ""} ${className}`}
       aria-label={label}
-      aria-busy={busy}
+      aria-busy={busy || undefined}
+      aria-disabled={isDisabled || undefined}
+      disabled={isDisabled}
       {...buttonProps}
     >
       <span className="grid h-9 w-9 place-items-center rounded-full transition-colors group-hover:bg-current/10">

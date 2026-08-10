@@ -116,4 +116,59 @@ describe("demoFlowReducer", () => {
     });
     expect(state.status).toBe("transfer-active");
   });
+
+  it("preserves remote transferPostId through challenge phases", () => {
+    let state = demoFlowReducer(initialDemoFlowState, {
+      type: "START_CHALLENGE",
+      intent,
+      challengeId: "ic-match",
+      transferChallengeId: "ic-transfer",
+      transferPostId: "p-flood-today",
+      skill: "image-context",
+      reason: { en: "r", es: "r" },
+    });
+    expect(state.status).toBe("challenge-intro");
+    if (state.status !== "challenge-intro") return;
+    expect(state.transferPostId).toBe("p-flood-today");
+
+    state = demoFlowReducer(state, { type: "BEGIN_ACTIVE" });
+    expect(state.status).toBe("challenge-active");
+    if (state.status !== "challenge-active") return;
+    expect(state.transferPostId).toBe("p-flood-today");
+
+    state = demoFlowReducer(state, { type: "COMPLETE_INITIAL", result });
+    expect(state.status).toBe("return-to-context");
+    if (state.status !== "return-to-context") return;
+    expect(state.transferPostId).toBe("p-flood-today");
+
+    state = demoFlowReducer(state, { type: "RESOLVE_INTENT" });
+    expect(state.status).toBe("transfer-pending");
+    if (state.status !== "transfer-pending") return;
+    expect(state.targetPostId).toBe("p-flood-today");
+  });
+
+  it("prefers remote transferPostId over a different COMPLETE_INITIAL argument", () => {
+    let state = demoFlowReducer(initialDemoFlowState, {
+      type: "START_CHALLENGE",
+      intent,
+      challengeId: "ic-match",
+      transferChallengeId: "ic-transfer",
+      transferPostId: "p-wildfire",
+      skill: "image-context",
+      reason: { en: "r", es: "r" },
+    });
+    state = demoFlowReducer(state, { type: "BEGIN_ACTIVE" });
+    state = demoFlowReducer(state, {
+      type: "COMPLETE_INITIAL",
+      result,
+      transferPostId: "p-flood-today",
+    });
+    expect(state.status).toBe("return-to-context");
+    if (state.status !== "return-to-context") return;
+    expect(state.transferPostId).toBe("p-wildfire");
+    state = demoFlowReducer(state, { type: "CANCEL_INTENT" });
+    expect(state.status).toBe("transfer-pending");
+    if (state.status !== "transfer-pending") return;
+    expect(state.targetPostId).toBe("p-wildfire");
+  });
 });

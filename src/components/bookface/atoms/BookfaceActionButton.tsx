@@ -9,6 +9,7 @@ interface BookfaceActionButtonProps
   label: string;
   active?: boolean;
   busy?: boolean;
+  locked?: boolean;
   tone: ActionTone;
 }
 
@@ -27,18 +28,23 @@ export function BookfaceActionButton({
   label,
   active = false,
   busy = false,
+  locked = false,
   tone,
   className = "",
+  disabled,
   ...buttonProps
 }: BookfaceActionButtonProps) {
   const IconComponent = busy ? Loader2 : Icon;
   const stateClass = active ? ACTIVE_TONE_CLASSES[tone] : "text-bf-muted";
+  const isDisabled = Boolean(disabled || locked);
 
   return (
     <button
       type="button"
-      className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg text-[15px] font-semibold transition-colors hover:bg-bf-hover ${stateClass} ${className}`}
-      aria-busy={busy}
+      className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg text-[15px] font-semibold transition-colors hover:bg-bf-hover ${stateClass} ${isDisabled ? "cursor-not-allowed opacity-60" : ""} ${className}`}
+      aria-busy={busy || undefined}
+      aria-disabled={isDisabled || undefined}
+      disabled={isDisabled}
       {...buttonProps}
     >
       <IconComponent

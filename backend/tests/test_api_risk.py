@@ -67,7 +67,7 @@ def test_benign_post_is_decided_without_a_model_call(client, corpus_by_id, fake_
     r = client.post("/risk/analyze", json=_body(corpus_by_id["p-garden"]))
     body = r.json()
     assert body["decision"]["outcome"] == "continue"
-    assert body["diagnostics"]["gate"] in {"cooldown", "pretriage-benign", "no-challenge-for-skill"}
+    assert body["diagnostics"]["gate"] in {"cooldown", "pretriage-benign"}
     assert fake_llm.calls == []
 
 

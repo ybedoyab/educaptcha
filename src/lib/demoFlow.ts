@@ -47,6 +47,8 @@ export type DemoFlowState =
       intent: PendingIntent;
       challengeId: string;
       transferChallengeId?: string;
+      /** Authoritative when set by a remote decision; must survive challenge phases. */
+      transferPostId?: string;
       skill?: string;
       reason: LocalizedText;
       isTransfer?: boolean;
@@ -56,6 +58,7 @@ export type DemoFlowState =
       intent: PendingIntent;
       challengeId: string;
       transferChallengeId?: string;
+      transferPostId?: string;
       skill?: string;
       reason: LocalizedText;
       isTransfer?: boolean;
@@ -65,6 +68,7 @@ export type DemoFlowState =
       intent: PendingIntent;
       challengeId: string;
       transferChallengeId?: string;
+      transferPostId?: string;
       skill?: string;
       reason: LocalizedText;
       result: ChallengeResult;
@@ -148,6 +152,7 @@ export function demoFlowReducer(
         intent: action.intent,
         challengeId: action.challengeId,
         transferChallengeId: action.transferChallengeId,
+        transferPostId: action.transferPostId,
         skill: action.skill,
         reason: action.reason,
         isTransfer: false,
@@ -169,6 +174,7 @@ export function demoFlowReducer(
           intent: state.intent,
           challengeId: state.challengeId,
           transferChallengeId: state.transferChallengeId,
+          transferPostId: state.transferPostId,
           skill: state.skill,
           reason: state.reason,
           result: action.result,
@@ -217,7 +223,7 @@ export function demoFlowReducer(
         challengeId: state.challengeId,
         transferChallengeId: state.transferChallengeId,
         skill: state.skill,
-        transferPostId: action.transferPostId,
+        transferPostId: action.transferPostId ?? state.transferPostId,
       };
 
     case "COMPLETE_INITIAL":
@@ -263,7 +269,8 @@ export function demoFlowReducer(
           challengeId: state.challengeId,
           transferChallengeId: state.transferChallengeId,
           skill: state.skill,
-          transferPostId: action.transferPostId,
+          // Remote decision is authoritative when carried on state.
+          transferPostId: state.transferPostId ?? action.transferPostId,
         };
       }
       return state;
@@ -368,7 +375,7 @@ export function demoFlowReducer(
           challengeId: state.challengeId,
           transferChallengeId: state.transferChallengeId,
           skill: state.skill,
-          transferPostId: action.transferPostId,
+          transferPostId: state.transferPostId ?? action.transferPostId,
         };
       }
       if (state.status === "transfer-active") {

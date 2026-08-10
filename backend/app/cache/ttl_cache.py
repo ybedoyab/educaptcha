@@ -4,22 +4,25 @@ Policy depends on mutable session state (cooldown, no-repeat-skill), so caching
 a decision would serve a stale cooldown and break the "don't nag" promise. What
 is cacheable is what the models concluded about the content itself.
 
-The key folds in prompt and weights versions, so tuning either one invalidates
-cached verdicts automatically instead of quietly serving yesterday's answers
-through a live demo.
+The key is a deterministic content fingerprint over every input that can change
+agent analysis, plus prompt/weights/schema versions, so tuning or editing a
+post invalidates cached verdicts automatically.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass, field
+from typing import Any
 
 from cachetools import TTLCache
 
 from app.schemas.common import SkillId
 from app.schemas.signals import Signal
 
-SCHEMA_VERSION = 1
+# Bump when the fingerprint shape changes so old keys cannot collide.
+SCHEMA_VERSION = 2
 
 
 @dataclass
@@ -31,31 +34,57 @@ class Analysis:
     agent_errors: list[str] = field(default_factory=list)
 
 
+def content_fingerprint(payload: dict[str, Any]) -> str:
+    """Canonical JSON to sha256. Sort keys; sort tags when order is irrelevant."""
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def analysis_key(
     *,
     post_id: str,
     body_en: str,
+    body_es: str,
+    category: str | None,
+    tags: list[str] | None,
+    author_handle: str | None,
+    reactions: int | None,
+    comments: int | None,
+    shares: int | None,
+    age_minutes: int | None,
     asset_id: str | None,
     media_kind: str,
+    top_comments: list[str] | None,
     action: str,
     comment_text: str | None,
     model: str,
     prompt_version: int,
     weights_version: int,
 ) -> str:
-    parts = (
-        str(SCHEMA_VERSION),
-        model,
-        str(prompt_version),
-        str(weights_version),
-        post_id,
-        body_en,
-        asset_id or "-",
-        media_kind,
-        action,
-        (comment_text or "").strip().lower(),
-    )
-    return hashlib.sha256("\x1f".join(parts).encode("utf-8")).hexdigest()
+    payload = {
+        "schema_version": SCHEMA_VERSION,
+        "model": model,
+        "prompt_version": prompt_version,
+        "weights_version": weights_version,
+        "post_id": post_id,
+        "body_en": body_en,
+        "body_es": body_es,
+        "category": category or "",
+        "tags": sorted(tags or []),
+        "author_handle": author_handle or "",
+        "engagement": {
+            "reactions": reactions if reactions is not None else 0,
+            "comments": comments if comments is not None else 0,
+            "shares": shares if shares is not None else 0,
+            "age_minutes": age_minutes if age_minutes is not None else -1,
+        },
+        "media_kind": media_kind,
+        "asset_id": asset_id or "",
+        "top_comments": list(top_comments or []),
+        "action": action,
+        "comment_text": (comment_text or "").strip().lower(),
+    }
+    return content_fingerprint(payload)
 
 
 class AnalysisCache:

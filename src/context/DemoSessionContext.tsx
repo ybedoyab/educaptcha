@@ -117,6 +117,12 @@ type DemoSessionValue = {
   clearFocusReturn: () => void;
   loading: boolean;
   /**
+   * Immediate lock for the action/post while a remote risk check is in flight.
+   * Set before the network call; prevents a second click from running local
+   * share/intercept while the first request is still pending.
+   */
+  lockedActionKey: string | null;
+  /**
    * `"share:p-flood-live"` while an external risk check is in flight for that
    * control, after a short grace delay. Null when unset or when the decision
    * was local (and therefore instant). Drives a per-button spinner only —
@@ -222,6 +228,7 @@ export function DemoSessionProvider({
   const [loading] = useState(false);
 
   const [pendingActionKey, setPendingActionKey] = useState<string | null>(null);
+  const [lockedActionKey, setLockedActionKey] = useState<string | null>(null);
 
   const [flow, dispatch] = useReducer(demoFlowReducer, initialDemoFlowState);
   const engineRef = useRef(createTriggerEngine());
@@ -229,12 +236,15 @@ export function DemoSessionProvider({
 
   const { language } = useI18n();
 
-  // Guards for the remote path only; all three are inert when the service is
+  // Guards for the remote path only; all are inert when the service is
   // unconfigured, because no promise is ever created.
   const flowRef = useRef(flow);
   flowRef.current = flow;
   const requestSeqRef = useRef(0);
-  const inFlightRef = useRef(false);
+  /** In-flight remote decisions keyed by action:postId — duplicate clicks reuse. */
+  const inFlightPromisesRef = useRef<Map<string, Promise<ActionDecision>>>(
+    new Map(),
+  );
   const mountedRef = useRef(true);
   useEffect(() => {
     mountedRef.current = true;
@@ -374,22 +384,20 @@ export function DemoSessionProvider({
 
       if (!riskApiBase()) return local;
 
-      // One decision in flight at a time; a second click is a no-op rather than
-      // a racing dispatch.
-      if (inFlightRef.current) return local;
-      inFlightRef.current = true;
+      const flightKey = OPEN_FEED_IDS.pendingAction(action, post.id);
+      const existing = inFlightPromisesRef.current.get(flightKey);
+      if (existing) return existing;
 
       const seq = ++requestSeqRef.current;
-      const key = OPEN_FEED_IDS.pendingAction(action, post.id);
-      // Grace delay: a warm cache answers in ~5ms, and flashing a spinner for
-      // that long looks like a glitch.
+      // Lock immediately — spinner waits for the grace period to avoid flicker.
+      setLockedActionKey(flightKey);
       const graceTimer = setTimeout(() => {
         if (requestSeqRef.current === seq && mountedRef.current) {
-          setPendingActionKey(key);
+          setPendingActionKey(flightKey);
         }
       }, OPEN_FEED_TIMINGS.pendingActionGraceMs);
 
-      return analyzeRisk(post, action, language, commentText)
+      const promise = analyzeRisk(post, action, language, commentText)
         .then((remote) => {
           // Discard a late answer if the user has moved on, or if a challenge
           // is already open — otherwise a slow response stomps it.
@@ -406,9 +414,15 @@ export function DemoSessionProvider({
         .catch(() => local)
         .finally(() => {
           clearTimeout(graceTimer);
-          inFlightRef.current = false;
-          if (mountedRef.current) setPendingActionKey(null);
+          inFlightPromisesRef.current.delete(flightKey);
+          if (mountedRef.current) {
+            setLockedActionKey((k) => (k === flightKey ? null : k));
+            setPendingActionKey((k) => (k === flightKey ? null : k));
+          }
         });
+
+      inFlightPromisesRef.current.set(flightKey, promise);
+      return promise;
     },
     [isGuidedAction, language],
   );
@@ -645,10 +659,20 @@ export function DemoSessionProvider({
       }
 
       if (choice === "open-source") {
+        // Acknowledge the user's intent without claiming a source opened.
+        // Set after transfer highlight so the transfer toast does not overwrite it.
+        dispatch({ type: "CANCEL_INTENT", transferPostId });
+        if (hasTransfer) {
+          enterTransferPending(transferPostId);
+        } else {
+          setDraftComment(null);
+        }
         setToast(msg.verifyAcknowledgement);
+        returnFocus(intent.returnElementId);
+        return;
       }
 
-      // cancel and open-source: do not execute intent; still allow transfer
+      // cancel: do not execute intent; still allow transfer
       dispatch({ type: "CANCEL_INTENT", transferPostId });
       if (hasTransfer) {
         enterTransferPending(transferPostId);
@@ -680,7 +704,8 @@ export function DemoSessionProvider({
         dispatch({
           type: "COMPLETE_INITIAL",
           result,
-          transferPostId: post?.transferPostId,
+          // Prefer remote-carried id already on flow; catalog is fallback only.
+          transferPostId: flow.transferPostId ?? post?.transferPostId,
         });
         returnFocus(flow.intent.returnElementId);
         return;
@@ -714,7 +739,7 @@ export function DemoSessionProvider({
       dispatch({
         type: "SKIP_CHALLENGE",
         result: OPEN_FEED_SKIPPED_RESULT,
-        transferPostId: post?.transferPostId,
+        transferPostId: flow.transferPostId ?? post?.transferPostId,
       });
       returnFocus(flow.intent.returnElementId);
       return;
@@ -814,14 +839,12 @@ export function DemoSessionProvider({
 
   // Speculative warm-up. A cold analysis costs ~5s (network-bound), so without
   // this the first interception on any post would miss its window and fall back
-  // to local. `dryRun` means the service caches the analysis without advancing
-  // any cooldown counter. No-op when the service is unset.
+  // to local. Prefetch every post — tone/triggerSkill/minigameId are curated
+  // demo labels and must not decide what the agents see. The backend pretriage
+  // discards obviously benign content without an LLM call. Deduped in the client.
   useEffect(() => {
     if (!riskApiBase()) return;
-    prefetchRisk(
-      openFeedPosts.filter((p) => p.tone !== "neutral" && p.tone !== "official"),
-      language,
-    );
+    prefetchRisk(openFeedPosts, language);
   }, [language]);
 
   const value: DemoSessionValue = {
@@ -857,6 +880,7 @@ export function DemoSessionProvider({
     clearFocusReturn,
     loading,
     pendingActionKey,
+    lockedActionKey,
     outcomes,
     alerts,
     launchScenario,

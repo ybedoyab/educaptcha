@@ -9,7 +9,7 @@
     "skill": null,
     "challenge": null,
     "outcome": "continue",
-    "gate": "no-challenge-for-skill",
+    "gate": "pretriage-benign",
     "wouldPractice": null,
     "agents": [],
     "ms": 0,
@@ -60,7 +60,7 @@
     "skill": null,
     "challenge": null,
     "outcome": "continue",
-    "gate": "no-challenge-for-skill",
+    "gate": "pretriage-benign",
     "wouldPractice": null,
     "agents": [],
     "ms": 0,
@@ -94,7 +94,7 @@
     "skill": null,
     "challenge": null,
     "outcome": "continue",
-    "gate": "no-challenge-for-skill",
+    "gate": "pretriage-benign",
     "wouldPractice": null,
     "agents": [],
     "ms": 0,
@@ -111,7 +111,7 @@
     "skill": null,
     "challenge": null,
     "outcome": "continue",
-    "gate": "no-challenge-for-skill",
+    "gate": "pretriage-benign",
     "wouldPractice": null,
     "agents": [],
     "ms": 0,
@@ -176,7 +176,7 @@
     "evidence": [
       "267 shares/min since posting",
       "The photograph shows a flooded street during broad daylight, which contradicts the caption's claim of being 'LIVE from tonight'.",
-      "LIVE from tonight\u2019s emergency response",
+      "LIVE from tonight’s emergency response",
       "Share so everyone sees it."
     ],
     "skill": "image-context",
@@ -206,10 +206,10 @@
     ],
     "evidence": [
       "96 shares/min since posting",
-      "An American flag is flying on a flagpole on the left side of the street, which is inconsistent with the claim that this is Bogot\u00e1.",
+      "An American flag is flying on a flagpole on the left side of the street, which is inconsistent with the claim that this is Bogotá.",
       "Officials are hiding it / Las autoridades lo ocultan",
-      "A toxic cloud is covering Bogot\u00e1 right now / Una nube t\u00f3xica cubre Bogot\u00e1 ahora mismo",
-      "covering Bogot\u00e1 right now / cubre Bogot\u00e1 ahora mismo"
+      "A toxic cloud is covering Bogotá right now / Una nube tóxica cubre Bogotá ahora mismo",
+      "covering Bogotá right now / cubre Bogotá ahora mismo"
     ],
     "skill": "wildfire-context",
     "challenge": "wf-match",
@@ -270,8 +270,8 @@
     ],
     "evidence": [
       "The photograph shows a crowd gathered at night under lit streetlights, which contradicts the caption's claim that the photo is from \"this morning's march\".",
-      "This photo is from this morning\u2019s march.",
-      "Huge crowds in our capital today. This photo is from this morning\u2019s march."
+      "This photo is from this morning’s march.",
+      "Huge crowds in our capital today. This photo is from this morning’s march."
     ],
     "skill": "protest-context",
     "challenge": "pr-match",
@@ -300,8 +300,8 @@
     "evidence": [
       "The y-axis starts at 84 instead of 0, which exaggerates the relative difference between the two data points.",
       "axis starts at 84; bars 120px vs 210px = 1.75x, values ~88.8 vs ~92.4 = 1.04x",
-      "Look at this chart \u2014 undeniable proof.",
-      "Look at this chart \u2014 undeniable proof. (No source provided for the chart data)"
+      "Look at this chart — undeniable proof.",
+      "Look at this chart — undeniable proof. (No source provided for the chart data)"
     ],
     "skill": "misleading-chart",
     "challenge": "ch-repair",

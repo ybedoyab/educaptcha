@@ -3,9 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
-    paths-ignore: ["backend/**"]
   pull_request:
-    paths-ignore: ["backend/**"]
 
 jobs:
   build-test:

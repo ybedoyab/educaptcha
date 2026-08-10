@@ -32,6 +32,9 @@ const CIRCUIT_TRIP_AFTER = 2;
 
 let consecutiveFailures = 0;
 
+/** Dedupes prefetch across remounts / language switches / skin navigations. */
+const prefetchedKeys = new Set<string>();
+
 /** A dead backend must not add dead air to every click for the rest of the session. */
 function circuitOpen(): boolean {
   return consecutiveFailures >= CIRCUIT_TRIP_AFTER;
@@ -39,6 +42,11 @@ function circuitOpen(): boolean {
 
 export function resetRiskCircuit(): void {
   consecutiveFailures = 0;
+}
+
+/** Test helper — clear prefetch dedupe between cases. */
+export function resetPrefetchDedupe(): void {
+  prefetchedKeys.clear();
 }
 
 export type RiskAction = "share" | "comment" | "repost-image" | "save" | "verify-link";
@@ -150,6 +158,11 @@ export async function analyzeRisk(
  * Speculative, fire-and-forget. `dryRun` means the service analyses and caches
  * the content without advancing the session's cooldown counters, so the real
  * click reads a warm cache instead of paying the full model round trip.
+ *
+ * Prefetch every post — curated demo labels (tone, triggerSkill, minigameId)
+ * must not decide what reaches the backend. Deduped by action+postId so
+ * remounts and language switches do not re-warm identical content analyses
+ * (responses already carry bilingual copy).
  */
 export function prefetchRisk(
   posts: OpenFeedPost[],
@@ -160,13 +173,17 @@ export function prefetchRisk(
   if (!base || circuitOpen()) return;
 
   for (const p of posts) {
+    const key = `${action}:${p.id}`;
+    if (prefetchedKeys.has(key)) continue;
+    prefetchedKeys.add(key);
     void post(
       base,
       "/risk/analyze",
       buildPayload(p, action, language, undefined, true),
       PREFETCH_TIMEOUT_MS,
     ).catch(() => {
-      /* prefetch is best-effort; the click path handles its own failures */
+      /* prefetch is best-effort; allow a later remount to retry this key */
+      prefetchedKeys.delete(key);
     });
   }
 }

@@ -54,6 +54,8 @@ Tests:
 npm run test
 npm run test:e2e
 npm run test:all
+# Includes remote-mode Playwright project (Windows-safe):
+npm run test:full
 ```
 
 ## Routes
@@ -145,7 +147,7 @@ assets/           Brand PNG lockups (optional; logo is SVG in-app)
 
 - **Landing** — product pitch, short browser mock, how-it-works
 - **OpenFeed** — full-screen social feed with EduCAPTCHA interruptions, SourceTrace, intent return, and skill transfer
-- **Bookface** — a second skin over the same feed data and the same intercept pipeline, styled after a Facebook-style layout, showing the learning layer is host-agnostic
+- **Bookface** — a second **simulated host skin** over the same feed data and intercept pipeline, styled after a Facebook-like layout. Neither Y nor Bookface is a real X/Facebook API integration; they prove EduCAPTCHA is host-agnostic in the demo.
 - **Practice mode** — curated visual minigames with skip, feedback, and session summary
 - **Integration simulator** — comment flow + proposed npm / script snippets
 - **Dashboard** — simulated org metrics and live learning-transfer readout from OpenFeed sessions

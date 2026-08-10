@@ -77,6 +77,7 @@ export function ChartRepairGame({
                   <div
                     className="w-full max-w-16 rounded-t-md bg-gradient-to-t from-teal to-sky transition-[height] duration-150"
                     style={{ height: `${bar.height}%` }}
+                    data-testid="chart-bar"
                   />
                 </div>
               ))}

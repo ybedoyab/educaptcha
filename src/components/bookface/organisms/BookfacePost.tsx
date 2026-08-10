@@ -41,11 +41,12 @@ export function BookfacePost({ post, expanded = false }: BookfacePostProps) {
     flow,
     shareCounts,
     pendingActionKey,
+    lockedActionKey,
   } = useDemoSession();
 
-  const shareBusy =
-    pendingActionKey ===
-    OPEN_FEED_IDS.pendingAction(OPEN_FEED_ACTION.share, post.id);
+  const shareKey = OPEN_FEED_IDS.pendingAction(OPEN_FEED_ACTION.share, post.id);
+  const shareBusy = pendingActionKey === shareKey;
+  const shareLocked = lockedActionKey === shareKey;
   const imageBusy =
     pendingActionKey ===
     OPEN_FEED_IDS.pendingAction(OPEN_FEED_ACTION.repostImage, post.id);
@@ -159,6 +160,7 @@ export function BookfacePost({ post, expanded = false }: BookfacePostProps) {
           label={copy.experience.share}
           tone="share"
           busy={shareBusy}
+          locked={shareLocked}
           onClick={() => requestShare(post, OPEN_FEED_IDS.share(post.id))}
         />
       </div>

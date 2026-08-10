@@ -50,8 +50,8 @@ _FALLBACK = LocalizedText(
 )
 
 VERIFY_ACK = LocalizedText(
-    en="Good instinct — open a source and compare details.",
-    es="Buen instinto — abre una fuente y compara los detalles.",
+    en="Good instinct — verify the original source before sharing.",
+    es="Buen instinto — verifica la fuente original antes de compartir.",
 )
 
 
