@@ -3,15 +3,23 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# backend/app/settings.py -> parents[2] == monorepo root
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+ROOT_ENV = PROJECT_ROOT / ".env"
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore", case_sensitive=False
+        env_file=ROOT_ENV,
+        env_file_encoding="utf-8",
+        extra="ignore",
+        case_sensitive=False,
     )
 
     # ── server ──
@@ -26,16 +34,6 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-3.5-flash"
     gemini_thinking_level: Literal["minimal", "low", "medium", "high"] = "minimal"
     gemini_temperature: float = 0.0
-    # Measured against the real API: a single structured Flash call is ~5s wall
-    # time, dominated by network round-trip rather than thinking (minimal/low/
-    # off differ by <10%). Two agents run in parallel, so a cold analysis is
-    # ~5-6s end to end.
-    #
-    # That is far too slow to sit on a click, which is exactly why analysis is
-    # prefetched with dryRun as the feed mounts: the click then reads a warm
-    # cache in ~5ms. These budgets govern the *prefetch* path; the browser keeps
-    # a much shorter timeout so a cold click falls straight back to the local
-    # engine instead of stalling.
     llm_timeout_ms: int = 8000
     graph_deadline_ms: int = 9000
     allow_no_llm: bool = False
@@ -69,7 +67,6 @@ class Settings(BaseSettings):
     @field_validator("google_api_key", "google_cloud_project", "langsmith_api_key", mode="before")
     @classmethod
     def _blank_to_none(cls, v: object) -> object:
-        """`.env` files carry `KEY=` for unset values; treat empty strings as absent."""
         if isinstance(v, str) and not v.strip():
             return None
         return v
@@ -83,10 +80,9 @@ class Settings(BaseSettings):
         return not self.allow_no_llm and bool(self.google_api_key)
 
     def validate_startup(self) -> None:
-        """Fail fast rather than 500 on the first request."""
         if not self.allow_no_llm and not self.google_api_key:
             raise RuntimeError(
-                "GOOGLE_API_KEY is not set. Set it in backend/.env, or set ALLOW_NO_LLM=true "
+                "GOOGLE_API_KEY is not set. Set it in the root .env, or set ALLOW_NO_LLM=true "
                 "to run the deterministic policy-only backend (no model calls)."
             )
 

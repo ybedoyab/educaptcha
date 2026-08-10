@@ -1,9 +1,9 @@
 {
   "catalogVersion": 1,
   "generatedFrom": [
-    "src/data/openFeedPosts.ts",
-    "src/data/experienceMinigames.ts",
-    "src/data/mediaAssets.ts"
+    "frontend/src/data/openFeedPosts.ts",
+    "frontend/src/data/experienceMinigames.ts",
+    "frontend/src/data/mediaAssets.ts"
   ],
   "challengeIds": [
     "ch-repair",

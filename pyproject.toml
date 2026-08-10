@@ -1,0 +1,41 @@
+[project]
+name = "educaptcha"
+version = "0.1.0"
+description = "EduCAPTCHA monorepo workspace (backend + agents)."
+requires-python = ">=3.11,<3.13"
+dependencies = []
+
+[tool.uv.workspace]
+members = ["backend", "agents"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "httpx>=0.28",
+    "hypothesis>=6.122",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pillow>=11.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests", "agents/tests"]
+asyncio_mode = "auto"
+addopts = "-q -m 'not live'"
+pythonpath = ["backend", "agents/src"]
+markers = [
+    "live: hits the real Gemini API (deselected by default)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["frontend"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"backend/app/api/*.py" = ["B008"]

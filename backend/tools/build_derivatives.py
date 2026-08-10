@@ -21,7 +21,7 @@ from PIL import Image
 
 BACKEND = Path(__file__).resolve().parents[1]
 REPO_ROOT = BACKEND.parent
-PUBLIC = REPO_ROOT / "public"
+PUBLIC = REPO_ROOT / "frontend" / "public"
 CATALOG = json.loads((BACKEND / "app" / "catalog" / "catalog.json").read_text("utf-8"))
 
 DERIVATIVES = BACKEND / "app" / "media" / "derivatives"

@@ -7,18 +7,50 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+*service-account*.json
+*-sa.json
+gcloud-key*.json
+application_default_credentials.json
 
-# Test output
-test-results
-playwright-report
-blob-report
-playwright/.cache
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-remote/
+frontend/dist-ssr/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/playwright/.cache/
 
-# Editor directories and files
+# Legacy root paths (should not reappear)
+node_modules/
+dist/
+dist-remote/
+test-results/
+playwright-report/
+
+# Python
+.venv/
+backend/.venv/
+agents/.venv/
+backend/var/
+agents/var/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+**/.coverage
+coverage.xml
+htmlcov/
+**/htmlcov/
+
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -36,24 +68,4 @@ CLAUDE.md
 pnpm-lock.yaml
 pnpm-workspace.yaml
 
-# Secrets — never commit. VITE_* values are public (inlined into the bundle),
-# but GOOGLE_API_KEY / LANGSMITH_API_KEY are not.
-.env
-.env.*
-!.env.example
-*service-account*.json
-*-sa.json
-gcloud-key*.json
-application_default_credentials.json
-
-# Backend (Python)
-backend/var/
-backend/.venv/
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-
-# Remote-mode frontend build (e2e only)
-dist-remote
+*.local

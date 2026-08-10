@@ -1,11 +1,7 @@
-"""Orchestration: pre-triage -> gates -> (maybe) graph -> gates -> response.
+"""Orchestration: pre-triage -> gates -> (maybe) agents -> gates -> response.
 
 This is the "orchestrator" of the pipeline, and it is deliberately rule-based.
-The gates are invariants rather than judgements, so they have to be code either
-way — which would leave a model owning nothing but one float-vs-float
-comparison, where it is slower, non-deterministic, unauditable, and turns the
-agents' parallel `max()` latency into a `sum()`. A tunable threshold is also the
-knob you actually want on stage.
+Agents emit raw signals; scoring and challenge resolution stay here.
 """
 
 from __future__ import annotations
@@ -14,14 +10,26 @@ import asyncio
 import logging
 import time
 
+from educaptcha_agents import (
+    PROMPT_VERSION,
+    AgentContext,
+    AgentEngagement,
+    AgentMedia,
+    AgentSettings,
+)
+from educaptcha_agents import (
+    AgentSignal as RawAgentSignal,
+)
+
+from app.adapters.agent_analyzer import default_analyzer
 from app.cache.ttl_cache import Analysis, AnalysisCache, analysis_key
 from app.catalog.loader import Catalog, get_catalog
-from app.graph.build import get_graph
-from app.graph.nodes.agents import PROMPT_VERSION
-from app.media.registry import resolve_media
+from app.media.registry import ResolvedMedia, resolve_media
 from app.policy.gates import post_llm_gates, pre_llm_gates
 from app.policy.pretriage import triage
-from app.policy.scoring import WEIGHTS_VERSION
+from app.policy.scoring import WEIGHTS_VERSION, agent_for, score_signal
+from app.policy.scoring import aggregate as aggregate_signals
+from app.ports.risk_analyzer import RiskAnalyzer
 from app.schemas.common import DecisionPath
 from app.schemas.risk import (
     RiskAnalyzeRequest,
@@ -30,19 +38,87 @@ from app.schemas.risk import (
     RiskDiagnostics,
     SessionSnapshot,
 )
+from app.schemas.signals import AgentSignal
 from app.session.store import SessionState, SessionStore
 from app.settings import Settings
 
 log = logging.getLogger(__name__)
 
 
+def _agent_settings(settings: Settings) -> AgentSettings:
+    return AgentSettings(
+        model=settings.gemini_model,
+        api_key=settings.google_api_key,
+        thinking_level=settings.gemini_thinking_level,
+        temperature=settings.gemini_temperature,
+        timeout_ms=settings.llm_timeout_ms,
+        llm_enabled=settings.llm_enabled,
+    )
+
+
+def to_agent_media(media: ResolvedMedia | None) -> AgentMedia | None:
+    if media is None:
+        return None
+    return AgentMedia(
+        kind=str(media.kind),
+        asset_id=media.asset_id,
+        analyzable=media.analyzable,
+        is_svg=media.is_svg,
+        has_raster=media.has_raster,
+        wants_image_agent=media.wants_image_agent,
+        wants_chart_agent=media.wants_chart_agent,
+        data_b64=media.data_b64,
+        mime=media.mime,
+        svg_text=media.svg_text,
+    )
+
+
+def _seed_signals(signals: list[AgentSignal]) -> list[RawAgentSignal]:
+    return [
+        RawAgentSignal(
+            id=s.id,  # type: ignore[arg-type]
+            skill=s.skill,
+            confidence=s.confidence,
+            evidence=s.evidence,
+        )
+        for s in signals
+    ]
+
+
+def build_agent_context(
+    req: RiskAnalyzeRequest,
+    media: ResolvedMedia | None,
+    *,
+    pretriage_benign: bool,
+    seed: list[AgentSignal],
+) -> AgentContext:
+    e = req.post.engagement
+    return AgentContext(
+        post_id=req.post.id,
+        body_en=req.post.body.en,
+        body_es=req.post.body.es,
+        category=req.post.category,
+        tags=list(req.post.tags or []),
+        author_handle=req.post.author.handle if req.post.author else "",
+        engagement=AgentEngagement(
+            reactions=e.reactions if e else 0,
+            comments=e.comments if e else 0,
+            shares=e.shares if e else 0,
+            age_minutes=e.age_minutes if e else None,
+        ),
+        action=req.action,
+        comment_text=req.comment_text,
+        top_comments=list(req.post.top_comments or []),
+        media=to_agent_media(media),
+        seed_signals=_seed_signals(seed),
+        pretriage_benign=pretriage_benign,
+    )
+
+
 def prepare_state(
     req: RiskAnalyzeRequest, settings: Settings, catalog: Catalog | None = None
 ) -> dict[str, object]:
-    """Build the graph's initial state: resolve media, run pre-triage.
-
-    Shared by `analyze` and the graph tests so the two can never drift.
-    """
+    """Compatibility helper for tools/tests that need media + pretriage."""
     catalog = catalog or get_catalog()
     media = resolve_media(req.post.media.asset_id, req.post.media.kind)
     tri = triage(
@@ -58,6 +134,10 @@ def prepare_state(
         "pretriage_benign": tri.benign,
         "raw_signals": list(tri.signals),
         "agents_run": ["heuristic"],
+        "context": build_agent_context(
+            req, media, pretriage_benign=tri.benign, seed=list(tri.signals)
+        ),
+        "agent_settings": _agent_settings(settings),
     }
 
 
@@ -69,6 +149,31 @@ def _snapshot(session_id: str, state: SessionState) -> SessionSnapshot:
     )
 
 
+def _score_raw(signals: list[RawAgentSignal] | list[AgentSignal]) -> Analysis:
+    api_signals: list[AgentSignal] = []
+    for s in signals:
+        if isinstance(s, AgentSignal):
+            api_signals.append(s)
+        else:
+            api_signals.append(
+                AgentSignal(
+                    id=s.id,  # type: ignore[arg-type]
+                    skill=s.skill,
+                    confidence=s.confidence,
+                    evidence=s.evidence,
+                )
+            )
+    scored = [score_signal(s, agent_for(s.id)) for s in api_signals]
+    score, dominant, _ = aggregate_signals(scored)
+    return Analysis(
+        risk_score=score,
+        dominant_skill=dominant,
+        signals=scored,
+        agents_run=[],
+        agent_errors=[],
+    )
+
+
 async def analyze(
     req: RiskAnalyzeRequest,
     *,
@@ -76,9 +181,11 @@ async def analyze(
     sessions: SessionStore,
     cache: AnalysisCache,
     catalog: Catalog | None = None,
+    analyzer: RiskAnalyzer | None = None,
 ) -> RiskAnalyzeResponse:
     started = time.perf_counter()
     catalog = catalog or get_catalog()
+    analyzer = analyzer or default_analyzer
 
     session = sessions.get(req.session.id)
     session.reconcile(req.session.actions_since_last_intervention, req.session.recent_skills)
@@ -120,7 +227,6 @@ async def analyze(
 
     empty = Analysis(risk_score=0.0, dominant_skill=None, agents_run=["heuristic"])
 
-    # Short-circuit: gate fired and shadow mode is off.
     if pre.decision is not None and not pre.should_run_agents:
         path: DecisionPath = "guided" if req.mode == "guided" else "pretriage"
         return respond(pre.decision, empty, path, pre.gate)
@@ -150,13 +256,10 @@ async def analyze(
     if cached is not None:
         analysis, path = cached, "cache"
     else:
-        analysis, path = await _run_graph(req, settings, media, tri), "graph"
+        analysis, path = await _run_agents(req, settings, media, tri, analyzer), "graph"
         if not analysis.agent_errors:
-            # Never cache a degraded result; a transient 503 would otherwise be
-            # frozen in for the whole TTL.
             cache.put(key, analysis)
 
-    # Shadow mode: we ran the agents purely to record a score. Honour the gate.
     if pre.decision is not None:
         return respond(pre.decision, analysis, path, pre.gate)
 
@@ -171,51 +274,34 @@ async def analyze(
     return respond(final.decision, analysis, path, final.gate, final.would_practice)
 
 
-async def _run_graph(
-    req: RiskAnalyzeRequest, settings: Settings, media: object, tri: object
+async def _run_agents(
+    req: RiskAnalyzeRequest,
+    settings: Settings,
+    media: ResolvedMedia | None,
+    tri: object,
+    analyzer: RiskAnalyzer,
 ) -> Analysis:
-    """Invoke the model layer under a hard deadline.
-
-    A blown deadline degrades to "no signals", i.e. continue. The demo must never
-    hang on a click, and an interruption caused by slowness would be the worst
-    possible failure mode for a product whose pitch is "don't interrupt people".
-    """
-    from app.graph.build import _agent_for  # local import: avoids a cycle
-    from app.policy.scoring import aggregate as aggregate_signals
-    from app.policy.scoring import score_signal
-
-    initial = {
-        "req": req,
-        "settings": settings,
-        "media": media,
-        "pretriage_benign": tri.benign,  # type: ignore[attr-defined]
-        "raw_signals": list(tri.signals),  # type: ignore[attr-defined]
-        "agents_run": ["heuristic"],
-    }
+    context = build_agent_context(
+        req,
+        media,
+        pretriage_benign=tri.benign,  # type: ignore[attr-defined]
+        seed=list(tri.signals),  # type: ignore[attr-defined]
+    )
+    agent_settings = _agent_settings(settings)
 
     try:
-        config = {"run_name": "risk_analyze", "recursion_limit": 10}
         out = await asyncio.wait_for(
-            get_graph().ainvoke(initial, config=config),
+            analyzer.analyze(context, agent_settings),
             timeout=settings.graph_deadline_ms / 1000,
         )
     except TimeoutError:
-        log.warning("graph exceeded %sms deadline for %s", settings.graph_deadline_ms, req.post.id)
-        scored = [score_signal(s, _agent_for(s.id)) for s in tri.signals]  # type: ignore[attr-defined]
-        score, dominant, _ = aggregate_signals(scored)
-        return Analysis(
-            risk_score=score,
-            dominant_skill=dominant,
-            signals=scored,
-            agents_run=["heuristic"],
-            agent_errors=["graph:deadline"],
-        )
+        log.warning("agents exceeded %sms deadline for %s", settings.graph_deadline_ms, req.post.id)
+        scored = _score_raw(list(tri.signals))  # type: ignore[attr-defined]
+        scored.agents_run = ["heuristic"]
+        scored.agent_errors = ["graph:deadline"]
+        return scored
 
-    scored = [score_signal(s, _agent_for(s.id)) for s in out.get("raw_signals", [])]
-    return Analysis(
-        risk_score=out.get("risk_score", 0.0),
-        dominant_skill=out.get("dominant_skill"),
-        signals=scored,
-        agents_run=out.get("agents_run", []),
-        agent_errors=out.get("agent_errors", []),
-    )
+    analysis = _score_raw(out.signals)
+    analysis.agents_run = list(out.agents_run)
+    analysis.agent_errors = list(out.agent_errors)
+    return analysis

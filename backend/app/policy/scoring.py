@@ -57,6 +57,34 @@ SKILL_PRIORITY: tuple[SkillId, ...] = (
 
 _TIE_EPS = 0.10
 
+_IMAGE_SIGNALS = frozenset(
+    {
+        "scene-caption-mismatch",
+        "stale-or-archival-cues",
+        "region-mismatch",
+        "object-does-not-support-claim",
+        "synthetic-artifacts",
+    }
+)
+_CHART_SIGNALS = frozenset(
+    {
+        "truncated-y-axis",
+        "nonuniform-or-missing-scale",
+        "missing-axis-labels-or-units",
+        "visual-magnitude-vs-data-ratio",
+    }
+)
+
+
+def agent_for(signal_id: str) -> AgentName:
+    if signal_id == "share-velocity":
+        return "heuristic"
+    if signal_id in _CHART_SIGNALS:
+        return "chart"
+    if signal_id in _IMAGE_SIGNALS:
+        return "image"
+    return "text"
+
 
 def score_signal(sig: AgentSignal, agent: AgentName) -> Signal:
     """Agent confidence times the configured weight for that signal id."""

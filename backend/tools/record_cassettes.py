@@ -1,13 +1,8 @@
-"""Record one real pass over the corpus into `tests/fakes/cassettes/`.
+"""Record one real pass over the corpus into agents cassettes.
 
-    uv run python tools/record_cassettes.py
+    uv run --project backend python backend/tools/record_cassettes.py
 
-Only the parsed structured output is stored, never the HTTP payload — the
-requests contain base64 images and nothing else about them matters.
-
-Rerun deliberately after a prompt change: **the cassette diff is the review
-artifact for that change.** It is the only practical way a prompt edit gets
-reviewed rather than merged on vibes.
+Only the parsed structured output is stored. Rerun after prompt changes.
 """
 
 from __future__ import annotations
@@ -20,26 +15,24 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.graph.build import get_graph, route_agents  # noqa: E402
-from app.graph.llm import get_model, set_factory  # noqa: E402
-from app.schemas.signals import AgentOutput  # noqa: E402
+from educaptcha_agents import AgentSettings, analyze, route_agents  # noqa: E402
+from educaptcha_agents.contracts import AgentOutput  # noqa: E402
+from educaptcha_agents.model import get_model, set_factory  # noqa: E402
+from educaptcha_agents.testing import _identify  # noqa: E402
+
 from app.service import prepare_state  # noqa: E402
-from app.settings import Settings, get_settings  # noqa: E402
+from app.settings import get_settings  # noqa: E402
 from tools.replay_corpus import CORPUS, build_request  # noqa: E402
 
-CASSETTES = Path(__file__).resolve().parents[1] / "tests" / "fakes" / "cassettes"
+CASSETTES = Path(__file__).resolve().parents[2] / "agents" / "tests" / "fakes" / "cassettes"
 
 
 class RecordingModel:
-    """Wraps the real model and tees every structured response to disk."""
-
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: AgentSettings) -> None:
         self._inner = get_model(settings, AgentOutput)
         self.saved = 0
 
     async def ainvoke(self, messages: Any, config: Any = None, **kw: Any) -> AgentOutput:
-        from tests.fakes.fake_llm import _identify
-
         agent, post_id = _identify(messages)
         result = await self._inner.ainvoke(messages, config, **kw)
         output = result if isinstance(result, AgentOutput) else AgentOutput.model_validate(result)
@@ -58,10 +51,18 @@ class RecordingModel:
 async def main() -> int:
     settings = get_settings()
     if not settings.google_api_key:
-        print("needs GOOGLE_API_KEY in backend/.env", file=sys.stderr)
+        print("needs GOOGLE_API_KEY in root .env", file=sys.stderr)
         return 2
 
-    recorder = RecordingModel(settings)
+    agent_settings = AgentSettings(
+        model=settings.gemini_model,
+        api_key=settings.google_api_key,
+        thinking_level=settings.gemini_thinking_level,
+        temperature=settings.gemini_temperature,
+        timeout_ms=settings.llm_timeout_ms,
+        llm_enabled=True,
+    )
+    recorder = RecordingModel(agent_settings)
     restore = set_factory(lambda _s, _t: recorder)
     corpus: list[dict[str, Any]] = json.loads(CORPUS.read_text(encoding="utf-8"))
 
@@ -69,9 +70,13 @@ async def main() -> int:
         for post in corpus:
             req = build_request(post, "share", f"record-{post['id']}", dry_run=True)
             state = prepare_state(req, settings)
-            if route_agents(state) == ["aggregate"]:
-                continue  # pre-triage settles it; no model call to record
-            await get_graph().ainvoke(state)
+            graph_state = {
+                "pretriage_benign": state["pretriage_benign"],
+                "media": state["context"].media,  # type: ignore[attr-defined]
+            }
+            if route_agents(graph_state) == ["aggregate"]:  # type: ignore[arg-type]
+                continue
+            await analyze(state["context"], state["agent_settings"])  # type: ignore[arg-type]
     finally:
         restore()
 

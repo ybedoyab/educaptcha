@@ -19,7 +19,7 @@ from app.catalog.loader import get_catalog
 from app.schemas.common import ChallengeId, SkillId
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SRC_DATA = REPO_ROOT / "src" / "data"
+SRC_DATA = REPO_ROOT / "frontend" / "src" / "data"
 
 
 def test_challenge_id_literal_matches_catalog():
@@ -99,8 +99,8 @@ def test_catalog_matches_live_frontend_modules():
       }
       return n(s, c);
     }});
-    const { experienceMinigames } = await import("./src/data/experienceMinigames.ts");
-    const { openFeedPosts } = await import("./src/data/openFeedPosts.ts");
+    const { experienceMinigames } = await import("./frontend/src/data/experienceMinigames.ts");
+    const { openFeedPosts } = await import("./frontend/src/data/openFeedPosts.ts");
     console.log(JSON.stringify({
       challengeIds: Object.keys(experienceMinigames).sort(),
       bindings: Object.fromEntries(openFeedPosts

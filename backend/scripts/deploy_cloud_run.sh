@@ -47,11 +47,14 @@ for secret in gemini-api-key langsmith-api-key; do
 done
 
 echo "==> deploy"
-# --allow-unauthenticated grants run.invoker to allUsers, which the
-# constraints/iam.allowedPolicyMemberDomains org policy blocks on many projects.
-# Test that the day BEFORE the demo, not the day of.
+# Build the image from the monorepo root (workspace + agents), then deploy.
+# Do not run this script during the freeze pass — Cloud is owned separately.
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+IMAGE="gcr.io/${PROJECT}/${SERVICE}:latest"
+docker build -f "${ROOT}/backend/Dockerfile" -t "$IMAGE" "$ROOT"
 gcloud run deploy "$SERVICE" \
-  --project "$PROJECT" --region "$REGION" --source . \
+  --project "$PROJECT" --region "$REGION" \
+  --image "$IMAGE" \
   --service-account "$SA" \
   --allow-unauthenticated \
   --min-instances 1 --max-instances 3 \

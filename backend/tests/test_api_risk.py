@@ -5,10 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+from educaptcha_agents.contracts import AgentOutput, AgentSignal
 from fastapi.testclient import TestClient
 
 from app.main import create_app
-from app.schemas.signals import AgentOutput, AgentSignal
 from tests.conftest import make_request
 from tests.fakes.fake_llm import install_fake
 

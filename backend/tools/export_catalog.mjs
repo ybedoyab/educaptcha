@@ -29,7 +29,8 @@ registerHooks({
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolvePath(here, "..", "..");
-const srcData = (f) => pathToFileURL(resolvePath(repoRoot, "src", "data", f)).href;
+const srcData = (f) =>
+  pathToFileURL(resolvePath(repoRoot, "frontend", "src", "data", f)).href;
 
 const { openFeedPosts } = await import(srcData("openFeedPosts.ts"));
 const { experienceMinigames } = await import(srcData("experienceMinigames.ts"));
@@ -119,7 +120,11 @@ const corpus = openFeedPosts.map((p) => ({
 
 const catalog = {
   catalogVersion: 1,
-  generatedFrom: ["src/data/openFeedPosts.ts", "src/data/experienceMinigames.ts", "src/data/mediaAssets.ts"],
+  generatedFrom: [
+    "frontend/src/data/openFeedPosts.ts",
+    "frontend/src/data/experienceMinigames.ts",
+    "frontend/src/data/mediaAssets.ts",
+  ],
   challengeIds,
   skills,
   actionableSkills,
