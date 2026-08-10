@@ -1,7 +1,10 @@
 import type { PendingIntent } from "../../../lib/demoFlow";
 import { useDemoSession } from "../../../context/DemoSessionContext";
 import { useI18n } from "../../../i18n/I18nContext";
-import { misleadingShareDetail } from "../../../lib/misleadingShareCopy";
+import {
+  misleadingShareDetail,
+  misleadingShareTitle,
+} from "../../../lib/misleadingShareCopy";
 import { Share2, TriangleAlert, X } from "lucide-react";
 
 interface ReturnActionsProps {
@@ -47,6 +50,13 @@ function RepostReturnActions({ intent }: ReturnActionsProps) {
   if (!isRepost) return null;
 
   const skill = flow.status === "return-to-context" ? flow.skill : undefined;
+  const title = misleadingShareTitle(skill, {
+    default: copy.experience.returnShareTitle,
+    context: copy.experience.returnShareTitleContext,
+    chart: copy.experience.returnShareTitleChart,
+    photoClaim: copy.experience.returnShareTitlePhotoClaim,
+    pressure: copy.experience.returnShareTitlePressure,
+  });
   const detail = misleadingShareDetail(skill, {
     default: copy.experience.returnShareDetail,
     chart: copy.experience.returnShareDetailChart,
@@ -59,11 +69,11 @@ function RepostReturnActions({ intent }: ReturnActionsProps) {
     <div
       className="mt-3 rounded-2xl border border-amber/45 bg-amber/10 p-3"
       role="region"
-      aria-label={copy.experience.returnShareTitle}
+      aria-label={title}
     >
       <p className="flex items-start gap-2 text-sm font-bold text-[#92400e]">
         <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-        <span>{copy.experience.returnShareTitle}</span>
+        <span>{title}</span>
       </p>
       <p className="mt-1 pl-6 text-sm text-social-muted">{detail}</p>
       <div className="mt-3 flex flex-wrap gap-2">

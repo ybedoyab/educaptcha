@@ -13,7 +13,6 @@ async function analyzeSerious(
   const AxeBuilder = (await import("@axe-core/playwright")).default;
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa"])
-    .disableRules(["color-contrast"])
     .analyze();
   const bad = results.violations.filter(
     (v) => v.impact === "critical" || v.impact === "serious",
@@ -28,31 +27,32 @@ test("landing has no critical/serious axe violations", async ({ page }) => {
 
 test("demo feed has no critical/serious axe violations", async ({ page }) => {
   await bypassIntro(page);
-  await page.goto("/demo/scenario/image-context");
+  await page.goto("/demo");
   await analyzeSerious(page, "demo-feed");
+});
+
+test("demo scenario feed has no critical/serious axe violations", async ({
+  page,
+}) => {
+  await bypassIntro(page);
+  await page.goto("/demo/scenario/image-context");
+  await analyzeSerious(page, "demo-scenario");
 });
 
 test("bookface feed has no critical/serious axe violations", async ({
   page,
 }) => {
   await bypassIntro(page);
-  await page.goto("/demo/bookface/scenario/image-context");
+  await page.goto("/demo/bookface");
   await analyzeSerious(page, "bookface-feed");
 });
 
-test("bookface post menu has no critical/serious axe violations", async ({
+test("bookface scenario has no critical/serious axe violations", async ({
   page,
 }) => {
   await bypassIntro(page);
-  await page.goto("/demo/bookface");
-  await page
-    .getByRole("button", {
-      name: /more options for the post|más opciones de la publicación/i,
-    })
-    .first()
-    .click();
-  await expect(page.getByRole("menu").first()).toBeVisible();
-  await analyzeSerious(page, "bookface-post-menu");
+  await page.goto("/demo/bookface/scenario/image-context");
+  await analyzeSerious(page, "bookface-scenario");
 });
 
 test("open challenge has no critical/serious axe violations", async ({
@@ -63,6 +63,22 @@ test("open challenge has no critical/serious axe violations", async ({
   await page.locator("#share-p-flood-live").click();
   await expect(page.locator("dialog[open]")).toHaveCount(1);
   await analyzeSerious(page, "challenge-open");
+});
+
+test("challenge result state has no critical/serious axe violations", async ({
+  page,
+}) => {
+  await bypassIntro(page);
+  await page.goto("/demo/scenario/image-context");
+  await page.locator("#share-p-flood-live").click();
+  const dialog = page.locator("dialog[open]");
+  await expect(dialog).toHaveCount(1);
+  await dialog.getByRole("button", { name: /check photo|revisar foto/i }).click();
+  await expect(dialog.getByText(/Original source|Fuente|Archive|archivo/i).first()).toBeVisible({
+    timeout: 15_000,
+  });
+  // Result / evidence view inside the open challenge is enough for this axe pass.
+  await analyzeSerious(page, "challenge-result");
 });
 
 test("practice mode has no critical/serious axe violations", async ({

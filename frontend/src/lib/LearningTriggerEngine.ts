@@ -87,8 +87,8 @@ function reasonFor(
   if (action === "share") {
     if (post.triggerSkill === "wildfire-context") {
       return {
-        en: "AI found a place mismatch risk: the caption says one city, but visual cues may point elsewhere. Complete this check before sharing.",
-        es: "La IA encontró riesgo de lugar incorrecto: el texto nombra una ciudad, pero las señales visuales pueden apuntar a otra. Completa esta verificación antes de compartir.",
+        en: "Before you share, check this photo. The caption names one place, but visual cues may point elsewhere.",
+        es: "Antes de compartir, revisa esta foto. El texto nombra un lugar, pero las señales visuales pueden apuntar a otro.",
       };
     }
     if (
@@ -96,47 +96,47 @@ function reasonFor(
       post.triggerSkill === "protest-context"
     ) {
       return {
-        en: "AI found this photo may be archived and reused — not a live image from today. Check the original date and place.",
-        es: "La IA encontró que esta foto puede ser de archivo y reutilizada — no una imagen en vivo de hoy. Revisa la fecha y el lugar originales.",
+        en: "Before you share, check this photo. This image may be old or out of context.",
+        es: "Antes de compartir, revisa esta foto. Esta imagen puede ser antigua o estar fuera de contexto.",
       };
     }
     if (post.triggerSkill === "emotional-pressure") {
       return {
-        en: "AI found urgency language before any verifiable source. Pause and check what is actually proven.",
-        es: "La IA encontró lenguaje de urgencia antes de una fuente verificable. Pausa y revisa qué está realmente comprobado.",
+        en: "Before you share, notice how this post is asking you to react.",
+        es: "Antes de compartir, fíjate cómo este post te pide reaccionar.",
       };
     }
     if (post.triggerSkill === "misleading-chart") {
       return {
-        en: "AI found a chart scaling risk — the axis may exaggerate the change. Check where the vertical axis starts.",
-        es: "La IA encontró riesgo en la escala de la gráfica — el eje puede exagerar el cambio. Revisa dónde empieza el eje vertical.",
+        en: "Before you share, check how this chart is scaled.",
+        es: "Antes de compartir, revisa cómo está escalada esta gráfica.",
       };
     }
     if (post.triggerSkill === "vaccine-claim") {
       return {
-        en: "AI found that the photo may not prove the caption’s claim. Separate what the image shows from what the text asserts.",
-        es: "La IA encontró que la foto puede no probar lo que afirma el pie. Separa lo que muestra la imagen de lo que dice el texto.",
+        en: "Before you share, compare what the photo shows with what the caption claims.",
+        es: "Antes de compartir, compara lo que muestra la foto con lo que afirma el pie.",
       };
     }
   }
 
   if (action === "comment" && commentText) {
     return {
-      en: "AI found your draft repeats the claim without a source. Edit or verify before posting.",
-      es: "La IA encontró que tu borrador repite la afirmación sin fuente. Edita o verifica antes de publicar.",
+      en: "Your draft repeats the claim without identifying its source. Edit or verify before posting.",
+      es: "Tu borrador repite la afirmación sin identificar su fuente. Edita o verifica antes de publicar.",
     };
   }
 
   if (action === "repost-image") {
     return {
-      en: "AI found this image may be authentic but missing its original context. Complete the check before resharing.",
-      es: "La IA encontró que esta imagen puede ser auténtica, pero sin su contexto original. Completa la verificación antes de volver a compartir.",
+      en: "Before you reshare, check whether this image still has its original context.",
+      es: "Antes de volver a compartir, revisa si esta imagen conserva su contexto original.",
     };
   }
 
   return {
-    en: "AI flagged a verification risk on this post. Complete this short check before you continue.",
-    es: "La IA marcó un riesgo de verificación en este post. Completa este chequeo breve antes de continuar.",
+    en: "A short verification check can help before you continue.",
+    es: "Una breve revisión de verificación puede ayudar antes de continuar.",
   };
 }
 

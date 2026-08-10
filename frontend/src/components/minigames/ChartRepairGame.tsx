@@ -50,7 +50,7 @@ const DEFAULT_CONCLUSIONS = [
     id: "broken",
     label: {
       en: "The chart numbers themselves are fake",
-      es: "Los números de la gráfica son falsos",
+      es: "Los nÃƒÂºmeros de la gráfica son falsos",
     },
     correct: false,
   },
@@ -88,14 +88,14 @@ export function ChartRepairGame({
   const claim =
     interaction.claim?.[language] ??
     (language === "es"
-      ? "El engagement explotó — mira la gráfica."
-      : "Engagement exploded — look at the chart.");
+      ? "El engagement explotó Ã¢â‚¬â€ mira la gráfica."
+      : "Engagement exploded Ã¢â‚¬â€ look at the chart.");
   const whyPaused =
     interceptReason?.trim() ||
     interaction.instruction[language] ||
     (language === "es"
-      ? "La IA encontró riesgo en la escala de la gráfica."
-      : "AI found a chart scaling risk.");
+      ? "Antes de compartir, revisa cómo está escalada esta gráfica."
+      : "Before you share, check how this chart is scaled.");
 
   const nearTarget =
     Math.abs(axisStart - interaction.targetStart) <= interaction.tolerance;
@@ -201,7 +201,7 @@ export function ChartRepairGame({
 
   const chartPanel = (
     <div className="rounded-xl border border-navy/10 bg-off-white p-4">
-      <div className="mb-2 flex justify-between text-xs font-semibold text-navy/50">
+      <div className="mb-2 flex justify-between text-xs font-semibold text-navy/70">
         <span>
           {repaired || nearTarget
             ? language === "es"
@@ -220,7 +220,7 @@ export function ChartRepairGame({
           {ticks.map((t, i) => (
             <span
               key={`${t}-${i}`}
-              className="absolute right-0 translate-y-1/2 text-[0.65rem] leading-none text-navy/45"
+              className="absolute right-0 translate-y-1/2 text-[0.65rem] leading-none text-navy/70"
               style={{ bottom: `${((t - currentStart) / span) * 100}%` }}
             >
               {t}
@@ -271,10 +271,10 @@ export function ChartRepairGame({
               key={s.id}
               className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-2 text-xs font-semibold ${
                 i === stepIndex
-                  ? "bg-teal/15 text-teal"
+                  ? "bg-teal text-white"
                   : i < stepIndex
-                    ? "bg-navy/5 text-navy/55"
-                    : "bg-off-white text-navy/30"
+                    ? "bg-navy/10 text-navy/70"
+                    : "bg-navy/5 text-navy/65"
               }`}
             >
               {i + 1}. {s.label}
@@ -300,7 +300,7 @@ export function ChartRepairGame({
             <p className="mt-1.5 pl-6 text-xs font-medium text-navy/60">
               {language === "es"
                 ? "Por eso debes completar esta verificación antes de compartir."
-                : "That’s why you need to complete this check before sharing."}
+                : "ThatÃ¢â‚¬â„¢s why you need to complete this check before sharing."}
             </p>
           </div>
           <p className="rounded-xl bg-amber/10 px-3 py-2.5 text-sm font-medium text-navy">

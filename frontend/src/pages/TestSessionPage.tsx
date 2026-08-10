@@ -114,12 +114,12 @@ export function TestSessionPage() {
 
         {!done && current && (
           <article className="mt-6 rounded-2xl border border-navy/10 bg-white p-5 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-navy/45">
+            <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
               {index + 1} / {posts.length}
             </p>
             <h2 className="mt-2 text-sm font-semibold text-navy">
               {current.author[language]}{" "}
-              <span className="font-normal text-navy/45">{current.handle}</span>
+              <span className="font-normal text-navy/70">{current.handle}</span>
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-navy/85">
               {current.body[language]}
@@ -172,11 +172,11 @@ export function TestSessionPage() {
             <p className="text-sm text-navy/60">
               {language === "es"
                 ? "No se inventan resultados globales. Solo se muestran las decisiones de esta sesión."
-                : "No global results are invented. Only this session’s decisions are shown."}
+                : "No global results are invented. Only this sessionÃ¢â‚¬â„¢s decisions are shown."}
             </p>
             <dl className="grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-xl bg-off-white p-3">
-                <dt className="text-navy/50">
+                <dt className="text-navy/70">
                   {language === "es" ? "Decisiones" : "Decisions"}
                 </dt>
                 <dd className="text-lg font-semibold">
@@ -184,7 +184,7 @@ export function TestSessionPage() {
                 </dd>
               </div>
               <div className="rounded-xl bg-off-white p-3">
-                <dt className="text-navy/50">
+                <dt className="text-navy/70">
                   {language === "es" ? "Fuentes abiertas" : "Sources opened"}
                 </dt>
                 <dd className="text-lg font-semibold">
@@ -192,7 +192,7 @@ export function TestSessionPage() {
                 </dd>
               </div>
               <div className="rounded-xl bg-off-white p-3">
-                <dt className="text-navy/50">
+                <dt className="text-navy/70">
                   {language === "es" ? "Omitidos" : "Skipped"}
                 </dt>
                 <dd className="text-lg font-semibold">
@@ -200,7 +200,7 @@ export function TestSessionPage() {
                 </dd>
               </div>
               <div className="rounded-xl bg-off-white p-3">
-                <dt className="text-navy/50">
+                <dt className="text-navy/70">
                   {language === "es" ? "Tiempo" : "Time"}
                 </dt>
                 <dd className="text-lg font-semibold">

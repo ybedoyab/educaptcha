@@ -27,7 +27,7 @@ export function NoSourceMediaCard({ title, subtitle, className = "" }: Props) {
             ? "Sin imagen original"
             : "No original image supplied")}
       </p>
-      <p className="text-xs text-navy/45">
+      <p className="text-xs text-navy/70">
         {subtitle ??
           (language === "es"
             ? "Fuente y fecha desconocidas"

@@ -61,8 +61,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "spot-signals",
       instruction: {
-        en: "AI found urgency language before any verifiable source. Spot the pressure signals, then say what they mean.",
-        es: "La IA encontró lenguaje de urgencia antes de una fuente verificable. Marca las señales de presión y di qué significan.",
+        en: "Before you share, notice how this post is asking you to react. Spot the pressure signals, then say what they mean.",
+        es: "Antes de compartir, fíjate cómo este post te pide reaccionar. Marca las señales de presión y di qué significan.",
       },
       maxAttempts: 2,
       claim: {
@@ -258,8 +258,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "AI found this photo may be archived and reused — not a live image from tonight. Check the original date and place.",
-        es: "La IA encontró que esta foto puede ser de archivo y reutilizada — no una imagen en vivo de esta noche. Revisa la fecha y el lugar originales.",
+        en: "Before you share, check this photo. This image may be old or out of context.",
+        es: "Antes de compartir, revisa esta foto. Esta imagen puede ser antigua o estar fuera de contexto.",
       },
       maxAttempts: 2,
       claimQuestion: {
@@ -402,8 +402,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "AI found another image with the same out-of-context risk. Check the original source before sharing.",
-        es: "La IA encontró otra imagen con el mismo riesgo fuera de contexto. Revisa la fuente original antes de compartir.",
+        en: "Another image may have the same out-of-context risk. Check the original source before sharing.",
+        es: "Otra imagen puede tener el mismo riesgo fuera de contexto. Revisa la fuente original antes de compartir.",
       },
       maxAttempts: 2,
       claim: {
@@ -496,8 +496,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "AI found a place mismatch risk: the caption says one city, but visual cues may point elsewhere. Check the original source.",
-        es: "La IA encontró riesgo de lugar incorrecto: el texto nombra una ciudad, pero las señales visuales pueden apuntar a otra. Revisa la fuente original.",
+        en: "Before you share, check this photo. The caption names one place, but visual cues may point elsewhere.",
+        es: "Antes de compartir, revisa esta foto. El texto nombra un lugar, pero las señales visuales pueden apuntar a otro.",
       },
       maxAttempts: 2,
       claim: {
@@ -668,8 +668,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "image-inspection",
       instruction: {
-        en: "AI found that the photo may not prove the caption’s claim. Separate what the image shows from what the text asserts.",
-        es: "La IA encontró que la foto puede no probar lo que afirma el pie. Separa lo que muestra la imagen de lo que dice el texto.",
+        en: "Before you share, compare what the photo shows with what the caption claims.",
+        es: "Antes de compartir, compara lo que muestra la foto con lo que afirma el pie.",
       },
       maxAttempts: 2,
       claim: {
@@ -844,8 +844,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "context-match",
       instruction: {
-        en: "AI found this protest photo may be reused from earlier coverage. Check the original date and place.",
-        es: "La IA encontró que esta foto de protesta puede ser reutilizada de una cobertura anterior. Revisa la fecha y el lugar originales.",
+        en: "Before you share, check this photo. This image may be old or out of context.",
+        es: "Antes de compartir, revisa esta foto. Esta imagen puede ser antigua o estar fuera de contexto.",
       },
       maxAttempts: 2,
       claim: {
@@ -1017,8 +1017,8 @@ export const experienceMinigames: Record<string, Challenge> = {
     interaction: {
       type: "chart-repair",
       instruction: {
-        en: "AI found a chart scaling risk — the axis may exaggerate the change. Repair the axis, then say what the trick was.",
-        es: "La IA encontró riesgo en la escala de la gráfica — el eje puede exagerar el cambio. Repara el eje y di cuál era el truco.",
+        en: "Before you share, check how this chart is scaled. Repair the axis, then say what the trick was.",
+        es: "Antes de compartir, revisa cómo está escalada esta gráfica. Repara el eje y di cuál era el truco.",
       },
       maxAttempts: 2,
       claim: {

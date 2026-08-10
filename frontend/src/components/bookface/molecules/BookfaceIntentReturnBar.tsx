@@ -1,7 +1,10 @@
 import type { PendingIntent } from "../../../lib/demoFlow";
 import { useDemoSession } from "../../../context/DemoSessionContext";
 import { useI18n } from "../../../i18n/I18nContext";
-import { misleadingShareDetail } from "../../../lib/misleadingShareCopy";
+import {
+  misleadingShareDetail,
+  misleadingShareTitle,
+} from "../../../lib/misleadingShareCopy";
 import { Share2, TriangleAlert, X } from "lucide-react";
 
 const PRIMARY_CLASS =
@@ -52,6 +55,13 @@ function ShareReturnActions({ intent }: ReturnActionsProps) {
   if (!isShare) return null;
 
   const skill = flow.status === "return-to-context" ? flow.skill : undefined;
+  const title = misleadingShareTitle(skill, {
+    default: copy.experience.bfReturnShareTitle,
+    context: copy.experience.bfReturnShareTitleContext,
+    chart: copy.experience.bfReturnShareTitleChart,
+    photoClaim: copy.experience.bfReturnShareTitlePhotoClaim,
+    pressure: copy.experience.bfReturnShareTitlePressure,
+  });
   const detail = misleadingShareDetail(skill, {
     default: copy.experience.bfReturnShareDetail,
     chart: copy.experience.bfReturnShareDetailChart,
@@ -64,11 +74,11 @@ function ShareReturnActions({ intent }: ReturnActionsProps) {
     <div
       className="mx-4 mb-3 rounded-lg border border-amber/45 bg-amber/10 p-3"
       role="region"
-      aria-label={copy.experience.bfReturnShareTitle}
+      aria-label={title}
     >
       <p className="flex items-start gap-2 text-[15px] font-semibold text-[#92400e]">
         <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-        <span>{copy.experience.bfReturnShareTitle}</span>
+        <span>{title}</span>
       </p>
       <p className="mt-1 pl-6 text-[14px] text-bf-muted">{detail}</p>
       <div className="mt-3 flex flex-wrap gap-2">

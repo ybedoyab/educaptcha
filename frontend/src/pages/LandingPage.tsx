@@ -80,7 +80,7 @@ export function LandingPage() {
                   <span className="h-2 w-2 rounded-full bg-navy/20" />
                   <span className="h-2 w-2 rounded-full bg-navy/20" />
                   <span className="h-2 w-2 rounded-full bg-navy/20" />
-                  <span className="ml-2 text-xs text-navy/45">openfeed.demo</span>
+                  <span className="ml-2 text-xs text-navy/70">openfeed.demo</span>
                 </div>
                 <div className="space-y-3 bg-off-white p-4">
                   <div className="h-16 rounded-xl bg-white shadow-sm" />

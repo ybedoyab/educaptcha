@@ -100,8 +100,8 @@ export function SpotSignalsGame({
     interceptReason?.trim() ||
     interaction.instruction[language] ||
     (language === "es"
-      ? "La IA encontró lenguaje de urgencia antes de una fuente verificable."
-      : "AI found urgency language before any verifiable source.");
+      ? "Antes de compartir, fíjate cómo este post te pide reaccionar. Marca las señales de presión."
+      : "Before you share, notice how this post is asking you to react. Spot the pressure signals.");
 
   const foundEnough = selected.length >= interaction.targetCount;
 
@@ -206,7 +206,7 @@ export function SpotSignalsGame({
         <p className="text-xs font-semibold text-teal">
           {interaction.mediaTitle[language]}
         </p>
-        <p className="text-[0.7rem] text-navy/50">
+        <p className="text-[0.7rem] text-navy/70">
           {interaction.mediaMeta[language]}
         </p>
         <p className="text-base font-bold leading-snug text-navy sm:text-lg">
@@ -259,10 +259,10 @@ export function SpotSignalsGame({
               key={s.id}
               className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-2 text-xs font-semibold ${
                 i === stepIndex
-                  ? "bg-teal/15 text-teal"
+                  ? "bg-teal text-white"
                   : i < stepIndex
-                    ? "bg-navy/5 text-navy/55"
-                    : "bg-off-white text-navy/30"
+                    ? "bg-navy/10 text-navy/70"
+                    : "bg-navy/5 text-navy/65"
               }`}
             >
               {i + 1}. {s.label}
@@ -288,7 +288,7 @@ export function SpotSignalsGame({
             <p className="mt-1.5 pl-6 text-xs font-medium text-navy/60">
               {language === "es"
                 ? "Por eso debes completar esta verificación antes de compartir."
-                : "That’s why you need to complete this check before sharing."}
+                : "Thatâ€™s why you need to complete this check before sharing."}
             </p>
           </div>
           {headlineBlock(false)}

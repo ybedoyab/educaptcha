@@ -18,7 +18,7 @@ export function PracticePage() {
         }}
       />
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <p className="mb-4 text-sm text-navy/50">
+        <p className="mb-4 text-sm text-navy/70">
           <Link to="/" className="text-teal underline-offset-2 hover:underline">
             EduCAPTCHA
           </Link>{" "}

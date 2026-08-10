@@ -301,7 +301,7 @@ export function RealWorldExperience({
         </div>
 
         <aside className="mt-8 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/55">
-          <p className="font-semibold uppercase tracking-wide text-white/40">
+          <p className="font-semibold uppercase tracking-wide text-white/75">
             {copy.experience.imageCreditsTitle}
           </p>
           <ul className="mt-2 space-y-1">

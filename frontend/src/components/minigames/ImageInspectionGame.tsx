@@ -35,7 +35,7 @@ const OPTION_LETTERS = ["A", "B", "C", "D"];
 
 /**
  * Photo-vs-claim (and legacy anomaly mark) check.
- * Pause → Check → Decide: classify what the photo shows vs caption claims,
+ * Pause Ã¢â€ â€™ Check Ã¢â€ â€™ Decide: classify what the photo shows vs caption claims,
  * then pick a conclusion.
  */
 export function ImageInspectionGame({
@@ -77,13 +77,13 @@ export function ImageInspectionGame({
     interaction.claim?.[language] ??
     (language === "es"
       ? "Esta foto prueba la afirmación del post."
-      : "This photo proves the post’s claim.");
+      : "This photo proves the postÃ¢â‚¬â„¢s claim.");
   const whyPaused =
     interceptReason?.trim() ||
     interaction.instruction[language] ||
     (language === "es"
-      ? "La IA encontró que la foto puede no probar lo que afirma el texto. Completa la verificación."
-      : "AI found that the photo may not prove what the caption claims. Complete the check.");
+      ? "Antes de compartir, compara lo que muestra la foto con lo que afirma el pie."
+      : "Before you share, compare what the photo shows with what the caption claims.");
 
   const allFindings = interaction.hotspots;
   const requiredIds = allFindings.map((h) => h.id);
@@ -213,7 +213,7 @@ export function ImageInspectionGame({
     if (phase === "check") {
       return language === "es"
         ? "¿Está en la foto o solo en el texto?"
-        : "In the photo — or only in the caption?";
+        : "In the photo Ã¢â‚¬â€ or only in the caption?";
     }
     if (phase === "decide") {
       return language === "es" ? "¿Qué encontraste?" : "What did you find?";
@@ -246,10 +246,10 @@ export function ImageInspectionGame({
               key={s.id}
               className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-2 text-xs font-semibold ${
                 i === stepIndex
-                  ? "bg-teal/15 text-teal"
+                  ? "bg-teal text-white"
                   : i < stepIndex
-                    ? "bg-navy/5 text-navy/55"
-                    : "bg-off-white text-navy/30"
+                    ? "bg-navy/10 text-navy/70"
+                    : "bg-navy/5 text-navy/65"
               }`}
             >
               {i + 1}. {s.label}
@@ -282,7 +282,7 @@ export function ImageInspectionGame({
               <p className="mt-1.5 pl-6 text-xs font-medium text-navy/60">
                 {language === "es"
                   ? "Por eso debes completar esta verificación antes de compartir."
-                  : "That’s why you need to complete this check before sharing."}
+                  : "ThatÃ¢â‚¬â„¢s why you need to complete this check before sharing."}
               </p>
             </div>
           </div>
@@ -365,7 +365,7 @@ export function ImageInspectionGame({
                     className="rounded-xl border border-navy/10 bg-white px-3 py-3"
                   >
                     <p className="text-sm font-semibold text-navy">
-                      <span className="mr-2 text-navy/45" aria-hidden>
+                      <span className="mr-2 text-navy/70" aria-hidden>
                         {OPTION_LETTERS[i] ?? i + 1}.
                       </span>
                       {h.label[language]}
@@ -536,7 +536,7 @@ export function ImageInspectionGame({
             {interaction.conclusion?.[language] ??
               (language === "es"
                 ? "La foto es real, pero no prueba la afirmación de seguridad del post."
-                : "The photo is real, but it does not prove the post’s safety claim.")}
+                : "The photo is real, but it does not prove the postÃ¢â‚¬â„¢s safety claim.")}
           </p>
           <p className="text-xs font-medium text-navy/55">
             {language === "es"

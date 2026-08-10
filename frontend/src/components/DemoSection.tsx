@@ -100,7 +100,7 @@ export function DemoSection({ progressApi }: DemoSectionProps) {
         {progress.finished ? (
           <div className="mt-6 animate-slide-up rounded-2xl border border-navy/10 bg-white p-6 shadow-sm sm:p-8">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal/15 text-teal">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal/20 text-[#0a5c56]">
                 <Award className="h-6 w-6" aria-hidden />
               </span>
               <h3 className="font-display text-xl font-bold text-navy">

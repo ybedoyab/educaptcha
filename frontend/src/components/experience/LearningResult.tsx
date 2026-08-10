@@ -62,7 +62,7 @@ export function LearningResult({
 
       <dl className="mt-6 space-y-4">
         <div>
-          <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
             {copy.experience.skillPracticed}
           </dt>
           <dd className="mt-1 text-base font-semibold text-navy">
@@ -70,13 +70,13 @@ export function LearningResult({
           </dd>
         </div>
         <div>
-          <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
             {copy.experience.firstResponse}
           </dt>
           <dd className="mt-1 text-sm text-navy/80">{firstResponse}</dd>
         </div>
         <div>
-          <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
             {copy.experience.transferTitle}
           </dt>
           <dd className="mt-1 text-sm text-navy/80">
@@ -86,7 +86,7 @@ export function LearningResult({
           </dd>
         </div>
         <div>
-          <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
             {copy.experience.learningResult}
           </dt>
           <dd className="mt-1 text-sm font-medium text-navy">{learningText}</dd>
@@ -94,7 +94,7 @@ export function LearningResult({
       </dl>
 
       <div className="mt-6 rounded-xl border border-navy/10 bg-off-white p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+        <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
           {copy.experience.beforeAfter}
         </p>
         <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-end gap-3">
@@ -124,7 +124,7 @@ export function LearningResult({
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-navy/50">{copy.experience.disclaimer}</p>
+      <p className="mt-4 text-xs text-navy/70">{copy.experience.disclaimer}</p>
 
       <div className="mt-6 flex flex-wrap gap-2">
         <button

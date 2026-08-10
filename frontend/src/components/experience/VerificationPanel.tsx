@@ -30,7 +30,7 @@ export function VerificationPanel({
           >
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber" aria-hidden />
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+              <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                 {fact.label[language]}
               </p>
               <p className="text-sm font-medium text-navy">{fact.value[language]}</p>

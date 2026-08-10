@@ -75,7 +75,6 @@ describe("Bookface visual system", () => {
       "repostToast",
       "scenarioGuide",
       "sharedToast",
-      "sharedToastAiVerified",
     ]);
     for (const key of Object.keys(BOOKFACE_MESSAGES)) {
       expect(key in OPEN_FEED_MESSAGES).toBe(true);

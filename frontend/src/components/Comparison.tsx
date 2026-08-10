@@ -18,7 +18,7 @@ export function Comparison() {
         </h2>
         <div className="mt-8 grid gap-5 md:grid-cols-2">
           <article className="rounded-2xl border border-navy/10 bg-off-white p-6">
-            <div className="flex items-center gap-2 text-navy/50">
+            <div className="flex items-center gap-2 text-navy/70">
               <Grid3x3 className="h-5 w-5" aria-hidden />
               <h3 className="font-semibold">{copy.comparison.traditionalTitle}</h3>
             </div>

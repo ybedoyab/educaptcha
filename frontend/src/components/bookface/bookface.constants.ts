@@ -104,7 +104,6 @@ export const BOOKFACE_ROUTES = {
 export const BOOKFACE_MESSAGES: DemoSessionMessages = {
   scenarioGuide: localizedExperienceText("bfScenarioGuide"),
   sharedToast: localizedExperienceText("bfSharedToast"),
-  sharedToastAiVerified: localizedExperienceText("bfSharedToastAiVerified"),
   repostToast: localizedExperienceText("bfShareImageToast"),
 };
 

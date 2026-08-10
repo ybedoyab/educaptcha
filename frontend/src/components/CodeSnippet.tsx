@@ -34,7 +34,7 @@ export function CodeSnippet({ title, code, languageLabel }: CodeSnippetProps) {
       <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2">
         <div>
           <p className="text-xs font-semibold text-white/90">{title}</p>
-          <p className="text-[0.65rem] text-white/40">{languageLabel}</p>
+          <p className="text-[0.65rem] text-white/75">{languageLabel}</p>
         </div>
         <button
           type="button"

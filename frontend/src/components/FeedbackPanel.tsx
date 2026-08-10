@@ -36,7 +36,7 @@ export function FeedbackPanel({
       <div className="mt-3 flex items-start gap-2 rounded-lg bg-sky/10 px-3 py-2.5">
         <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber" aria-hidden />
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
             {copy.demo.takeaway}
           </p>
           <p className="text-sm font-medium text-navy">{takeaway}</p>

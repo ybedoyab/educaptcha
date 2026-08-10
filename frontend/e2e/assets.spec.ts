@@ -6,6 +6,8 @@ const routes = [
   "/demo/scenario/image-context",
   "/demo/scenario/emotional-pressure",
   "/demo/scenario/wildfire-context",
+  "/demo/bookface",
+  "/demo/bookface/scenario/image-context",
   "/practice",
   "/dashboard",
   "/integration",

@@ -51,10 +51,10 @@ export type DemoSessionValue = {
   highlightedPostId: string | null;
   /**
    * Session-local verification status per post:
-   * - `ai-cleared` — share continued; agents found no conflict
+   * - `no-intervention` — share continued without EduCAPTCHA pause (NOT a truth claim)
    * - `misleading` — user completed EduCAPTCHA and the claim did not hold up
    */
-  postVerification: Record<string, "ai-cleared" | "misleading">;
+  postVerification: Record<string, "no-intervention" | "misleading">;
   scenarioGuide: LocalizedText | null;
   guidedScenarioId: string | null;
   shareCounts: Record<string, number>;

@@ -34,7 +34,7 @@ export async function continueAfterResult(page: Page) {
 
 /** Context-match (flood / wildfire / protest). */
 export async function completeContextMatchFlow(page: Page) {
-  await expect(dialog(page).getByText(/AI found|La IA encontró/i)).toBeVisible();
+  await expect(dialog(page).getByText(/Before you share|Antes de compartir/i).first()).toBeVisible();
   await clickInDialog(page, /check photo|revisar foto/i);
   await expect(
     dialog(page).getByText(/Original source & photo|Fuente y foto originales/i),
@@ -53,7 +53,7 @@ export async function completeContextMatchFlow(page: Page) {
 
 /** Emotional pressure spot-signals. */
 export async function completeSpotSignalsFlow(page: Page) {
-  await expect(dialog(page).getByText(/AI found|La IA encontró/i)).toBeVisible();
+  await expect(dialog(page).getByText(/Before you share|Antes de compartir/i).first()).toBeVisible();
   await clickInDialog(page, /find signals|buscar señales/i);
   await clickInDialog(page, /^URGENT$|^URGENTE$/i);
   await clickInDialog(
@@ -71,7 +71,7 @@ export async function completeSpotSignalsFlow(page: Page) {
 
 /** Vaccine photo-vs-claim. */
 export async function completeImageInspectionFlow(page: Page) {
-  await expect(dialog(page).getByText(/AI found|La IA encontró/i)).toBeVisible();
+  await expect(dialog(page).getByText(/Before you share|Antes de compartir/i).first()).toBeVisible();
   await clickInDialog(page, /check photo|revisar foto/i);
 
   const root = dialog(page);
@@ -105,7 +105,7 @@ async function setRangeValue(slider: Locator, value: string) {
 
 /** Misleading chart repair. */
 export async function completeChartRepairFlow(page: Page) {
-  await expect(dialog(page).getByText(/AI found|La IA encontró/i)).toBeVisible();
+  await expect(dialog(page).getByText(/Before you share|Antes de compartir/i).first()).toBeVisible();
   await clickInDialog(page, /check chart|revisar gráfica/i);
   const slider = dialog(page).locator('input[type="range"]');
   await expect(slider).toBeVisible();

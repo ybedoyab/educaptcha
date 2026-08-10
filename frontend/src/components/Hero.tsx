@@ -29,7 +29,7 @@ export function Hero() {
           >
             {copy.hero.title}
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-navy/70 sm:text-lg">
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-navy/80 sm:text-lg">
             {copy.hero.subtitle}
           </p>
           <p className="mt-3 text-sm font-semibold text-teal">{copy.hero.flowLabel}</p>
@@ -49,12 +49,12 @@ export function Hero() {
             </Link>
             <a
               href="#how-it-works"
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-transparent px-5 py-2.5 text-sm font-semibold text-navy/70 underline-offset-4 hover:underline"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-transparent px-5 py-2.5 text-sm font-semibold text-navy/80 underline-offset-4 hover:underline"
             >
               {copy.hero.ctaDemo}
             </a>
           </div>
-          <p className="mt-6 flex items-start gap-2 text-sm text-navy/60">
+          <p className="mt-6 flex items-start gap-2 text-sm text-navy/75">
             <Volume2 className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden />
             {copy.hero.inclusiveNote}
           </p>
@@ -70,13 +70,13 @@ export function Hero() {
               <span className="h-2.5 w-2.5 rounded-full bg-navy/20" aria-hidden />
               <span className="h-2.5 w-2.5 rounded-full bg-navy/20" aria-hidden />
               <span className="h-2.5 w-2.5 rounded-full bg-navy/20" aria-hidden />
-              <span className="ml-2 truncate text-xs text-navy/50">
+              <span className="ml-2 truncate text-xs text-navy/70">
                 {copy.hero.browserTitle}
               </span>
             </div>
             <div className="bg-gradient-to-b from-sky/10 to-off-white p-4 sm:p-6">
               <div className="rounded-xl border border-navy/10 bg-white p-4 shadow-sm">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-navy/45">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-navy/70">
                   EduCAPTCHA
                 </p>
                 <p className="mt-2 text-base font-bold text-navy">

@@ -20,7 +20,7 @@ describe("LearningTriggerEngine", () => {
     expect(decision.type).toBe("intercept");
     if (decision.type === "intercept") {
       expect(decision.challengeId).toBe("ic-match");
-      expect(decision.reason.en).toMatch(/AI found|date|place|archived/i);
+      expect(decision.reason.en).toMatch(/Before you share|check this photo/i);
     }
   });
 

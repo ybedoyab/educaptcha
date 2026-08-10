@@ -7,7 +7,7 @@ const SOURCE_URLS = {
   westColumbiaCommons:
     "https://commons.wikimedia.org/wiki/File:National_Guard_responds_to_flooding_in_South_Carolina_151011-Z-VD915-004.jpg",
   wildfireCommons:
-    "https://commons.wikimedia.org/wiki/Special:Search?search=wildfire+smoke+Washington+DC&go=Go",
+    "https://commons.wikimedia.org/wiki/File:Wildfire_smoke_in_Washington_DC.jpg",
   protestCommons:
     "https://commons.wikimedia.org/wiki/Special:Search?search=protest+gate&go=Go",
 } as const;
@@ -147,8 +147,8 @@ export const wildfireDcSourceTrace: SourceTraceStep[] = [
     kind: "archive",
     label: { en: "Original source found", es: "Fuente original encontrada" },
     value: {
-      en: "News / wire photo archives",
-      es: "Archivos de agencia de noticias",
+      en: "Wikimedia Commons — Nvss132",
+      es: "Wikimedia Commons — Nvss132",
     },
     status: "archived",
     href: SOURCE_URLS.wildfireCommons,
@@ -161,7 +161,7 @@ export const wildfireDcSourceTrace: SourceTraceStep[] = [
       en: "Washington, D.C., United States",
       es: "Washington, D. C., Estados Unidos",
     },
-    detail: { en: "June 2023 wildfire smoke", es: "Humo de incendios, junio 2023" },
+    detail: { en: "June 8, 2023", es: "8 de junio de 2023" },
     status: "verified",
     href: SOURCE_URLS.wildfireCommons,
   },
@@ -170,8 +170,8 @@ export const wildfireDcSourceTrace: SourceTraceStep[] = [
     kind: "publisher",
     label: { en: "Is it from today / Bogotá?", es: "¿Es de hoy / Bogotá?" },
     value: {
-      en: "No — Washington, D.C. wildfire smoke (June 2023), not Bogotá",
-      es: "No — humo en Washington, D. C. (junio 2023), no Bogotá",
+      en: "No — Washington, D.C. wildfire smoke (June 8, 2023), not Bogotá",
+      es: "No — humo en Washington, D. C. (8 de junio de 2023), no Bogotá",
     },
     status: "conflicting",
   },
@@ -202,10 +202,10 @@ export const protestGateSourceTrace: SourceTraceStep[] = [
   {
     id: "archive",
     kind: "archive",
-    label: { en: "Original source found", es: "Fuente original encontrada" },
+    label: { en: "Archive reference", es: "Referencia de archivo" },
     value: {
-      en: "News photo archives",
-      es: "Archivos fotográficos de noticias",
+      en: "Possible archive match",
+      es: "Posible coincidencia de archivo",
     },
     status: "archived",
     href: SOURCE_URLS.protestCommons,

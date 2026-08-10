@@ -2,30 +2,30 @@
 
 @theme {
   --color-navy: #0f172a;
-  --color-teal: #0ea5a4;
+  --color-teal: #0f766e;
   --color-sky: #38bdf8;
   --color-amber: #f59e0b;
   --color-off-white: #f8fafc;
-  --color-social-blue: #1d9bf0;
+  --color-social-blue: #0a66c2;
   --color-social-text: #0f1419;
-  --color-social-muted: #536471;
+  --color-social-muted: #3d4f5f;
   --color-social-border: #eff3f4;
   --color-social-surface: #f7f9f9;
-  --color-social-green: #00ba7c;
+  --color-social-green: #008f5f;
   --color-social-pink: #f91880;
   /* Bookface skin (/demo/bookface) — a second simulated network styled after
      the Facebook web feed. Kept separate from the social-* (Y) tokens so the
      two skins can never drift into each other. */
-  --color-bf-blue: #0866ff;
+  --color-bf-blue: #0654d4;
   --color-bf-like: #1877f2;
   --color-bf-love: #f3425f;
-  --color-bf-green: #45bd62;
+  --color-bf-green: #2f9e4a;
   --color-bf-bg: #f0f2f5;
   --color-bf-chip: #e4e6eb;
   --color-bf-hover: #f2f2f2;
   --color-bf-border: #ced0d4;
   --color-bf-text: #080809;
-  --color-bf-muted: #65676b;
+  --color-bf-muted: #4b4f56;
   --font-sans: "Segoe UI", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Trebuchet MS", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
 }

@@ -68,7 +68,6 @@ export function BookfacePost({ post, expanded = false }: BookfacePostProps) {
         highlighted={isHighlighted}
         highlightedLabel={copy.experience.highlighted}
         checkStatus={checkStatus}
-        aiVerifiedLabel={copy.experience.aiVerifiedBadge}
         misleadingLabel={copy.experience.verifiedBadge}
         menu={
           <BookfacePostMenu

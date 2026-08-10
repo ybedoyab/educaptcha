@@ -13,9 +13,9 @@ describe("buildVerificationTrace", () => {
     expect(blob).toMatch(/Lagos|tonight|EN VIVO/i);
   });
 
-  it("builds a concrete trail for a cleared garden post", () => {
+  it("builds a concrete trail for a no-intervention garden post", () => {
     const garden = openFeedPosts.find((p) => p.id === "p-garden")!;
-    const steps = buildVerificationTrace(garden, "ai-cleared");
+    const steps = buildVerificationTrace(garden, "no-intervention");
     expect(steps.length).toBeGreaterThanOrEqual(3);
     expect(steps.some((s) => s.kind === "claim")).toBe(true);
   });

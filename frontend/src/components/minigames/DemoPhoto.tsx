@@ -48,7 +48,7 @@ export function DemoPhoto({
 
   /**
    * Reset during render rather than in an effect. A photo the browser already
-   * has cached — every minigame re-shows one the feed just displayed — can fire
+   * has cached â€” every minigame re-shows one the feed just displayed â€” can fire
    * `load` before passive effects flush, and an effect that then set "loading"
    * would leave a complete image stranded at `opacity-0` behind the skeleton.
    */
@@ -117,7 +117,7 @@ export function DemoPhoto({
             {copy.minigame.photoFailed}
           </p>
           {import.meta.env.DEV && assetId && (
-            <p className="font-mono text-[10px] text-navy/40">{assetId}</p>
+            <p className="font-mono text-[10px] text-navy/65">{assetId}</p>
           )}
         </div>
       )}

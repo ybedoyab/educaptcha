@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { BadgeCheck, Globe, TriangleAlert } from "lucide-react";
+import { Globe, TriangleAlert } from "lucide-react";
 import { useI18n } from "../../../i18n/I18nContext";
 import { FeedAvatar } from "../../openfeed/atoms/FeedAvatar";
 
-export type BookfaceCheckBadgeStatus = "ai-cleared" | "misleading";
+export type BookfaceCheckBadgeStatus = "no-intervention" | "misleading";
 
 interface BookfacePostHeaderProps {
   author: string;
@@ -13,7 +13,6 @@ interface BookfacePostHeaderProps {
   highlighted: boolean;
   highlightedLabel: string;
   checkStatus?: BookfaceCheckBadgeStatus | null;
-  aiVerifiedLabel?: string;
   misleadingLabel?: string;
   menu: ReactNode;
 }
@@ -26,7 +25,6 @@ export function BookfacePostHeader({
   highlighted,
   highlightedLabel,
   checkStatus = null,
-  aiVerifiedLabel,
   misleadingLabel,
   menu,
 }: BookfacePostHeaderProps) {
@@ -49,12 +47,6 @@ export function BookfacePostHeader({
           {highlighted ? (
             <span className="shrink-0 rounded-full bg-bf-blue/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-bf-blue">
               {highlightedLabel}
-            </span>
-          ) : null}
-          {checkStatus === "ai-cleared" ? (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-bf-green/40 bg-bf-green/15 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-bf-green">
-              <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-              {aiVerifiedLabel ?? copy.experience.aiVerifiedBadge}
             </span>
           ) : null}
           {checkStatus === "misleading" ? (

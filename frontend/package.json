@@ -17,6 +17,7 @@
     "test:assets": "vitest run src/tests/assets.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:e2e:live": "playwright test -c playwright.live.config.ts",
     "test:secrets": "node scripts/assert-no-secret-leak.mjs",
     "test:all": "npm run build && npm run test && npm run test:e2e",
     "test:full": "npm run build && npm run test && cross-env E2E_REMOTE=1 npm run test:e2e"

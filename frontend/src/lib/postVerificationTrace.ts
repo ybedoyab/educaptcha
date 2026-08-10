@@ -13,14 +13,17 @@ const CREDIT_SOURCE_URLS: Record<string, string> = {
   "flood-guadalajara":
     "https://commons.wikimedia.org/wiki/File:Flooded_street_and_vehicles.jpg",
   "wildfire-dc":
-    "https://commons.wikimedia.org/wiki/Special:Search?search=wildfire+smoke+Washington+DC&go=Go",
-  "protest-gate":
-    "https://commons.wikimedia.org/wiki/Special:Search?search=protest+gate&go=Go",
+    "https://commons.wikimedia.org/wiki/File:Wildfire_smoke_in_Washington_DC.jpg",
   "vaccine-vial":
-    "https://commons.wikimedia.org/wiki/Special:Search?search=COVID-19+vaccine+vial&go=Go",
+    "https://commons.wikimedia.org/wiki/File:COVID-19_vaccine_vial_(2024).jpg",
   "covid-protest":
     "https://commons.wikimedia.org/wiki/File:LSE_protest_against_zero-Covid_policy,_2_December_2022.jpg",
 };
+
+function isWeakCreditHref(href: string | undefined): boolean {
+  if (!href) return true;
+  return href.includes("Special:Search");
+}
 
 function claimSnippet(post: OpenFeedPost): { en: string; es: string } {
   const trim = (s: string) =>
@@ -50,8 +53,8 @@ function sourceTraceFromCredit(post: OpenFeedPost): SourceTraceStep[] | null {
   const credit = imageCredits.find((c) => c.id === asset.creditId);
   if (!credit) return null;
 
-  const href =
-    CREDIT_SOURCE_URLS[credit.id] ?? credit.licenseUrl ?? undefined;
+  const href = CREDIT_SOURCE_URLS[credit.id];
+  const weakHref = isWeakCreditHref(href);
   const claim = claimSnippet(post);
 
   return [
@@ -65,13 +68,15 @@ function sourceTraceFromCredit(post: OpenFeedPost): SourceTraceStep[] | null {
     {
       id: "archive",
       kind: "archive",
-      label: { en: "Original source found", es: "Fuente original encontrada" },
+      label: weakHref
+        ? { en: "Archive reference", es: "Referencia de archivo" }
+        : { en: "Original source found", es: "Fuente original encontrada" },
       value: {
         en: `${credit.source} — ${credit.author}`,
         es: `${credit.source} — ${credit.author}`,
       },
       status: "archived",
-      href,
+      href: weakHref ? undefined : href,
     },
     {
       id: "original",
@@ -86,7 +91,7 @@ function sourceTraceFromCredit(post: OpenFeedPost): SourceTraceStep[] | null {
         es: credit.date,
       },
       status: "verified",
-      href,
+      href: weakHref ? undefined : href,
     },
     {
       id: "today-check",
@@ -101,13 +106,13 @@ function sourceTraceFromCredit(post: OpenFeedPost): SourceTraceStep[] | null {
   ];
 }
 
-/** Positive trail when agents cleared a low-risk post (garden, library, etc.). */
-function sourceTraceAiCleared(post: OpenFeedPost): SourceTraceStep[] {
+/** Soft trail when a low-risk post shared without an EduCAPTCHA pause. */
+function sourceTraceNoIntervention(post: OpenFeedPost): SourceTraceStep[] {
   const claim = claimSnippet(post);
   const creditTrace = sourceTraceFromCredit(post);
   if (creditTrace) {
-    // Rewrite the today-check to a match when this path is used for cleared posts
-    // that genuinely align (rare for archive photos). Prefer credit facts + clear.
+    // Rewrite the today-check to a match when this path is used for posts
+    // that genuinely align (rare for archive photos). Prefer credit facts + soft result.
     return [
       creditTrace[0]!,
       creditTrace[1]!,
@@ -158,8 +163,8 @@ function sourceTraceAiCleared(post: OpenFeedPost): SourceTraceStep[] {
       kind: "archive",
       label: { en: "Result", es: "Resultado" },
       value: {
-        en: "Cleared to share",
-        es: "Autorizado para compartir",
+        en: "No verification pause was needed",
+        es: "No se necesitó pausa de verificación",
       },
       status: "verified",
     },
@@ -169,11 +174,11 @@ function sourceTraceAiCleared(post: OpenFeedPost): SourceTraceStep[] {
 /**
  * Concrete evidence cards for the in-feed “See verification” panel.
  * Prefers the curated SourceTrace from context-match minigames (claim, Commons
- * link, date/place). Falls back to image credits or a clear AI checklist.
+ * link, date/place). Falls back to image credits or a soft no-intervention checklist.
  */
 export function buildVerificationTrace(
   post: OpenFeedPost,
-  status: "ai-cleared" | "misleading",
+  status: "no-intervention" | "misleading",
 ): SourceTraceStep[] {
   const fromChallenge = sourceTraceFromMinigame(post);
   if (fromChallenge) return fromChallenge;
@@ -183,10 +188,10 @@ export function buildVerificationTrace(
     if (fromCredit) return fromCredit;
   }
 
-  return sourceTraceAiCleared(post);
+  return sourceTraceNoIntervention(post);
 }
 
-/** Posts the demo treats as risk — must not get a green “AI verified” claim. */
+/** Posts the demo treats as risk — must not get a green “verified” claim. */
 export function isRiskDemoPost(post: OpenFeedPost): boolean {
   return Boolean(
     post.triggerSkill ||

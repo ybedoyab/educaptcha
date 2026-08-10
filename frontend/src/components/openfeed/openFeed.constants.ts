@@ -153,7 +153,6 @@ export const OPEN_FEED_MESSAGES = {
   transferToast: localizedExperienceText("transferToast"),
   verifyAcknowledgement: localizedExperienceText("verifyAcknowledgement"),
   sharedToast: localizedExperienceText("sharedToast"),
-  sharedToastAiVerified: localizedExperienceText("sharedToastAiVerified"),
   repostToast: localizedExperienceText("repostToast"),
   completedAlert: localizedExperienceText("completedAlert"),
 } as const;

@@ -17,7 +17,7 @@ export function BrowserFrame({ children, className = "" }: BrowserFrameProps) {
         <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" aria-hidden />
         <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" aria-hidden />
         <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" aria-hidden />
-        <div className="ml-2 flex-1 truncate rounded-md bg-white px-3 py-1 text-center text-xs text-navy/50">
+        <div className="ml-2 flex-1 truncate rounded-md bg-white px-3 py-1 text-center text-xs text-navy/70">
           {copy.experience.browserUrl}
         </div>
       </div>

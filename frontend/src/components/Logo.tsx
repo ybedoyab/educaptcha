@@ -24,7 +24,8 @@ export function Logo({
   const s = sizes[size];
   const shield = inverted ? "#F8FAFC" : "#0F172A";
   const eduClass = inverted ? "text-white" : "text-navy";
-  const tagClass = inverted ? "text-white/60" : "text-navy/60";
+  const captchaClass = inverted ? "text-sky" : "text-teal";
+  const tagClass = inverted ? "text-white/80" : "text-navy/70";
 
   return (
     <div className={`inline-flex items-center gap-2.5 ${className}`}>
@@ -109,7 +110,7 @@ export function Logo({
         <div className="flex flex-col leading-none">
           <span className={`font-display font-bold tracking-tight ${s.text}`}>
             <span className={eduClass}>Edu</span>
-            <span className="text-teal">CAPTCHA</span>
+            <span className={captchaClass}>CAPTCHA</span>
           </span>
           {showTagline && (
             <span

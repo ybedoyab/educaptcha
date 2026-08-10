@@ -54,16 +54,16 @@ export function SocialFeed({
         <label className="relative min-w-0 flex-1">
           <span className="sr-only">{copy.experience.searchPlaceholder}</span>
           <Search
-            className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-navy/40"
+            className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-navy/65"
             aria-hidden
           />
           <input
             type="search"
             placeholder={copy.experience.searchPlaceholder}
-            className="w-full rounded-full border border-navy/10 bg-off-white py-2 pl-9 pr-3 text-sm text-navy placeholder:text-navy/40"
+            className="w-full rounded-full border border-navy/10 bg-off-white py-2 pl-9 pr-3 text-sm text-navy placeholder:text-navy/65"
           />
         </label>
-        <Bell className="hidden h-5 w-5 text-navy/50 sm:block" aria-hidden />
+        <Bell className="hidden h-5 w-5 text-navy/70 sm:block" aria-hidden />
       </div>
 
       <div className="grid lg:grid-cols-[180px_minmax(0,1fr)_220px]">
@@ -113,7 +113,7 @@ export function SocialFeed({
         </div>
 
         <aside className="hidden border-l border-navy/8 bg-white p-4 lg:block">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-navy/70">
             {copy.experience.trendsTitle}
           </h3>
           <ul className="mt-3 space-y-2">

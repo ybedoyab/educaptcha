@@ -1,12 +1,11 @@
-"""Bilingual reason copy, ported verbatim from `reasonFor()`.
+"""Bilingual reason copy, aligned with frontend `reasonFor()`.
 
-Source: `src/lib/LearningTriggerEngine.ts:82-136`.
+Source: `frontend/src/lib/LearningTriggerEngine.ts`.
 
 The model does not write these. They are product strings in two languages that
 Playwright matches with bilingual regexes, and generating them per request would
-make the UI non-deterministic and put Spanish quality at the mercy of a sampling
-coin flip. The agents' `evidence` goes to `diagnostics` instead, so the demo can
-still show *why* without shipping model output as copy.
+make the UI non-deterministic. Agents stay behind the scenes — copy is
+verification-oriented, not “AI found…” reveal language.
 """
 
 from __future__ import annotations
@@ -17,31 +16,50 @@ _IMAGE_SKILLS: frozenset[str] = frozenset({"image-context", "wildfire-context", 
 
 _SHARE_BY_SKILL: dict[str, LocalizedText] = {
     "image": LocalizedText(
-        en="Before sharing this image, check when and where it was taken.",
-        es="Antes de compartir esta imagen, comprueba cuándo y dónde fue tomada.",
+        en=("Before you share, check this photo. This image may be old or out of context."),
+        es=(
+            "Antes de compartir, revisa esta foto. "
+            "Esta imagen puede ser antigua o estar fuera de contexto."
+        ),
+    ),
+    "wildfire-context": LocalizedText(
+        en=(
+            "Before you share, check this photo. "
+            "The caption names one place, but visual cues may point elsewhere."
+        ),
+        es=(
+            "Antes de compartir, revisa esta foto. "
+            "El texto nombra un lugar, pero las señales visuales pueden apuntar a otro."
+        ),
     ),
     "emotional-pressure": LocalizedText(
-        en="This post uses urgency before offering a verifiable source.",
-        es="Esta publicación usa urgencia antes de ofrecer una fuente verificable.",
+        en="Before you share, notice how this post is asking you to react.",
+        es="Antes de compartir, fíjate cómo este post te pide reaccionar.",
     ),
     "misleading-chart": LocalizedText(
-        en="Before sharing this chart, check where the vertical axis starts.",
-        es="Antes de compartir esta gráfica, revisa dónde empieza el eje vertical.",
+        en="Before you share, check how this chart is scaled.",
+        es="Antes de compartir, revisa cómo está escalada esta gráfica.",
     ),
     "vaccine-claim": LocalizedText(
-        en="Before sharing, separate what the photo shows from what the caption claims.",
-        es="Antes de compartir, separa lo que muestra la foto de lo que afirma el pie.",
+        en=("Before you share, compare what the photo shows with what the caption claims."),
+        es=("Antes de compartir, compara lo que muestra la foto con lo que afirma el pie."),
     ),
 }
 
 _COMMENT = LocalizedText(
-    en="Your draft repeats the claim without identifying its source.",
-    es="Tu borrador repite la afirmación sin identificar su fuente.",
+    en=(
+        "Your draft repeats the claim without identifying its source. "
+        "Edit or verify before posting."
+    ),
+    es=(
+        "Tu borrador repite la afirmación sin identificar su fuente. "
+        "Edita o verifica antes de publicar."
+    ),
 )
 
 _REPOST = LocalizedText(
-    en="This image may be authentic but missing its original context.",
-    es="Esta imagen puede ser auténtica, pero carecer de su contexto original.",
+    en="Before you reshare, check whether this image still has its original context.",
+    es="Antes de volver a compartir, revisa si esta imagen conserva su contexto original.",
 )
 
 _FALLBACK = LocalizedText(
@@ -60,6 +78,8 @@ def reason_for(
 ) -> LocalizedText:
     """Mirrors `reasonFor(action, post, commentText)` branch for branch."""
     if action == "share":
+        if skill == "wildfire-context":
+            return _SHARE_BY_SKILL["wildfire-context"]
         if skill in _IMAGE_SKILLS:
             return _SHARE_BY_SKILL["image"]
         if skill in _SHARE_BY_SKILL:

@@ -264,15 +264,15 @@ export const translations = {
       save: "Save",
       verify: "Verify",
       highlighted: "Highlighted",
-      verifiedBadge: "Misleading",
-      aiVerifiedBadge: "AI verified",
+      verifiedBadge: "Check needed",
+      aiVerifiedBadge: "",
       openSource: "Open source",
       seeVerification: "See verification",
       hideVerification: "Hide verification",
-      aiClearedTraceTitle: "What the agents checked",
-      aiClearedStepSource: "Original source and claim compared",
-      aiClearedStepConflict: "No conflict found",
-      aiClearedStepClear: "Cleared to share",
+      aiClearedTraceTitle: "",
+      aiClearedStepSource: "",
+      aiClearedStepConflict: "",
+      aiClearedStepClear: "",
       misleadingTraceTitle: "What you checked",
 
       clearSearch: "Clear search",
@@ -298,18 +298,24 @@ export const translations = {
       returnCommentTitle: "You were about to post this reply.",
       editComment: "Edit reply",
       publishAnyway: "Reply anyway",
-      returnShareTitle:
-        "Not recommended to share — confirmed misleading.",
+      returnShareTitle: "Verification pause completed.",
+      returnShareTitleContext: "Context mismatch found.",
+      returnShareTitleChart:
+        "The chart presentation may exaggerate the difference.",
+      returnShareTitlePhotoClaim:
+        "The photo does not support the claim in the caption.",
+      returnShareTitlePressure:
+        "This post uses pressure before providing a verifiable source.",
       returnShareDetail:
-        "This post’s claim is misleading or not supported by the evidence shown.",
+        "Review the evidence before you decide whether to share.",
       returnShareDetailChart:
-        "The chart truncates the axis so a small change looks dramatic.",
+        "The chart presentation may exaggerate the difference.",
       returnShareDetailPhotoClaim:
-        "A real photo does not prove the safety claim in the caption.",
+        "The photo does not support the claim in the caption.",
       returnShareDetailContext:
-        "The image’s original date or place does not match this caption.",
+        "The original date or place does not match this caption.",
       returnShareDetailPressure:
-        "Urgency language pushed sharing before any verifiable source.",
+        "This post uses pressure before providing a verifiable source.",
       cancelCheckSource: "Cancel & check source",
       cancelShare: "Cancel share",
       shareAnyway: "Share anyway",
@@ -323,12 +329,12 @@ export const translations = {
       verifyAcknowledgement:
         "Good instinct — verify the original source before sharing.",
       sharedToast: "Shared.",
-      sharedToastAiVerified: "Shared · AI verified",
+      sharedToastAiVerified: "",
       repostToast: "Image shared (simulated)",
       transferReasonNamed:
-        "AI found another image with the same risk pattern — complete this check too.",
+        "Another image may have the same context risk — complete this check too.",
       transferReasonGeneric:
-        "AI flagged another verification risk. Complete this short check before you share.",
+        "Another verification risk may apply. Complete this short check before you share.",
       completedAlert: "You finished a quick verification.",
       seedAlertReply: "Ada replied to a community garden post.",
       seedAlertVerified:
@@ -419,21 +425,27 @@ export const translations = {
       bfReturnCommentTitle: "You were about to post this comment.",
       bfEditComment: "Edit comment",
       bfCommentAnyway: "Comment anyway",
-      bfReturnShareTitle:
-        "Not recommended to share — confirmed misleading.",
+      bfReturnShareTitle: "Verification pause completed.",
+      bfReturnShareTitleContext: "Context mismatch found.",
+      bfReturnShareTitleChart:
+        "The chart presentation may exaggerate the difference.",
+      bfReturnShareTitlePhotoClaim:
+        "The photo does not support the claim in the caption.",
+      bfReturnShareTitlePressure:
+        "This post uses pressure before providing a verifiable source.",
       bfReturnShareDetail:
-        "This post’s claim is misleading or not supported by the evidence shown.",
+        "Review the evidence before you decide whether to share.",
       bfReturnShareDetailChart:
-        "The chart truncates the axis so a small change looks dramatic.",
+        "The chart presentation may exaggerate the difference.",
       bfReturnShareDetailPhotoClaim:
-        "A real photo does not prove the safety claim in the caption.",
+        "The photo does not support the claim in the caption.",
       bfReturnShareDetailContext:
-        "The image’s original date or place does not match this caption.",
+        "The original date or place does not match this caption.",
       bfReturnShareDetailPressure:
-        "Urgency language pushed sharing before any verifiable source.",
+        "This post uses pressure before providing a verifiable source.",
       bfShareAnyway: "Share anyway",
       bfSharedToast: "Shared (simulated)",
-      bfSharedToastAiVerified: "Shared · AI verified",
+      bfSharedToastAiVerified: "",
       bfShareImageToast: "Image shared (simulated)",
       bfEmptySaved: "Posts you save appear here.",
     },
@@ -716,15 +728,15 @@ export const translations = {
       save: "Guardar",
       verify: "Verificar",
       highlighted: "Destacado",
-      verifiedBadge: "Engañoso",
-      aiVerifiedBadge: "Verificado por IA",
+      verifiedBadge: "Revisar",
+      aiVerifiedBadge: "",
       openSource: "Abrir fuente",
       seeVerification: "Ver verificación",
       hideVerification: "Ocultar verificación",
-      aiClearedTraceTitle: "Lo que revisaron los agentes",
-      aiClearedStepSource: "Fuente original y afirmación comparadas",
-      aiClearedStepConflict: "Sin conflicto encontrado",
-      aiClearedStepClear: "Autorizado para compartir",
+      aiClearedTraceTitle: "",
+      aiClearedStepSource: "",
+      aiClearedStepConflict: "",
+      aiClearedStepClear: "",
       misleadingTraceTitle: "Lo que revisaste",
 
       clearSearch: "Limpiar búsqueda",
@@ -751,18 +763,24 @@ export const translations = {
       returnCommentTitle: "Estabas a punto de publicar esta respuesta.",
       editComment: "Editar respuesta",
       publishAnyway: "Responder de todos modos",
-      returnShareTitle:
-        "No recomendado compartir — comprobado engañoso.",
+      returnShareTitle: "Pausa de verificación completada.",
+      returnShareTitleContext: "Desajuste de contexto encontrado.",
+      returnShareTitleChart:
+        "La presentación de la gráfica puede exagerar la diferencia.",
+      returnShareTitlePhotoClaim:
+        "La foto no respalda la afirmación del pie.",
+      returnShareTitlePressure:
+        "Este post usa presión antes de ofrecer una fuente verificable.",
       returnShareDetail:
-        "La afirmación de esta publicación es engañosa o no está respaldada por la evidencia mostrada.",
+        "Revisa la evidencia antes de decidir si compartir.",
       returnShareDetailChart:
-        "La gráfica trunca el eje para que un cambio pequeño parezca enorme.",
+        "La presentación de la gráfica puede exagerar la diferencia.",
       returnShareDetailPhotoClaim:
-        "Una foto real no prueba la afirmación de seguridad del pie de foto.",
+        "La foto no respalda la afirmación del pie.",
       returnShareDetailContext:
-        "La fecha o el lugar originales de la imagen no coinciden con este pie.",
+        "La fecha o el lugar originales no coinciden con este pie.",
       returnShareDetailPressure:
-        "El lenguaje de urgencia empujó a compartir antes de una fuente verificable.",
+        "Este post usa presión antes de ofrecer una fuente verificable.",
       cancelCheckSource: "Cancelar y revisar fuente",
       cancelShare: "Cancelar compartir",
       shareAnyway: "Compartir igual",
@@ -778,12 +796,12 @@ export const translations = {
       verifyAcknowledgement:
         "Buen instinto — verifica la fuente original antes de compartir.",
       sharedToast: "Compartido.",
-      sharedToastAiVerified: "Compartido · Verificado por IA",
+      sharedToastAiVerified: "",
       repostToast: "Imagen compartida (simulada)",
       transferReasonNamed:
-        "La IA encontró otra imagen con el mismo patrón de riesgo — completa también esta verificación.",
+        "Otra imagen puede tener el mismo riesgo de contexto — completa también esta verificación.",
       transferReasonGeneric:
-        "La IA marcó otro riesgo de verificación. Completa este chequeo breve antes de compartir.",
+        "Puede haber otro riesgo de verificación. Completa este chequeo breve antes de compartir.",
       completedAlert: "Terminaste una verificación rápida.",
       seedAlertReply:
         "Ada respondió a una publicación del jardín comunitario.",
@@ -880,21 +898,27 @@ export const translations = {
       bfReturnCommentTitle: "Estabas a punto de publicar este comentario.",
       bfEditComment: "Editar comentario",
       bfCommentAnyway: "Comentar de todos modos",
-      bfReturnShareTitle:
-        "No recomendado compartir — comprobado engañoso.",
+      bfReturnShareTitle: "Pausa de verificación completada.",
+      bfReturnShareTitleContext: "Desajuste de contexto encontrado.",
+      bfReturnShareTitleChart:
+        "La presentación de la gráfica puede exagerar la diferencia.",
+      bfReturnShareTitlePhotoClaim:
+        "La foto no respalda la afirmación del pie.",
+      bfReturnShareTitlePressure:
+        "Este post usa presión antes de ofrecer una fuente verificable.",
       bfReturnShareDetail:
-        "La afirmación de esta publicación es engañosa o no está respaldada por la evidencia mostrada.",
+        "Revisa la evidencia antes de decidir si compartir.",
       bfReturnShareDetailChart:
-        "La gráfica trunca el eje para que un cambio pequeño parezca enorme.",
+        "La presentación de la gráfica puede exagerar la diferencia.",
       bfReturnShareDetailPhotoClaim:
-        "Una foto real no prueba la afirmación de seguridad del pie de foto.",
+        "La foto no respalda la afirmación del pie.",
       bfReturnShareDetailContext:
-        "La fecha o el lugar originales de la imagen no coinciden con este pie.",
+        "La fecha o el lugar originales no coinciden con este pie.",
       bfReturnShareDetailPressure:
-        "El lenguaje de urgencia empujó a compartir antes de una fuente verificable.",
+        "Este post usa presión antes de ofrecer una fuente verificable.",
       bfShareAnyway: "Compartir igual",
       bfSharedToast: "Compartido (simulado)",
-      bfSharedToastAiVerified: "Compartido · Verificado por IA",
+      bfSharedToastAiVerified: "",
       bfShareImageToast: "Imagen compartida (simulada)",
       bfEmptySaved: "Las publicaciones que guardes aparecen aquí.",
     },

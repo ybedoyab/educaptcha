@@ -1,7 +1,33 @@
 /**
- * Detail line under “Not recommended to share” — must match the deception type.
- * Generic “original source” copy is wrong for charts, urgency posts, etc.
+ * Detail + title under the share-return warning — evidence-based, not a
+ * blanket “this post is false” claim.
  */
+export function misleadingShareTitle(
+  skill: string | undefined,
+  titles: {
+    default: string;
+    context: string;
+    chart: string;
+    photoClaim: string;
+    pressure: string;
+  },
+): string {
+  switch (skill) {
+    case "misleading-chart":
+      return titles.chart;
+    case "vaccine-claim":
+      return titles.photoClaim;
+    case "emotional-pressure":
+      return titles.pressure;
+    case "image-context":
+    case "wildfire-context":
+    case "protest-context":
+      return titles.context;
+    default:
+      return titles.default;
+  }
+}
+
 export function misleadingShareDetail(
   skill: string | undefined,
   details: {

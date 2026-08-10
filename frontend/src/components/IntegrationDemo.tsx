@@ -127,7 +127,7 @@ export function IntegrationDemo() {
                   onChange={(e) => setComment(e.target.value)}
                   rows={3}
                   placeholder={copy.integration.commentPlaceholder}
-                  className="w-full resize-y rounded-xl border border-navy/15 bg-white px-3 py-2.5 text-sm text-navy placeholder:text-navy/40"
+                  className="w-full resize-y rounded-xl border border-navy/15 bg-white px-3 py-2.5 text-sm text-navy placeholder:text-navy/65"
                 />
               </label>
               <button

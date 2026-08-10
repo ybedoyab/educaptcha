@@ -71,7 +71,7 @@ function DraggableCard({
           const start = pointerStart.current;
           pointerStart.current = null;
           if (!start) return;
-          // Failed drag activation (moved but dnd-kit did not take over) → select
+          // Failed drag activation (moved but dnd-kit did not take over) Ã¢â€ â€™ select
           const moved =
             Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6;
           if (moved && !isDragging) onSelect();
@@ -228,7 +228,7 @@ export function DragClassifyGame({
     setActiveId(null);
     const { active, over } = event;
     if (!over) {
-      // Failed drag → select card for tap placement
+      // Failed drag Ã¢â€ â€™ select card for tap placement
       setSelectedItem(String(active.id));
       return;
     }
@@ -244,7 +244,7 @@ export function DragClassifyGame({
       </p>
       <div>
         <p className="text-sm font-medium text-navy">{copy.minigame.dragA11y}</p>
-        <p className="mt-0.5 text-xs text-navy/45">{copy.minigame.dragAlso}</p>
+        <p className="mt-0.5 text-xs text-navy/70">{copy.minigame.dragAlso}</p>
       </div>
 
       {selectedItem && (
@@ -254,8 +254,8 @@ export function DragClassifyGame({
           aria-live="polite"
         >
           {language === "es"
-            ? "Ahora elige una categoría ↓"
-            : "Now choose a category ↓"}
+            ? "Ahora elige una categoría Ã¢â€ â€œ"
+            : "Now choose a category Ã¢â€ â€œ"}
         </p>
       )}
 
@@ -316,7 +316,7 @@ export function DragClassifyGame({
         <DragOverlay>
           {activeId ? (
             <div className="flex items-center gap-2 rounded-xl border border-teal bg-white px-3 py-2 text-sm font-medium shadow-lg">
-              <GripVertical className="h-4 w-4 text-navy/40" aria-hidden />
+              <GripVertical className="h-4 w-4 text-navy/65" aria-hidden />
               {
                 interaction.items.find((i) => i.id === activeId)?.label[
                   language
@@ -328,7 +328,7 @@ export function DragClassifyGame({
       </DndContext>
 
       {showTapHint && selectedItem && (
-        <p className="text-xs text-navy/50" role="status">
+        <p className="text-xs text-navy/70" role="status">
           {language === "es"
             ? "Toca una categoría para colocarla."
             : "Tap a category to place it."}
@@ -337,7 +337,7 @@ export function DragClassifyGame({
 
       {rebuild && interaction.rebuild && (
         <div className="animate-slide-up rounded-xl border border-navy/10 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
             {copy.minigame.rebuild}
           </p>
           <p className="mt-2 text-sm text-navy/80">

@@ -18,7 +18,7 @@ export function DashboardPage() {
         }}
       />
       <main>
-        <p className="mx-auto max-w-6xl px-4 pt-6 text-sm text-navy/50 sm:px-6">
+        <p className="mx-auto max-w-6xl px-4 pt-6 text-sm text-navy/70 sm:px-6">
           <Link to="/" className="text-teal underline-offset-2 hover:underline">
             EduCAPTCHA
           </Link>{" "}

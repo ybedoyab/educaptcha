@@ -32,7 +32,8 @@ def test_guided_activates_on_first_share(corpus_by_id, catalog, settings, sessio
     assert res.decision.outcome == "intercept"
     assert res.decision.challenge_id == "ic-match"
     assert res.decision.reason is not None
-    assert "when and where" in res.decision.reason.en.lower()
+    assert "check this photo" in res.decision.reason.en.lower()
+    assert "out of context" in res.decision.reason.en.lower()
     assert res.should_run_agents is False  # guided never waits on a model
 
 

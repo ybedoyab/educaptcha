@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { BadgeCheck, ChevronDown, ChevronUp, ShieldCheck } from "lucide-react";
+import { BadgeCheck, ChevronDown, ChevronUp } from "lucide-react";
 import type { OpenFeedPost } from "../../data/openFeedPosts";
 import { useI18n } from "../../i18n/I18nContext";
 import { buildVerificationTrace } from "../../lib/postVerificationTrace";
 import { SourceTrace } from "../minigames/SourceTrace";
 
-type VerificationStatus = "ai-cleared" | "misleading";
+type VerificationStatus = "no-intervention" | "misleading";
 
 interface Props {
   post: OpenFeedPost;
@@ -14,7 +14,11 @@ interface Props {
   skin?: "y" | "bookface";
 }
 
-/** Expandable in-feed evidence: source link, date/place, claim vs original. */
+/**
+ * Expandable in-feed evidence after a verification pause.
+ * Only shown for posts that went through EduCAPTCHA (misleading path).
+ * No “AI verified / cleared to share” certification for benign shares.
+ */
 export function PostVerificationTrail({
   post,
   status,
@@ -22,6 +26,10 @@ export function PostVerificationTrail({
 }: Props) {
   const { copy } = useI18n();
   const [open, setOpen] = useState(false);
+
+  // Benign shares leave no verification trail — we did not certify truth.
+  if (status !== "misleading") return null;
+
   const steps = buildVerificationTrace(post, status);
 
   const shell =
@@ -44,11 +52,7 @@ export function PostVerificationTrail({
         onClick={() => setOpen((v) => !v)}
       >
         <span className="inline-flex items-center gap-2">
-          {status === "ai-cleared" ? (
-            <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
-          ) : (
-            <BadgeCheck className="h-4 w-4 shrink-0" aria-hidden />
-          )}
+          <BadgeCheck className="h-4 w-4 shrink-0" aria-hidden />
           {open
             ? copy.experience.hideVerification
             : copy.experience.seeVerification}
@@ -63,9 +67,7 @@ export function PostVerificationTrail({
       {open ? (
         <div className="mt-2">
           <p className={`mb-2 text-sm font-semibold ${strong}`}>
-            {status === "ai-cleared"
-              ? copy.experience.aiClearedTraceTitle
-              : copy.experience.misleadingTraceTitle}
+            {copy.experience.misleadingTraceTitle}
           </p>
           <SourceTrace steps={steps} />
         </div>

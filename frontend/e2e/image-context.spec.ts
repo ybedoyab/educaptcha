@@ -30,7 +30,8 @@ test.describe("image-context simplified flow", () => {
         .locator("dialog[open]")
         .getByText(
           /before you share, check this photo|antes de compartir, revisa esta foto/i,
-        ),
+        )
+        .first(),
     ).toBeVisible();
 
     await completeImageContextFlow(page);

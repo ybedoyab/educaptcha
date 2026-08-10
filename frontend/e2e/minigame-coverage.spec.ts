@@ -11,8 +11,8 @@ import {
 } from "./helpers/minigameFlows";
 
 /**
- * Human-like critical pass: every initial minigame type must open with an
- * AI reason, complete Pause→Check→Decide, return to the feed, and leave
+ * Human-like critical pass: every initial minigame type must open with a
+ * verification reason, complete Pause→Check→Decide, return to the feed, and leave
  * “See verification” collapsed by default.
  */
 test.describe("minigame coverage (critical QA)", () => {
@@ -74,22 +74,20 @@ test.describe("minigame coverage (critical QA)", () => {
     await expectReturnBar(page);
   });
 
-  test("safe garden post shares with AI verified trail collapsed", async ({
+  test("safe garden post shares with Shared toast only", async ({
     page,
   }) => {
     await page.goto("/demo");
     await page.locator("#share-p-garden").click();
     await expect(page.locator("dialog[open]")).toHaveCount(0);
     await expect(
-      page.getByText(/AI verified|Verificado por IA/i).first(),
+      page.getByText(/Shared\.|Compartido\./i).first(),
     ).toBeVisible();
-    await expectVerificationCollapsed(page);
-    // Expanding shows concrete trail, not empty chrome
-    await page
-      .getByRole("button", { name: /see verification|ver verificación/i })
-      .click();
     await expect(
-      page.getByText(/What the agents checked|Lo que revisaron/i),
-    ).toBeVisible();
+      page.getByText(/AI verified|Verificado por IA/i),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /see verification|ver verificación/i }),
+    ).toHaveCount(0);
   });
 });

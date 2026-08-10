@@ -70,7 +70,6 @@ export function OpenFeedPost({ post, expanded = false }: OpenFeedPostProps) {
             highlighted={isHighlighted}
             highlightedLabel={copy.experience.highlighted}
             checkStatus={checkStatus}
-            aiVerifiedLabel={copy.experience.aiVerifiedBadge}
             misleadingLabel={copy.experience.verifiedBadge}
           />
           <p className="whitespace-pre-wrap text-[15px] leading-5 text-social-text">

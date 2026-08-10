@@ -59,7 +59,7 @@ function WeeklyChart({
       >
         {items.map((item) => (
           <div key={item.label} className="flex flex-1 flex-col items-center gap-1">
-            <span className="text-[0.65rem] font-medium text-navy/50">
+            <span className="text-[0.65rem] font-medium text-navy/70">
               {item.value}
             </span>
             <div
@@ -173,19 +173,19 @@ export function AnalyticsDashboard({
             <Sparkles className="h-5 w-5 text-teal" aria-hidden />
             {copy.results.learningTransfer}
           </h3>
-          <p className="mt-1 text-xs font-medium text-navy/50">
+          <p className="mt-1 text-xs font-medium text-navy/70">
             {copy.results.learningTransferHint}
           </p>
           {latestSession && skillLabel ? (
             <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl bg-white/80 p-3">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                   {copy.results.skillPracticed}
                 </dt>
                 <dd className="mt-1 text-sm font-semibold text-navy">{skillLabel}</dd>
               </div>
               <div className="rounded-xl bg-white/80 p-3">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                   {copy.results.initialChallenge}
                 </dt>
                 <dd className="mt-1 text-sm font-semibold text-navy">
@@ -197,7 +197,7 @@ export function AnalyticsDashboard({
                 </dd>
               </div>
               <div className="rounded-xl bg-white/80 p-3">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                   {copy.results.transferChallenge}
                 </dt>
                 <dd className="mt-1 text-sm font-semibold text-navy">
@@ -207,7 +207,7 @@ export function AnalyticsDashboard({
                 </dd>
               </div>
               <div className="rounded-xl bg-white/80 p-3">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                   {copy.results.improvement}
                 </dt>
                 <dd className="mt-1 text-sm font-semibold text-navy">
@@ -218,16 +218,16 @@ export function AnalyticsDashboard({
               </div>
               {latestSession.minigameTypes && (
                 <div className="rounded-xl bg-white/80 p-3 sm:col-span-2">
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                     {copy.results.minigameType}
                   </dt>
                   <dd className="mt-1 text-sm font-semibold text-navy">
-                    {latestSession.minigameTypes.join(" → ")}
+                    {latestSession.minigameTypes.join(" â†’ ")}
                   </dd>
                 </div>
               )}
               <div className="rounded-xl bg-white/80 p-3">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                   {copy.results.resolveTime}
                 </dt>
                 <dd className="mt-1 text-sm font-semibold text-navy">
@@ -240,7 +240,7 @@ export function AnalyticsDashboard({
                 </dd>
               </div>
               <div className="rounded-xl bg-white/80 p-3">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                   {copy.results.attempts}
                 </dt>
                 <dd className="mt-1 text-sm font-semibold text-navy">
@@ -249,7 +249,7 @@ export function AnalyticsDashboard({
                 </dd>
               </div>
               <div className="rounded-xl bg-white/80 p-3">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                   {copy.results.hintsUsed}
                 </dt>
                 <dd className="mt-1 text-sm font-semibold text-navy">
@@ -258,7 +258,7 @@ export function AnalyticsDashboard({
               </div>
               {latestSession.signalsFound != null && (
                 <div className="rounded-xl bg-white/80 p-3">
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                     {copy.results.signalsFound}
                   </dt>
                   <dd className="mt-1 text-sm font-semibold text-navy">
@@ -278,7 +278,7 @@ export function AnalyticsDashboard({
               key={kpi.label}
               className="rounded-2xl border border-navy/8 bg-off-white p-4"
             >
-              <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+              <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                 {kpi.label}
               </p>
               <p className="mt-2 font-display text-xl font-bold text-navy">

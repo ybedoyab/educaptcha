@@ -55,7 +55,7 @@ export function OpenFeedChallengeDialog() {
     return () => dialog.removeEventListener("cancel", onCancel);
   }, [skipChallenge]);
 
-  // Small brand mark only — the in-game steps carry the actionable title.
+  // Small brand mark only â€” the in-game steps carry the actionable title.
   const brandHint = isTransfer
     ? language === "es"
       ? "Otra foto para revisar"
@@ -79,7 +79,7 @@ export function OpenFeedChallengeDialog() {
               <p id={titleId} className="sr-only">
                 {brandHint}
               </p>
-              <p className="mt-0.5 text-xs text-navy/50" aria-hidden>
+              <p className="mt-0.5 text-xs text-navy/70" aria-hidden>
                 {brandHint}
               </p>
             </div>

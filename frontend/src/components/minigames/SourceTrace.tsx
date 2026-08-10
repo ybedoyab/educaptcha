@@ -55,7 +55,7 @@ function coalesceSteps(steps: SourceTraceStep[]): DisplayRow[] {
   return rows;
 }
 
-/** Compact evidence list — verification pause, not an academic dossier. */
+/** Compact evidence list â€” verification pause, not an academic dossier. */
 export function SourceTrace({ steps, className = "" }: Props) {
   const { language, copy } = useI18n();
   const openLabel = copy.experience.openSource;
@@ -73,7 +73,7 @@ export function SourceTrace({ steps, className = "" }: Props) {
           const { archive, original } = row;
           const href = archive.href ?? original.href;
           const place = original.detail
-            ? `${original.value[language]} — ${original.detail[language]}`
+            ? `${original.value[language]} â€” ${original.detail[language]}`
             : original.value[language];
           const label =
             language === "es"
@@ -119,7 +119,7 @@ export function SourceTrace({ steps, className = "" }: Props) {
         const tone = kindTone[step.kind] ?? "text-navy/60";
         const value =
           step.detail != null
-            ? `${step.value[language]} — ${step.detail[language]}`
+            ? `${step.value[language]} â€” ${step.detail[language]}`
             : step.value[language];
         const hasLink = Boolean(step.href);
         const isSourceLink =
@@ -153,7 +153,7 @@ export function SourceTrace({ steps, className = "" }: Props) {
                 href={step.href}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-navy/45 hover:bg-navy/5 hover:text-navy"
+                className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-navy/70 hover:bg-navy/5 hover:text-navy"
                 aria-label={
                   language === "es"
                     ? "Abrir fuente original"

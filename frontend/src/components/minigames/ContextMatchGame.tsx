@@ -25,7 +25,7 @@ interface Props {
   onSkip?: () => void;
   mode?: "play" | "review";
   reviewResult?: ChallengeResult | null;
-  /** Why this pause opened — “AI found…” from the risk decision. */
+  /** Why this pause opened â€” verification risk reason from the risk decision. */
   interceptReason?: string | null;
 }
 
@@ -67,7 +67,7 @@ function originalSummary(
   const original = interaction.sourceTrace?.find((s) => s.kind === "original");
   if (!original) return "";
   return original.detail
-    ? `${original.value[language]} — ${original.detail[language]}`
+    ? `${original.value[language]} â€” ${original.detail[language]}`
     : original.value[language];
 }
 
@@ -113,8 +113,8 @@ export function ContextMatchGame({
     interceptReason?.trim() ||
     interaction.instruction[language] ||
     (language === "es"
-      ? "La IA encontró un riesgo de verificación en esta foto. Completa el chequeo."
-      : "AI found a verification risk on this photo. Complete the check.");
+      ? "Antes de compartir, revisa esta foto. Esta imagen puede ser antigua o estar fuera de contexto."
+      : "Before you share, check this photo. This image may be old or out of context.");
 
   const listenText = useMemo(() => {
     if (phase === "intercept") {
@@ -126,7 +126,7 @@ export function ContextMatchGame({
       const bits = trace
         .map((s) => {
           const v = s.detail
-            ? `${s.value[language]} — ${s.detail[language]}`
+            ? `${s.value[language]} â€” ${s.detail[language]}`
             : s.value[language];
           return `${s.label[language]}: ${v}`;
         })
@@ -207,19 +207,25 @@ export function ContextMatchGame({
   return (
     <div className="mx-auto max-w-lg space-y-4">
       {phase !== "result" && (
-        <ol className="flex gap-2" aria-label={language === "es" ? "Progreso" : "Progress"}>
+        <ol
+          className="flex items-center justify-center gap-2"
+          aria-label={language === "es" ? "Progreso" : "Progress"}
+        >
           {steps.map((s, i) => (
             <li
               key={s.id}
-              className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-lg px-2 text-xs font-semibold ${
+              className={`h-2.5 w-2.5 rounded-full ${
                 i === stepIndex
-                  ? "bg-teal/15 text-teal"
+                  ? "bg-teal"
                   : i < stepIndex
-                    ? "bg-navy/5 text-navy/55"
-                    : "bg-off-white text-navy/30"
+                    ? "bg-navy/40"
+                    : "bg-navy/15"
               }`}
+              aria-current={i === stepIndex ? "step" : undefined}
             >
-              {i + 1}. {s.label}
+              <span className="sr-only">
+                {i + 1}. {s.label}
+              </span>
             </li>
           ))}
         </ol>
@@ -243,7 +249,7 @@ export function ContextMatchGame({
               <p className="mt-1.5 pl-6 text-xs font-medium text-navy/60">
                 {language === "es"
                   ? "Por eso debes completar esta verificación antes de compartir."
-                  : "That’s why you need to complete this check before sharing."}
+                  : "Thatâ€™s why you need to complete this check before sharing."}
               </p>
             </div>
           </div>
@@ -293,7 +299,7 @@ export function ContextMatchGame({
             <p className="mt-1 text-sm text-navy/65">
               {language === "es"
                 ? "Este post dice que la imagen es de hoy. Esto es lo que encontramos."
-                : "This post claims the image is from today. Here’s what we found."}
+                : "This post claims the image is from today. Hereâ€™s what we found."}
             </p>
           </div>
           {trace.length > 0 ? (
@@ -428,7 +434,7 @@ export function ContextMatchGame({
               compact
               className="absolute right-0 top-0"
             />
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-teal/15 text-teal">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-teal text-white">
               <Check className="h-8 w-8" strokeWidth={2.5} aria-hidden />
             </div>
             <h3 className="mt-3 text-xl font-bold text-navy">{titleForPhase}</h3>
@@ -471,7 +477,7 @@ export function ContextMatchGame({
               </span>
             </li>
           </ul>
-          {/* MinigameFeedback owns Continue → return-to-context Cancel share / Share anyway */}
+          {/* MinigameFeedback owns Continue â†’ return-to-context Cancel share / Share anyway */}
         </div>
       )}
     </div>

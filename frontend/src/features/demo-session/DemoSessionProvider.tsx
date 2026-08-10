@@ -106,7 +106,7 @@ export function DemoSessionProvider({
     null,
   );
   const [postVerification, setPostVerification] = useState<
-    Record<string, "ai-cleared" | "misleading">
+    Record<string, "no-intervention" | "misleading">
   >({});
   const [scenarioGuide, setScenarioGuide] = useState<LocalizedText | null>(
     null,
@@ -154,9 +154,9 @@ export function DemoSessionProvider({
   const likedSet = useMemo(() => new Set(liked), [liked]);
   const savedSet = useMemo(() => new Set(saved), [saved]);
 
-  const markPostAiCleared = useCallback((postId: string) => {
+  const markPostNoIntervention = useCallback((postId: string) => {
     const post = openFeedPosts.find((p) => p.id === postId);
-    // Risky demo posts must go through EduCAPTCHA — never a green “AI verified”.
+    // Risky demo posts must go through EduCAPTCHA — never skip the pause.
     if (
       post &&
       (post.triggerSkill ||
@@ -167,7 +167,7 @@ export function DemoSessionProvider({
     }
     setPostVerification((prev) => {
       if (prev[postId] === "misleading") return prev;
-      return { ...prev, [postId]: "ai-cleared" };
+      return { ...prev, [postId]: "no-intervention" };
     });
   }, []);
 
@@ -354,8 +354,8 @@ export function DemoSessionProvider({
         if (risky) {
           setToast(msg.sharedToast);
         } else {
-          markPostAiCleared(post.id);
-          setToast(msg.sharedToastAiVerified ?? msg.sharedToast);
+          markPostNoIntervention(post.id);
+          setToast(msg.sharedToast);
         }
         return decision;
       };
@@ -367,7 +367,7 @@ export function DemoSessionProvider({
       decideForPost,
       flow,
       incrementShare,
-      markPostAiCleared,
+      markPostNoIntervention,
       maybeStartTransfer,
       msg,
       setToast,
@@ -507,8 +507,8 @@ export function DemoSessionProvider({
         if (risky) {
           setToast(msg.repostToast);
         } else {
-          markPostAiCleared(post.id);
-          setToast(msg.sharedToastAiVerified ?? msg.repostToast);
+          markPostNoIntervention(post.id);
+          setToast(msg.repostToast);
         }
         return decision;
       };
@@ -523,7 +523,7 @@ export function DemoSessionProvider({
     [
       decideForPost,
       flow,
-      markPostAiCleared,
+      markPostNoIntervention,
       maybeStartTransfer,
       msg,
       setToast,

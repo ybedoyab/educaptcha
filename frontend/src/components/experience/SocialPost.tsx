@@ -104,8 +104,8 @@ export function SocialPost({
           <p className="truncate text-sm font-semibold text-navy">
             {post.author[language]}
           </p>
-          <p className="truncate text-xs text-navy/50">
-            {post.handle} · {post.time[language]}
+          <p className="truncate text-xs text-navy/70">
+            {post.handle} Â· {post.time[language]}
           </p>
         </div>
       </header>
@@ -131,7 +131,7 @@ export function SocialPost({
         />
       )}
 
-          <div className="mt-3 flex flex-wrap gap-3 text-xs text-navy/50">
+          <div className="mt-3 flex flex-wrap gap-3 text-xs text-navy/70">
             <span>
               {post.reactions.toLocaleString()} {copy.experience.like.toLowerCase()}
             </span>

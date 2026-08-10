@@ -146,9 +146,11 @@ def test_extra_fields_are_rejected(client, corpus_by_id):
     assert client.post("/risk/analyze", json=payload).status_code == 422
 
 
-def test_rate_limit_kicks_in(client, corpus_by_id, fake_llm):
+def test_rate_limit_kicks_in(client, corpus_by_id, fake_llm, settings):
     payload = _body(corpus_by_id["p-garden"], dry_run=True)
-    codes = {client.post("/risk/analyze", json=payload).status_code for _ in range(40)}
+    # Limit is env-tunable (local demos often raise it for prefetch); exceed it.
+    burst = max(settings.rate_limit_per_min + 15, 45)
+    codes = {client.post("/risk/analyze", json=payload).status_code for _ in range(burst)}
     assert 429 in codes
 
 

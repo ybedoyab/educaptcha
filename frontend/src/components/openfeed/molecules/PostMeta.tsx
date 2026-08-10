@@ -1,6 +1,6 @@
-import { BadgeCheck, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 
-export type PostCheckBadgeStatus = "ai-cleared" | "misleading";
+export type PostCheckBadgeStatus = "no-intervention" | "misleading";
 
 interface PostMetaProps {
   author: string;
@@ -9,7 +9,6 @@ interface PostMetaProps {
   highlighted: boolean;
   highlightedLabel: string;
   checkStatus?: PostCheckBadgeStatus | null;
-  aiVerifiedLabel?: string;
   misleadingLabel?: string;
 }
 
@@ -20,7 +19,6 @@ export function PostMeta({
   highlighted,
   highlightedLabel,
   checkStatus = null,
-  aiVerifiedLabel,
   misleadingLabel,
 }: PostMetaProps) {
   return (
@@ -38,16 +36,10 @@ export function PostMeta({
           {highlightedLabel}
         </span>
       ) : null}
-      {checkStatus === "ai-cleared" ? (
-        <span className="ml-1 inline-flex shrink-0 items-center gap-1 rounded-md border border-social-green/35 bg-social-green/10 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-social-green">
-          <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-          {aiVerifiedLabel ?? "AI verified"}
-        </span>
-      ) : null}
       {checkStatus === "misleading" ? (
         <span className="ml-1 inline-flex shrink-0 items-center gap-1 rounded-md border border-amber/40 bg-amber/15 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#b45309]">
           <TriangleAlert className="h-3 w-3" aria-hidden="true" />
-          {misleadingLabel ?? "Misleading"}
+          {misleadingLabel ?? "Check needed"}
         </span>
       ) : null}
     </header>
