@@ -213,20 +213,22 @@ test.describe("E. Assets", () => {
       "/demo/bookface/scenario/image-context",
     ]) {
       await page.goto(route, { waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(1500);
+      await page.waitForTimeout(800);
       const imgs = page.locator('img[src*="demo-assets"]');
       const count = await imgs.count();
       for (let i = 0; i < count; i++) {
         const img = imgs.nth(i);
-        const state = await img.evaluate((el) => {
-          const node = el as HTMLImageElement;
-          return { complete: node.complete, width: node.naturalWidth };
-        });
-        if (!state.complete || state.width <= 0) {
-          failures.push(
-            `broken or unloaded image on ${route} (complete=${state.complete}, w=${state.width})`,
-          );
-        }
+        await img.scrollIntoViewIfNeeded();
+        await expect
+          .poll(
+            async () =>
+              img.evaluate((el) => {
+                const node = el as HTMLImageElement;
+                return node.complete && node.naturalWidth > 0;
+              }),
+            { timeout: 15_000 },
+          )
+          .toBe(true);
       }
     }
     expect(failures, failures.join("\n")).toEqual([]);
