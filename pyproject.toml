@@ -31,7 +31,7 @@ dev = [
 testpaths = ["backend/tests", "agents/tests"]
 asyncio_mode = "auto"
 addopts = "-q -m 'not live'"
-pythonpath = ["backend", "agents/src"]
+pythonpath = ["backend", "agents"]
 markers = [
     "live: hits the real Gemini API (deselected by default)",
 ]

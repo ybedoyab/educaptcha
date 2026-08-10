@@ -11,8 +11,8 @@ from typing import Any
 from educaptcha_agents.contracts import AgentOutput, AgentSettings
 from educaptcha_agents.model import set_factory
 
-# agents/src/educaptcha_agents/testing.py -> agents/tests/fakes/cassettes
-CASSETTES = Path(__file__).resolve().parents[2] / "tests" / "fakes" / "cassettes"
+# agents/educaptcha_agents/testing.py -> agents/tests/fakes/cassettes
+CASSETTES = Path(__file__).resolve().parents[1] / "tests" / "fakes" / "cassettes"
 
 _AGENT_MARKERS = {
     "text": "You analyse social media posts",
