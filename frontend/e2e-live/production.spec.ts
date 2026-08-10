@@ -1,144 +1,147 @@
 import { expect, test, type Page } from "@playwright/test";
 
+const VALID_OUTCOMES = new Set(["continue", "intercept", "verify-ack"]);
+
+const FORBIDDEN_TRUTH_CLAIMS =
+  /AI verified|Verificado por IA|confirmed misleading|confirmado como engañoso/i;
+
+const FORBIDDEN_AI_FOUND = /AI found|La IA encontró/i;
+
 async function bypassIntro(page: Page) {
   await page.addInitScript(() => {
     localStorage.setItem("educaptcha-intro-seen", JSON.stringify(true));
   });
 }
 
-function dialog(page: Page) {
+function openDialog(page: Page) {
   return page.locator("dialog[open]");
 }
 
-async function clickInDialog(page: Page, name: RegExp) {
-  const root = dialog(page);
-  const btn = root.getByRole("button", { name });
-  const radio = root.getByRole("radio", { name });
-  const target = (await btn.count()) > 0 ? btn.first() : radio.first();
-  await expect(target).toBeVisible({ timeout: 15_000 });
-  await target.scrollIntoViewIfNeeded();
-  await target.click({ force: true, timeout: 15_000 });
+async function clickDialogButton(page: Page, name: RegExp) {
+  const btn = openDialog(page).getByRole("button", { name });
+  await expect(btn).toBeVisible({ timeout: 15_000 });
+  await btn.scrollIntoViewIfNeeded();
+  await btn.click({ force: true, timeout: 15_000 });
 }
 
-/**
- * Tolerant of current local copy and older production deploys.
- * Completes context-match: check → evidence → decide → result → close.
- */
-async function completeImageContext(page: Page) {
-  const root = dialog(page);
+/** Current image-context flow only. Missing step = fail. */
+async function completeImageContextCurrent(page: Page) {
+  const root = openDialog(page);
   await expect(root).toHaveCount(1, { timeout: 20_000 });
 
-  await clickInDialog(page, /check photo|revisar foto/i);
-
+  await expect(root.getByText(FORBIDDEN_TRUTH_CLAIMS)).toHaveCount(0);
+  await expect(root.getByText(FORBIDDEN_AI_FOUND)).toHaveCount(0);
   await expect(
     root
       .getByText(
-        /Original source|Fuente|Archive reference|Referencia|source|fuente/i,
+        /Before you share, check this photo|Antes de compartir, revisa esta foto/i,
       )
       .first(),
   ).toBeVisible({ timeout: 15_000 });
 
-  // Decide step CTA (current + older wording).
-  const decideCta = root.getByRole("button", {
-    name: /what does this mean|qué significa|what did you find|qué encontraste|choose a conclusion|elige/i,
-  });
-  if ((await decideCta.count()) > 0) {
-    await decideCta.first().click({ force: true });
-  }
+  await clickDialogButton(page, /^Check photo$|^Revisar foto$/i);
 
-  // Options may be radios (newer) or lettered buttons (older production).
-  const correct = root
-    .getByRole("radio", {
-      name: /real image used in the wrong context|imagen real usada en el contexto equivocado/i,
-    })
-    .or(
-      root.getByRole("button", {
-        name: /real image used in the wrong context|imagen real usada en el contexto equivocado/i,
-      }),
-    );
-  if ((await correct.count()) > 0) {
-    await correct.first().click({ force: true });
-  } else {
-    const radios = root.getByRole("radio");
-    if ((await radios.count()) > 0) {
-      await radios.first().click({ force: true });
-    }
-  }
+  await expect(
+    root.getByText(/Original source & photo|Fuente y foto originales/i),
+  ).toBeVisible({ timeout: 15_000 });
+  await expect(
+    root.getByRole("link", { name: /Open source|Abrir fuente/i }),
+  ).toBeVisible();
 
-  const seeResult = root.getByRole("button", {
-    name: /see result|ver resultado/i,
-  });
-  if ((await seeResult.count()) > 0) {
-    await seeResult.first().click({ force: true });
-  }
+  await clickDialogButton(page, /^What does this mean\?$|^¿Qué significa\?$/i);
 
-  await clickInDialog(page, /continue|continuar/i);
+  await clickDialogButton(
+    page,
+    /This is a real image used in the wrong context|imagen real usada en el contexto equivocado/i,
+  );
+
+  await clickDialogButton(page, /^See result$|^Ver resultado$/i);
+
+  await expect(
+    root.getByText(/Good catch|Buen ojo/i).first(),
+  ).toBeVisible({ timeout: 15_000 });
+  await expect(
+    root
+      .getByText(
+        /wrong date and location|fecha y lugar incorrectos/i,
+      )
+      .first(),
+  ).toBeVisible();
+  await expect(root.getByText(FORBIDDEN_TRUTH_CLAIMS)).toHaveCount(0);
+
+  await clickDialogButton(page, /^Continue$|^Continuar$/i);
   await expect(page.locator("dialog[open]")).toHaveCount(0, {
     timeout: 20_000,
   });
 }
 
+async function assertReturnBar(page: Page) {
+  await expect(
+    page.getByRole("button", { name: /Cancel share|Cancelar compartir/i }),
+  ).toBeVisible({ timeout: 15_000 });
+  await expect(
+    page.getByRole("button", { name: /Share anyway|Compartir igual/i }),
+  ).toBeVisible();
+  await expect(page.getByText(FORBIDDEN_TRUTH_CLAIMS)).toHaveCount(0);
+  await expect(
+    page.getByText(/confirmed misleading|confirmado como engañoso/i),
+  ).toHaveCount(0);
+}
+
 test.describe("A. Landing", () => {
-  test("loads and exposes demo CTAs", async ({ page }) => {
+  test("loads and exposes Try Y / Try Bookface demo CTAs", async ({
+    page,
+  }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveTitle(/EduCAPTCHA/i);
     await expect(
-      page
-        .getByRole("link", {
-          name: /try y demo|probar demo y|\/demo/i,
-        })
-        .or(page.locator('a[href="/demo"]'))
-        .first(),
+      page.getByRole("link", { name: /Try Y demo|Probar demo Y/i }).first(),
     ).toBeVisible({ timeout: 15_000 });
     await expect(
       page
         .getByRole("link", {
-          name: /try bookface demo|probar demo bookface|bookface/i,
+          name: /Try Bookface demo|Probar demo Bookface/i,
         })
-        .or(page.locator('a[href="/demo/bookface"]'))
         .first(),
     ).toBeVisible();
   });
 });
 
 test.describe("B. Y image-context scenario", () => {
-  test("share → check → decide → return bar", async ({ page }) => {
+  test("strict share → check → decide → result → return bar", async ({
+    page,
+  }) => {
     await bypassIntro(page);
     await page.goto("/demo/scenario/image-context");
     await expect(page.locator("#share-p-flood-live")).toBeVisible();
     await page.locator("#share-p-flood-live").click();
-    await completeImageContext(page);
-    await expect(
-      page.getByRole("button", { name: /cancel share|cancelar compartir/i }),
-    ).toBeVisible({ timeout: 15_000 });
-    await expect(
-      page.getByRole("button", { name: /share anyway|compartir igual/i }),
-    ).toBeVisible();
+    await completeImageContextCurrent(page);
+    await assertReturnBar(page);
   });
 });
 
 test.describe("C. Bookface image-context scenario", () => {
-  test("same semantic flow", async ({ page }) => {
+  test("strict share → check → decide → result → return bar", async ({
+    page,
+  }) => {
     await bypassIntro(page);
     await page.goto("/demo/bookface/scenario/image-context");
     await expect(page.locator("#share-p-flood-live")).toBeVisible();
     await page.locator("#share-p-flood-live").click();
-    await completeImageContext(page);
-    await expect(
-      page.getByRole("button", { name: /cancel share|cancelar compartir/i }),
-    ).toBeVisible({ timeout: 15_000 });
+    await completeImageContextCurrent(page);
+    await assertReturnBar(page);
   });
 });
 
 test.describe("D. Production API", () => {
-  test("/ops/healthz OK and risk analyze is not 5xx", async ({
+  test("/ops/healthz OK and /risk/analyze returns 200 decision", async ({
     page,
     request,
   }) => {
     const health = await request.get("/ops/healthz");
-    expect(health.ok(), await health.text()).toBeTruthy();
-    const body = await health.json();
-    expect(body.ok).toBeTruthy();
+    expect(health.status(), await health.text()).toBe(200);
+    const healthBody = await health.json();
+    expect(healthBody.ok).toBeTruthy();
 
     const analyze = await request.post("/risk/analyze", {
       data: {
@@ -159,31 +162,39 @@ test.describe("D. Production API", () => {
         session: { id: "live-smoke-1" },
       },
     });
-    expect(analyze.status(), await analyze.text()).toBeLessThan(500);
+    const analyzeText = await analyze.text();
+    expect(analyze.status(), analyzeText).toBe(200);
+    const analyzeBody = JSON.parse(analyzeText) as {
+      decision?: { outcome?: string };
+      session?: unknown;
+    };
+    expect(analyzeBody.decision).toBeTruthy();
+    expect(analyzeBody.session).toBeTruthy();
+    expect(VALID_OUTCOMES.has(String(analyzeBody.decision?.outcome))).toBe(
+      true,
+    );
 
-    // Free-browse path hits analyze from the page (no brittle LLM asserts).
     await bypassIntro(page);
     let sawAnalyze = false;
     page.on("response", (res) => {
-      if (res.url().includes("/risk/analyze") && res.status() < 500) {
+      if (!res.url().includes("/risk/analyze")) return;
+      const status = res.status();
+      if (status >= 200 && status < 300) {
         sawAnalyze = true;
       }
     });
     await page.goto("/demo");
-    await page.waitForTimeout(2500);
-    if (!sawAnalyze) {
-      const garden = page.locator("#share-p-garden");
-      if (await garden.isVisible().catch(() => false)) {
-        await garden.click();
-        await page.waitForTimeout(3000);
-      }
-    }
-    expect(analyze.status()).toBeLessThan(500);
+    await expect(page.locator("#share-p-garden")).toBeVisible({
+      timeout: 15_000,
+    });
+    await page.locator("#share-p-garden").click();
+    await expect.poll(() => sawAnalyze, { timeout: 20_000 }).toBe(true);
+    expect(sawAnalyze).toBe(true);
   });
 });
 
 test.describe("E. Assets", () => {
-  test("no demo-asset 404s / HTML-as-image / stuck skeletons on key live routes", async ({
+  test("no demo-asset >=400 and no broken images on key live routes", async ({
     page,
   }) => {
     const failures: string[] = [];
@@ -202,23 +213,20 @@ test.describe("E. Assets", () => {
       "/demo/bookface/scenario/image-context",
     ]) {
       await page.goto(route, { waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(800);
-      const broken = page.locator(
-        'img[alt]:not([src=""]), img[src*="demo-assets"]',
-      );
-      const count = await broken.count();
+      await page.waitForTimeout(1500);
+      const imgs = page.locator('img[src*="demo-assets"]');
+      const count = await imgs.count();
       for (let i = 0; i < count; i++) {
-        const img = broken.nth(i);
-        const ok = await img.evaluate((el) => {
+        const img = imgs.nth(i);
+        const state = await img.evaluate((el) => {
           const node = el as HTMLImageElement;
-          if (!node.complete) return true; // still loading is ok briefly
-          return node.naturalWidth > 0;
+          return { complete: node.complete, width: node.naturalWidth };
         });
-        if (!ok) failures.push(`broken image on ${route}`);
-      }
-      const skeletons = page.locator('[aria-busy="true"], .animate-pulse');
-      if ((await skeletons.count()) > 12) {
-        failures.push(`many busy/skeleton nodes on ${route}`);
+        if (!state.complete || state.width <= 0) {
+          failures.push(
+            `broken or unloaded image on ${route} (complete=${state.complete}, w=${state.width})`,
+          );
+        }
       }
     }
     expect(failures, failures.join("\n")).toEqual([]);
