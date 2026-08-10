@@ -77,6 +77,7 @@ export function ImageInspectionGame({
           assetId={interaction.mediaAssetId}
           src={interaction.imageSrc}
           alt={interaction.imageAlt[language]}
+          eager
         />
         {interaction.hotspots.map((h) => {
           const active = marks.includes(h.id);

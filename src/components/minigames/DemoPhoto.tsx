@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { ImageOff } from "lucide-react";
 import { getMediaAsset, type MediaAsset } from "../../data/mediaAssets";
 import { useI18n } from "../../i18n/I18nContext";
@@ -46,13 +46,33 @@ export function DemoPhoto({
   const resolvedAlt =
     alt ?? asset?.alt[language] ?? (language === "es" ? "Imagen" : "Image");
 
-  useEffect(() => {
+  /**
+   * Reset during render rather than in an effect. A photo the browser already
+   * has cached — every minigame re-shows one the feed just displayed — can fire
+   * `load` before passive effects flush, and an effect that then set "loading"
+   * would leave a complete image stranded at `opacity-0` behind the skeleton.
+   */
+  const lastSrcRef = useRef(resolvedSrc);
+  if (lastSrcRef.current !== resolvedSrc) {
+    lastSrcRef.current = resolvedSrc;
     setStatus("loading");
-  }, [resolvedSrc]);
+  }
 
   if (!resolvedSrc) {
     return null;
   }
+
+  /**
+   * An image that finished before React attached its handlers fires no event we
+   * can hear, so settle the status from the element itself on mount. SVGs are
+   * exempt from the width check: without intrinsic dimensions some engines
+   * report `naturalWidth === 0` for a perfectly good vector.
+   */
+  const settleFromElement = (node: HTMLImageElement | null) => {
+    if (!node?.complete) return;
+    const isVector = resolvedSrc.endsWith(".svg");
+    setStatus(node.naturalWidth === 0 && !isVector ? "error" : "ready");
+  };
 
   return (
     <div
@@ -69,6 +89,7 @@ export function DemoPhoto({
       {status !== "error" && (
         <img
           key={resolvedSrc}
+          ref={settleFromElement}
           src={resolvedSrc}
           alt={resolvedAlt}
           className={`h-full w-full object-cover transition-opacity ${

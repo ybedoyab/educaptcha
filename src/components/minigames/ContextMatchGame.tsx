@@ -227,6 +227,7 @@ export function ContextMatchGame({
             src={interaction.imageSrc}
             alt={interaction.imageAlt[language]}
             className="max-h-40"
+            eager
           />
           {/* When reviewResult is set, MinigameFeedback owns the Continue CTA + explanation */}
           {!reviewResult && (

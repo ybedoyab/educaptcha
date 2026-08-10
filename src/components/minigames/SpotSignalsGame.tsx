@@ -83,6 +83,7 @@ export function SpotSignalsGame({
           assetId={interaction.mediaAssetId}
           src={interaction.imageSrc}
           alt={interaction.mediaTitle[language]}
+          eager
         />
         <div className="space-y-2 p-3 sm:p-4">
           <p className="text-xs font-semibold text-teal">
