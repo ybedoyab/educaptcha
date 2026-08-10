@@ -63,6 +63,9 @@ htmlcov/
 **/eggs/
 .Python
 
+# Firebase CLI deploy cache
+.firebase/
+
 # Editor
 .vscode/*
 !.vscode/extensions.json

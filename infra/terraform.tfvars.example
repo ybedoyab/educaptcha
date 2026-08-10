@@ -1,0 +1,17 @@
+# Copy to terraform.tfvars and adjust. Every value here is non-secret;
+# GOOGLE_API_KEY and LANGSMITH_API_KEY live in Secret Manager (see secrets.tf).
+
+project_id      = "educaptcha"
+region          = "us-central1"
+hosting_site_id = "educaptcha"
+
+# Leave empty: deploy.sh owns the image tag and Terraform ignores it after creation.
+image = ""
+
+# Demo knobs — mirror .env.example.
+rate_limit_per_min = 120
+risk_threshold     = 0.55
+cooldown_actions   = 3
+
+# Flip to true only after adding a version to educaptcha-langsmith-api-key.
+enable_langsmith = false

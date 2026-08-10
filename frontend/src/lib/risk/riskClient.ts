@@ -18,7 +18,13 @@ import type { Language } from "../../types";
  */
 export function riskApiBase(): string | null {
   const raw = import.meta.env.VITE_RISK_API_URL?.trim();
-  return raw ? raw.replace(/\/+$/, "") : null;
+  if (!raw) return null;
+  // A relative value ("/") means "same origin as the page" — the deployed shape,
+  // where Firebase Hosting rewrites /risk/** to the Cloud Run service. Resolve it
+  // against the current origin so every caller still gets an absolute base and the
+  // `!base` checks keep meaning "no remote configured", not "relative".
+  const base = raw.startsWith("/") ? new URL(raw, window.location.origin).href : raw;
+  return base.replace(/\/+$/, "");
 }
 
 /**

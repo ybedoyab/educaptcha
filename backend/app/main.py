@@ -98,7 +98,14 @@ def create_app() -> FastAPI:
     app.include_router(routes_risk.router)
     app.include_router(routes_metrics.router)
 
+    # Two paths, one handler. Google's edge intercepts the exact path /healthz on
+    # *.run.app and answers it with its own 404, so the request never reaches this
+    # container — verified against the deployed revision, where /healthz returns
+    # Google's HTML error page while /healthz/ (307) and every other route reach
+    # the app normally. /ops/healthz is what the deployed smoke test hits;
+    # /healthz stays for local dev and existing tooling.
     @app.get("/healthz", tags=["ops"])
+    @app.get("/ops/healthz", tags=["ops"])
     async def healthz() -> dict[str, object]:
         return {
             "ok": True,
