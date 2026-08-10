@@ -101,7 +101,7 @@ export function MinigameRenderer({
           <ChartRepairGame
             interaction={interaction}
             language={language}
-            lockedAt={done ? 0 : undefined}
+            lockedAt={done ? interaction.targetStart : undefined}
             onSolved={(r) => finish(r)}
           />
         );
