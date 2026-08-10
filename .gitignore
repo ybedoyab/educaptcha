@@ -11,6 +11,8 @@ lerna-debug.log*
 .env
 .env.*
 !.env.example
+**/.env
+!**/.env.example
 *service-account*.json
 *-sa.json
 gcloud-key*.json
@@ -27,11 +29,15 @@ frontend/blob-report/
 frontend/playwright/.cache/
 
 # Legacy root paths (should not reappear)
-node_modules/
-dist/
-dist-remote/
-test-results/
-playwright-report/
+/node_modules/
+/dist/
+/dist-remote/
+/test-results/
+/playwright-report/
+/src/
+/e2e/
+/public/
+/assets/
 
 # Python
 .venv/
@@ -40,15 +46,23 @@ agents/.venv/
 backend/var/
 agents/var/
 __pycache__/
+**/__pycache__/
 *.py[cod]
 .pytest_cache/
+**/.pytest_cache/
 .ruff_cache/
+**/.ruff_cache/
 .mypy_cache/
+**/.mypy_cache/
 .coverage
 **/.coverage
 coverage.xml
 htmlcov/
 **/htmlcov/
+*.egg-info/
+**/eggs/
+.Python
+
 
 # Editor
 .vscode/*

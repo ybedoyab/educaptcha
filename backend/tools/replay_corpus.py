@@ -87,7 +87,7 @@ async def run(args: argparse.Namespace) -> int:
         risk_threshold=args.threshold,
     )
     if args.live and not settings.google_api_key:
-        print("--live needs GOOGLE_API_KEY (backend/.env)", file=sys.stderr)
+        print("--live needs GOOGLE_API_KEY (root .env)", file=sys.stderr)
         return 2
 
     restore = None
