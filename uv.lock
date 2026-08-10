@@ -294,6 +294,10 @@ wheels = [
 name = "educaptcha"
 version = "0.1.0"
 source = { virtual = "." }
+dependencies = [
+    { name = "educaptcha-agents" },
+    { name = "educaptcha-risk" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -308,6 +312,10 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [
+    { name = "educaptcha-agents", editable = "agents" },
+    { name = "educaptcha-risk", editable = "backend" },
+]
 
 [package.metadata.requires-dev]
 dev = [

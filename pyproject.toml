@@ -3,10 +3,17 @@ name = "educaptcha"
 version = "0.1.0"
 description = "EduCAPTCHA monorepo workspace (backend + agents)."
 requires-python = ">=3.11,<3.13"
-dependencies = []
+dependencies = [
+    "educaptcha-agents",
+    "educaptcha-risk",
+]
 
 [tool.uv.workspace]
 members = ["backend", "agents"]
+
+[tool.uv.sources]
+educaptcha-agents = { workspace = true }
+educaptcha-risk = { workspace = true }
 
 [dependency-groups]
 dev = [

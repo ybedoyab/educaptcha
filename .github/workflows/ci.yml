@@ -54,6 +54,8 @@ jobs:
           enable-cache: true
           cache-dependency-glob: uv.lock
       - run: uv sync --frozen --all-packages
+      - name: Smoke import
+        run: uv run python -c "import educaptcha_agents; print(educaptcha_agents.__file__)"
       - run: uv run ruff check agents
       - run: uv run ruff format --check agents
       - run: uv run pytest agents/tests
@@ -73,10 +75,12 @@ jobs:
         with:
           node-version: "24"
       - run: uv sync --frozen --all-packages
+      - name: Smoke import
+        run: uv run python -c "import educaptcha_agents, app; print('ok')"
       - run: uv run ruff check backend
       - run: uv run ruff format --check backend
       - run: uv run pytest backend/tests --cov=app --cov-report=term-missing
-      - run: uv run --project backend python backend/tools/replay_corpus.py --fake --sequential
+      - run: uv run --directory backend python tools/replay_corpus.py --fake --sequential
       - name: Docker build
         run: docker build -f backend/Dockerfile -t educaptcha-risk:ci .
 
