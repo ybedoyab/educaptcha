@@ -27,31 +27,6 @@ baked into the public bundle.
 | Cloud Storage | One bucket, Terraform remote state. |
 | IAM | One runtime service account holding exactly one permission. |
 
-Cut for the MVP, and what it would take to add back:
-
-- **Firestore + metrics.** Nothing in this repo reads metric events back — there
-  is no dashboard, only the `POST /metrics/event` writer. The service runs with
-  `METRICS_SINK=noop`, so events are accepted and discarded; the endpoint still
-  202s and the frontend is unaffected. To collect again: add a
-  `google_firestore_database`, grant the runtime SA `roles/datastore.user`, and
-  set `METRICS_SINK=firestore` plus `GOOGLE_CLOUD_PROJECT`.
-- **Workload Identity Federation + GitHub Actions.** Eight resources, five API
-  enablements and a workflow to automate a deploy that runs a handful of times.
-  `./deploy.sh` does it with your own credentials instead.
-- **`roles/logging.logWriter` / `monitoring.metricWriter` on the runtime SA.**
-  Not needed: the app logs to stdout through stdlib `logging`, and Cloud Run's
-  infrastructure collects that rather than the app's identity.
-
-## Why the service is pinned to one instance
-
-`app.state` holds the session store, the analysis cache and the rate limiter,
-all in-process. `--workers 1` is called out as load-bearing in CLAUDE.md for
-exactly this reason, and a second *instance* forks the cooldown counter the same
-way a second worker does. So `min_instance_count = max_instance_count = 1`, with
-`max_instance_request_concurrency = 80` absorbing load instead, and
-`cpu_idle = false` so the warm cache survives between requests. Scaling this
-horizontally means moving sessions and cache out of process first.
-
 ## First-time setup
 
 Prerequisites: `terraform >= 1.9`, `gcloud`, `docker`, Node 20+.
