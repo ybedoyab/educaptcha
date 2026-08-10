@@ -61,6 +61,7 @@ class Settings(BaseSettings):
 
     # ── tracing ──
     langsmith_tracing: bool = False
+    langsmith_endpoint: str = "https://api.smith.langchain.com"
     langsmith_api_key: str | None = None
     langsmith_project: str = "educaptcha-risk"
 
