@@ -63,7 +63,6 @@ htmlcov/
 **/eggs/
 .Python
 
-
 # Editor
 .vscode/*
 !.vscode/extensions.json
@@ -83,3 +82,8 @@ pnpm-lock.yaml
 pnpm-workspace.yaml
 
 *.local
+
+# Local-only launcher (do not commit)
+/start-local.ps1
+/start-local.cmd
+/start-local.sh
