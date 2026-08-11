@@ -13,6 +13,7 @@ import type {
   ChallengeResult,
   SpotSignalsInteraction,
 } from "../../types/minigame";
+import { riskDetail } from "../../lib/interceptCopy";
 import { DemoPhoto } from "./DemoPhoto";
 import { ListenControl } from "./ListenControl";
 import { MinigameProgress } from "./MinigameProgress";
@@ -96,12 +97,18 @@ export function SpotSignalsGame({
   const claim =
     interaction.claim?.[language] ??
     interaction.headlineParts.map((p) => p.text[language]).join("");
-  const whyPaused =
+  const interceptTitle =
+    language === "es"
+      ? "Antes de compartir, busca presión"
+      : "Before you share, spot the pressure";
+  const whyPaused = riskDetail(
     interceptReason?.trim() ||
-    interaction.instruction[language] ||
-    (language === "es"
-      ? "Antes de compartir, fíjate cómo este post te pide reaccionar. Marca las señales de presión."
-      : "Before you share, notice how this post is asking you to react. Spot the pressure signals.");
+      interaction.instruction[language] ||
+      (language === "es"
+        ? "Antes de compartir, fíjate cómo este post te pide reaccionar. Marca las señales de presión."
+        : "Before you share, notice how this post is asking you to react. Spot the pressure signals."),
+    interceptTitle,
+  );
 
   const foundEnough = selected.length >= interaction.targetCount;
 
@@ -175,9 +182,7 @@ export function SpotSignalsGame({
 
   const titleForPhase =
     phase === "intercept"
-      ? language === "es"
-        ? "Antes de compartir, busca presión"
-        : "Before you share, spot the pressure"
+      ? interceptTitle
       : phase === "check"
         ? language === "es"
           ? "Toca las señales de alerta"
@@ -288,7 +293,7 @@ export function SpotSignalsGame({
             <p className="mt-1.5 pl-6 text-xs font-medium text-navy/60">
               {language === "es"
                 ? "Por eso debes completar esta verificación antes de compartir."
-                : "Thatâ€™s why you need to complete this check before sharing."}
+                : "That’s why you need to complete this check before sharing."}
             </p>
           </div>
           {headlineBlock(false)}

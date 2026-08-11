@@ -48,7 +48,7 @@ export function DemoPhoto({
 
   /**
    * Reset during render rather than in an effect. A photo the browser already
-   * has cached â€” every minigame re-shows one the feed just displayed â€” can fire
+   * has cached — every minigame re-shows one the feed just displayed — can fire
    * `load` before passive effects flush, and an effect that then set "loading"
    * would leave a complete image stranded at `opacity-0` behind the skeleton.
    */

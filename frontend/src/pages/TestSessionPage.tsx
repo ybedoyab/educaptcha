@@ -172,7 +172,7 @@ export function TestSessionPage() {
             <p className="text-sm text-navy/60">
               {language === "es"
                 ? "No se inventan resultados globales. Solo se muestran las decisiones de esta sesión."
-                : "No global results are invented. Only this sessionÃ¢â‚¬â„¢s decisions are shown."}
+                : "No global results are invented. Only this session’s decisions are shown."}
             </p>
             <dl className="grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-xl bg-off-white p-3">

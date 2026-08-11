@@ -13,6 +13,7 @@ import type {
   ChallengeResult,
   ContextMatchInteraction,
 } from "../../types/minigame";
+import { riskDetail } from "../../lib/interceptCopy";
 import { DemoPhoto } from "./DemoPhoto";
 import { SourceTrace } from "./SourceTrace";
 import { ListenControl } from "./ListenControl";
@@ -25,7 +26,7 @@ interface Props {
   onSkip?: () => void;
   mode?: "play" | "review";
   reviewResult?: ChallengeResult | null;
-  /** Why this pause opened â€” verification risk reason from the risk decision. */
+  /** Why this pause opened — verification risk reason from the risk decision. */
   interceptReason?: string | null;
 }
 
@@ -67,7 +68,7 @@ function originalSummary(
   const original = interaction.sourceTrace?.find((s) => s.kind === "original");
   if (!original) return "";
   return original.detail
-    ? `${original.value[language]} â€” ${original.detail[language]}`
+    ? `${original.value[language]} — ${original.detail[language]}`
     : original.value[language];
 }
 
@@ -109,12 +110,18 @@ export function ContextMatchGame({
   const original = originalSummary(interaction, language);
   const sourceFound = sourceFoundSummary(interaction, language);
   const claim = interaction.claim[language];
-  const whyPaused =
+  const interceptTitle =
+    language === "es"
+      ? "Antes de compartir, revisa esta foto"
+      : "Before you share, check this photo";
+  const whyPaused = riskDetail(
     interceptReason?.trim() ||
-    interaction.instruction[language] ||
-    (language === "es"
-      ? "Antes de compartir, revisa esta foto. Esta imagen puede ser antigua o estar fuera de contexto."
-      : "Before you share, check this photo. This image may be old or out of context.");
+      interaction.instruction[language] ||
+      (language === "es"
+        ? "Antes de compartir, revisa esta foto. Esta imagen puede ser antigua o estar fuera de contexto."
+        : "Before you share, check this photo. This image may be old or out of context."),
+    interceptTitle,
+  );
 
   const listenText = useMemo(() => {
     if (phase === "intercept") {
@@ -126,7 +133,7 @@ export function ContextMatchGame({
       const bits = trace
         .map((s) => {
           const v = s.detail
-            ? `${s.value[language]} â€” ${s.detail[language]}`
+            ? `${s.value[language]} — ${s.detail[language]}`
             : s.value[language];
           return `${s.label[language]}: ${v}`;
         })
@@ -183,9 +190,7 @@ export function ContextMatchGame({
 
   const titleForPhase = (() => {
     if (phase === "intercept") {
-      return language === "es"
-        ? "Antes de compartir, revisa esta foto"
-        : "Before you share, check this photo";
+      return interceptTitle;
     }
     if (phase === "check") {
       return language === "es"
@@ -249,7 +254,7 @@ export function ContextMatchGame({
               <p className="mt-1.5 pl-6 text-xs font-medium text-navy/60">
                 {language === "es"
                   ? "Por eso debes completar esta verificación antes de compartir."
-                  : "Thatâ€™s why you need to complete this check before sharing."}
+                  : "That’s why you need to complete this check before sharing."}
               </p>
             </div>
           </div>
@@ -299,7 +304,7 @@ export function ContextMatchGame({
             <p className="mt-1 text-sm text-navy/65">
               {language === "es"
                 ? "Este post dice que la imagen es de hoy. Esto es lo que encontramos."
-                : "This post claims the image is from today. Hereâ€™s what we found."}
+                : "This post claims the image is from today. Here’s what we found."}
             </p>
           </div>
           {trace.length > 0 ? (
@@ -477,7 +482,7 @@ export function ContextMatchGame({
               </span>
             </li>
           </ul>
-          {/* MinigameFeedback owns Continue â†’ return-to-context Cancel share / Share anyway */}
+          {/* MinigameFeedback owns Continue → return-to-context Cancel share / Share anyway */}
         </div>
       )}
     </div>

@@ -61,13 +61,16 @@ export function MinigameRenderer({
   const categoryLabel =
     copy.categories[challenge.category as keyof typeof copy.categories];
 
+  // These games surface `instruction` themselves (as the "why we paused"
+  // callout, or as the question for single-choice), so the shell must not print
+  // it a second time — embedded or not. `drag-classify` shows the post text
+  // instead, so there the shell is the only place the instruction appears.
   const hideChromeInstruction =
-    embedded &&
-    (interaction.type === "context-match" ||
-      interaction.type === "image-inspection" ||
-      interaction.type === "spot-signals" ||
-      interaction.type === "chart-repair" ||
-      interaction.type === "single-choice");
+    interaction.type === "context-match" ||
+    interaction.type === "image-inspection" ||
+    interaction.type === "spot-signals" ||
+    interaction.type === "chart-repair" ||
+    interaction.type === "single-choice";
 
   const mode = done ? "review" : "play";
 

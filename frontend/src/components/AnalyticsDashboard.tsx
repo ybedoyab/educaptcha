@@ -222,7 +222,7 @@ export function AnalyticsDashboard({
                     {copy.results.minigameType}
                   </dt>
                   <dd className="mt-1 text-sm font-semibold text-navy">
-                    {latestSession.minigameTypes.join(" â†’ ")}
+                    {latestSession.minigameTypes.join(" → ")}
                   </dd>
                 </div>
               )}

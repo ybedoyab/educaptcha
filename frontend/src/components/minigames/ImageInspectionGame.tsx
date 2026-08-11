@@ -13,6 +13,7 @@ import type {
   ChallengeResult,
   ImageInspectionInteraction,
 } from "../../types/minigame";
+import { riskDetail } from "../../lib/interceptCopy";
 import { DemoPhoto } from "./DemoPhoto";
 import { ListenControl } from "./ListenControl";
 
@@ -35,7 +36,7 @@ const OPTION_LETTERS = ["A", "B", "C", "D"];
 
 /**
  * Photo-vs-claim (and legacy anomaly mark) check.
- * Pause Ã¢â€ â€™ Check Ã¢â€ â€™ Decide: classify what the photo shows vs caption claims,
+ * Pause → Check → Decide: classify what the photo shows vs caption claims,
  * then pick a conclusion.
  */
 export function ImageInspectionGame({
@@ -77,13 +78,19 @@ export function ImageInspectionGame({
     interaction.claim?.[language] ??
     (language === "es"
       ? "Esta foto prueba la afirmación del post."
-      : "This photo proves the postÃ¢â‚¬â„¢s claim.");
-  const whyPaused =
+      : "This photo proves the post’s claim.");
+  const interceptTitle =
+    language === "es"
+      ? "Antes de compartir, separa foto y afirmación"
+      : "Before you share, separate photo and claim";
+  const whyPaused = riskDetail(
     interceptReason?.trim() ||
-    interaction.instruction[language] ||
-    (language === "es"
-      ? "Antes de compartir, compara lo que muestra la foto con lo que afirma el pie."
-      : "Before you share, compare what the photo shows with what the caption claims.");
+      interaction.instruction[language] ||
+      (language === "es"
+        ? "Antes de compartir, compara lo que muestra la foto con lo que afirma el pie."
+        : "Before you share, compare what the photo shows with what the caption claims."),
+    interceptTitle,
+  );
 
   const allFindings = interaction.hotspots;
   const requiredIds = allFindings.map((h) => h.id);
@@ -206,14 +213,12 @@ export function ImageInspectionGame({
 
   const titleForPhase = (() => {
     if (phase === "intercept") {
-      return language === "es"
-        ? "Antes de compartir, separa foto y afirmación"
-        : "Before you share, separate photo and claim";
+      return interceptTitle;
     }
     if (phase === "check") {
       return language === "es"
         ? "¿Está en la foto o solo en el texto?"
-        : "In the photo Ã¢â‚¬â€ or only in the caption?";
+        : "In the photo — or only in the caption?";
     }
     if (phase === "decide") {
       return language === "es" ? "¿Qué encontraste?" : "What did you find?";
@@ -282,7 +287,7 @@ export function ImageInspectionGame({
               <p className="mt-1.5 pl-6 text-xs font-medium text-navy/60">
                 {language === "es"
                   ? "Por eso debes completar esta verificación antes de compartir."
-                  : "ThatÃ¢â‚¬â„¢s why you need to complete this check before sharing."}
+                  : "That’s why you need to complete this check before sharing."}
               </p>
             </div>
           </div>
@@ -536,7 +541,7 @@ export function ImageInspectionGame({
             {interaction.conclusion?.[language] ??
               (language === "es"
                 ? "La foto es real, pero no prueba la afirmación de seguridad del post."
-                : "The photo is real, but it does not prove the postÃ¢â‚¬â„¢s safety claim.")}
+                : "The photo is real, but it does not prove the post’s safety claim.")}
           </p>
           <p className="text-xs font-medium text-navy/55">
             {language === "es"

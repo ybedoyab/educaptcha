@@ -71,7 +71,7 @@ function DraggableCard({
           const start = pointerStart.current;
           pointerStart.current = null;
           if (!start) return;
-          // Failed drag activation (moved but dnd-kit did not take over) Ã¢â€ â€™ select
+          // Failed drag activation (moved but dnd-kit did not take over) → select
           const moved =
             Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6;
           if (moved && !isDragging) onSelect();
@@ -228,7 +228,7 @@ export function DragClassifyGame({
     setActiveId(null);
     const { active, over } = event;
     if (!over) {
-      // Failed drag Ã¢â€ â€™ select card for tap placement
+      // Failed drag → select card for tap placement
       setSelectedItem(String(active.id));
       return;
     }
@@ -254,8 +254,8 @@ export function DragClassifyGame({
           aria-live="polite"
         >
           {language === "es"
-            ? "Ahora elige una categoría Ã¢â€ â€œ"
-            : "Now choose a category Ã¢â€ â€œ"}
+            ? "Ahora elige una categoría ↓"
+            : "Now choose a category ↓"}
         </p>
       )}
 

@@ -12,6 +12,7 @@ import type {
   ChallengeResult,
   ChartRepairInteraction,
 } from "../../types/minigame";
+import { riskDetail } from "../../lib/interceptCopy";
 import { ListenControl } from "./ListenControl";
 
 interface Props {
@@ -50,7 +51,7 @@ const DEFAULT_CONCLUSIONS = [
     id: "broken",
     label: {
       en: "The chart numbers themselves are fake",
-      es: "Los nÃƒÂºmeros de la gráfica son falsos",
+      es: "Los números de la gráfica son falsos",
     },
     correct: false,
   },
@@ -88,14 +89,20 @@ export function ChartRepairGame({
   const claim =
     interaction.claim?.[language] ??
     (language === "es"
-      ? "El engagement explotó Ã¢â‚¬â€ mira la gráfica."
-      : "Engagement exploded Ã¢â‚¬â€ look at the chart.");
-  const whyPaused =
+      ? "El engagement explotó — mira la gráfica."
+      : "Engagement exploded — look at the chart.");
+  const interceptTitle =
+    language === "es"
+      ? "Antes de compartir, revisa la gráfica"
+      : "Before you share, check the chart";
+  const whyPaused = riskDetail(
     interceptReason?.trim() ||
-    interaction.instruction[language] ||
-    (language === "es"
-      ? "Antes de compartir, revisa cómo está escalada esta gráfica."
-      : "Before you share, check how this chart is scaled.");
+      interaction.instruction[language] ||
+      (language === "es"
+        ? "Antes de compartir, revisa cómo está escalada esta gráfica."
+        : "Before you share, check how this chart is scaled."),
+    interceptTitle,
+  );
 
   const nearTarget =
     Math.abs(axisStart - interaction.targetStart) <= interaction.tolerance;
@@ -180,9 +187,7 @@ export function ChartRepairGame({
 
   const titleForPhase =
     phase === "intercept"
-      ? language === "es"
-        ? "Antes de compartir, revisa la gráfica"
-        : "Before you share, check the chart"
+      ? interceptTitle
       : phase === "check"
         ? language === "es"
           ? "Repara el eje vertical"
@@ -300,7 +305,7 @@ export function ChartRepairGame({
             <p className="mt-1.5 pl-6 text-xs font-medium text-navy/60">
               {language === "es"
                 ? "Por eso debes completar esta verificación antes de compartir."
-                : "ThatÃ¢â‚¬â„¢s why you need to complete this check before sharing."}
+                : "That’s why you need to complete this check before sharing."}
             </p>
           </div>
           <p className="rounded-xl bg-amber/10 px-3 py-2.5 text-sm font-medium text-navy">

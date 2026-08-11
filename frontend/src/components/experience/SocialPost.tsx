@@ -105,7 +105,7 @@ export function SocialPost({
             {post.author[language]}
           </p>
           <p className="truncate text-xs text-navy/70">
-            {post.handle} Â· {post.time[language]}
+            {post.handle} · {post.time[language]}
           </p>
         </div>
       </header>
