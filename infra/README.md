@@ -162,10 +162,15 @@ At 1 vCPU + 1 GiB that is `86,400 × $0.000018` CPU + `86,400 × $0.0000020`
 memory. The monthly free tier (240,000 vCPU-s) covers only 2.8 days, so from
 roughly the 4th of each month you pay the full daily rate.
 
-Scaling to zero is safe here: the feed prefetches every post with `dryRun` on
-mount, so the wake-up is absorbed by the prefetch burst rather than the user's
-click, and a cache miss inside `CLICK_TIMEOUT_MS` (4.5 s) falls back to the
-local engine rather than stalling.
+Scaling to zero never *breaks* anything: the feed prefetches every post with
+`dryRun` on mount, and a cache miss inside `CLICK_TIMEOUT_MS` (4.5 s) falls back
+to the local engine rather than stalling.
+
+It does change what a cold visitor exercises, though. **A cold start measures
+~13 s** (`run.googleapis.com/container/startup_latencies`, 2026-08-16). The
+prefetch cannot hide that behind a 4.5 s timeout, so the first interaction on a
+cold service takes the local fallback and the agent backend is never reached.
+Nothing looks broken — which is exactly why it is worth knowing before a demo.
 
 ### Warming up for a demo
 
@@ -176,9 +181,12 @@ local engine rather than stalling.
 ./infra/demo.sh off      # back to zero
 ```
 
-`warm` is usually the right one: an idle instance survives up to ~15 min after
-the last request, which covers a pitch you are walking into. Use `on` for a
-scheduled slot where a cold start would be visible, and `off` right after.
+**Run `warm` before any demo.** It is not an optimisation — given the ~13 s cold
+start above, it is the difference between judges seeing the agent service and
+judges seeing the local fallback. An idle instance then survives up to ~15 min
+after the last request, which covers a pitch you are walking into. Use `on`
+instead for a scheduled slot far enough out that the 15 min will lapse, and
+`off` right after.
 
 If a forgotten `on` becomes a habit, set `cpu_idle = true` in `cloud_run.tf`.
 Nothing depends on unthrottled idle CPU any more — `METRICS_SINK` is `noop`, so

@@ -35,12 +35,14 @@ resource "google_cloud_run_v2_service" "risk" {
     #
     # `min` is a pure cost/latency dial and defaults to 0: the service sat at a
     # measured 86,400 billable seconds a day — a full 24h — on days with *zero*
-    # requests. Scaling to zero is safe here because the feed prefetches every
-    # post with `dryRun` on mount (frontend/src/lib/risk/riskClient.ts), so the
-    # wake-up is paid by the prefetch burst, not by the user's click; and a
-    # cache miss inside CLICK_TIMEOUT_MS falls back to the local engine.
-    # Raise it for a demo with `infra/demo.sh on` — see the Cost section of
-    # infra/README.md.
+    # requests.
+    #
+    # Scaling to zero never *breaks* anything: the feed prefetches with `dryRun`
+    # on mount (frontend/src/lib/risk/riskClient.ts) and a cache miss inside
+    # CLICK_TIMEOUT_MS (4.5s) falls back to the local engine. But a cold start
+    # measures ~13s, so a first click on a cold service reliably takes that
+    # fallback and the agent path is simply not exercised. Do not walk into a
+    # demo cold — run `infra/demo.sh warm` first. See infra/README.md.
     scaling {
       min_instance_count = var.min_instances
       max_instance_count = 1
