@@ -22,6 +22,30 @@ variable "hosting_site_id" {
   default     = "educaptcha"
 }
 
+variable "min_instances" {
+  description = <<-EOT
+    Warm instances to hold when idle. 0 means the service scales to zero and a
+    quiet day costs nothing; 1 means an always-on 1 vCPU / 1 GiB instance billed
+    24h a day whether or not anyone shows up (measured: ~5,555 COP / ~$1.73 USD
+    per day, ~$52 a month, on days with zero requests).
+
+    Keep this at 0. It is the declared, safe resting state, which also means any
+    `terraform apply` cancels a demo switch someone forgot to turn off — drift
+    resolves toward the cheap side on purpose. To warm up for a pitch, prefer
+    `infra/demo.sh on` over changing this default.
+  EOT
+  type        = number
+  default     = 0
+
+  validation {
+    # max_instance_count is pinned at 1 in cloud_run.tf because the session
+    # store, cooldown counter and cache are in-process; min > 1 could not be
+    # honoured anyway, and asking for it means someone misread the constraint.
+    condition     = var.min_instances >= 0 && var.min_instances <= 1
+    error_message = "min_instances must be 0 or 1: the service is pinned to a single instance."
+  }
+}
+
 variable "image" {
   description = <<-EOT
     Full image reference for the Cloud Run revision. Leave empty on the first

@@ -1,0 +1,10 @@
+# Shell scripts must keep LF in the working tree on every platform. bash fails
+# on a CRLF script with `$'\r': command not found`, and this repo is developed on
+# Windows where `core.autocrlf=true` silently rewrites them on checkout — the
+# working copy of deploy.sh was already CRLF when this file was added. Linux CI
+# and the Docker build would hit it too.
+*.sh text eol=lf
+
+# Same reasoning: read by a Linux shell inside the image, never by Windows.
+Dockerfile text eol=lf
+.dockerignore text eol=lf

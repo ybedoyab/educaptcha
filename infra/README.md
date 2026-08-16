@@ -90,6 +90,30 @@ block in `versions.tf` and:
 terraform init -migrate-state
 ```
 
+> **This migration never happened, and the state is not in this repo.** As of
+> 2026-08-16: `gs://educaptcha-tfstate/` exists but is **empty**, the
+> `backend "gcs"` block is still commented out, and there is no local
+> `terraform.tfstate` or `terraform.tfvars` on this machine.
+>
+> That is expected rather than alarming — `infra/.gitignore` correctly excludes
+> `*.tfstate` and `terraform.tfvars`, so state was never meant to be in git. It
+> means the only copy lives **on the machine of whoever ran the first apply**.
+> The audit log attributes the original apply (2026-08-10 18:11 UTC) to
+> `jfquintero261@gmail.com`, so start there.
+>
+> Until that state is in the bucket, do **not** run a bare `terraform apply` from
+> a fresh checkout: with empty state it plans to *create* everything and will
+> fail against the resources that already exist. Recover it in this order:
+>
+> 1. Get `terraform.tfstate` from the machine that has it, or reconstruct it with
+>    `terraform import` (service, runtime SA, IAM bindings, secrets, registry,
+>    bucket).
+> 2. Uncomment `backend "gcs"` and run `terraform init -migrate-state`, so the
+>    single copy stops being one laptop away from gone.
+>
+> Meanwhile treat `cloud_run.tf` as the *intended* spec, not a description of
+> what is deployed, and confirm live config with `gcloud run services describe`.
+
 ## Deploying
 
 From the repo root:
@@ -114,16 +138,57 @@ service back to whatever `var.image` last held.
 Changing a policy knob (threshold, cooldown, rate limit) is a `terraform apply`,
 not a `gcloud run services update` — the latter gets reverted by the next apply.
 
+`infra/demo.sh` is the one sanctioned exception, and only for `min-instances`.
+It works precisely *because* an apply reverts it: Terraform declares the resting
+state as `min_instances = 0`, so drift can only ever resolve toward scale-to-zero
+and a demo pin left on gets cancelled rather than entrenched. Do not extend the
+script to other settings — for anything else, the rule above still holds.
+
 ## Cost
 
-`min_instance_count = 1` is the one line with a standing bill: roughly $12–18 a
-month for an always-warm 1 vCPU / 1 GiB instance with CPU always allocated. That
-buys away both the container cold start and the 2–6s cold analysis, which is the
-difference between a demo that feels instant and one that doesn't. Set it to 0
-between demos if that matters; the first click afterwards will be slow.
+`min_instances` is the only line with a standing bill, and it defaults to **0**.
+
+It used to be 1, and that was measured at **~5,555 COP / ~$1.73 USD per day —
+about $52 a month** — on days the service served *zero* requests. Not an
+estimate: `billable_instance_time` read 86,383 s on a day with 0 requests, a
+full 24 h. Two settings combine to produce it:
+
+- `min_instance_count = 1` keeps an instance alive forever, and
+- `cpu_idle = false` bills the whole lifecycle at the active rate instead of the
+  reduced idle rate — Cloud Run reports the instance as `active` 100% of the
+  time, never `idle`.
+
+At 1 vCPU + 1 GiB that is `86,400 × $0.000018` CPU + `86,400 × $0.0000020`
+memory. The monthly free tier (240,000 vCPU-s) covers only 2.8 days, so from
+roughly the 4th of each month you pay the full daily rate.
+
+Scaling to zero is safe here: the feed prefetches every post with `dryRun` on
+mount, so the wake-up is absorbed by the prefetch burst rather than the user's
+click, and a cache miss inside `CLICK_TIMEOUT_MS` (4.5 s) falls back to the
+local engine rather than stalling.
+
+### Warming up for a demo
+
+```bash
+./infra/demo.sh status   # min-instances, health, and the standing cost if any
+./infra/demo.sh warm     # wake it now, no config change, no standing cost
+./infra/demo.sh on       # pin one warm instance — STARTS THE DAILY BILL
+./infra/demo.sh off      # back to zero
+```
+
+`warm` is usually the right one: an idle instance survives up to ~15 min after
+the last request, which covers a pitch you are walking into. Use `on` for a
+scheduled slot where a cold start would be visible, and `off` right after.
+
+If a forgotten `on` becomes a habit, set `cpu_idle = true` in `cloud_run.tf`.
+Nothing depends on unthrottled idle CPU any more — `METRICS_SINK` is `noop`, so
+the `QueuedSink` drain task (the only `create_task` in the app) writes into
+`NoopSink.write -> return None`, and there is no server-side prewarm. That drops
+the cost of a forgotten pin by roughly an order of magnitude.
 
 Everything else is effectively free at demo scale: Hosting's free tier covers the
-32 MB of assets, and a handful of container images cost cents.
+32 MB of assets, and the 15 container images total 240 MB against a 0.5 GB free
+tier.
 
 ## Notes
 

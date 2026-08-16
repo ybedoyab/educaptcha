@@ -30,10 +30,19 @@ resource "google_cloud_run_v2_service" "risk" {
 
     # THE constraint of this deployment. Session store, analysis cache and rate
     # limiter all live in-process on app.state, so a second *instance* forks the
-    # cooldown counter exactly like a second worker would. One instance, always
-    # warm, absorbing load through concurrency instead of horizontal scale.
+    # cooldown counter exactly like a second worker would. `max = 1` is what
+    # enforces that, and it is not negotiable.
+    #
+    # `min` is a pure cost/latency dial and defaults to 0: the service sat at a
+    # measured 86,400 billable seconds a day — a full 24h — on days with *zero*
+    # requests. Scaling to zero is safe here because the feed prefetches every
+    # post with `dryRun` on mount (frontend/src/lib/risk/riskClient.ts), so the
+    # wake-up is paid by the prefetch burst, not by the user's click; and a
+    # cache miss inside CLICK_TIMEOUT_MS falls back to the local engine.
+    # Raise it for a demo with `infra/demo.sh on` — see the Cost section of
+    # infra/README.md.
     scaling {
-      min_instance_count = 1
+      min_instance_count = var.min_instances
       max_instance_count = 1
     }
 
@@ -47,9 +56,16 @@ resource "google_cloud_run_v2_service" "risk" {
           cpu    = "1"
           memory = "1Gi"
         }
-        # QueuedSink flushes metrics on a background task between requests, and
-        # min_instance_count=1 exists to keep the cache warm — both need CPU
-        # outside a request, so idle-CPU throttling would defeat them.
+        # NOTE: this used to be justified by "QueuedSink needs CPU between
+        # requests" and "min=1 keeps the cache warm". Neither holds any more.
+        # METRICS_SINK is "noop" below, so the QueuedSink drain task (the only
+        # create_task in the app) writes into NoopSink.write -> return None; and
+        # keeping a cache warm needs the instance *alive*, which is min_instances,
+        # not an unthrottled CPU. Left as false only because nothing forces the
+        # change now that min defaults to 0 — with no standing instance there is
+        # almost nothing left to throttle. Flip to true if the demo switch ever
+        # gets left on: it drops the cost of a forgotten `min = 1` by roughly an
+        # order of magnitude.
         cpu_idle          = false
         startup_cpu_boost = true
       }
